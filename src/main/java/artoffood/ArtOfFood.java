@@ -1,5 +1,6 @@
 package artoffood;
 
+import artoffood.common.ItemsRegistrator;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,6 +26,8 @@ public class ArtOfFood
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
 
+    public static final String MOD_ID = "artoffood";
+
     public ArtOfFood() {
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -37,6 +40,9 @@ public class ArtOfFood
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+        ItemsRegistrator.registerIngredients();
+        ItemsRegistrator.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
     private void setup(final FMLCommonSetupEvent event)
