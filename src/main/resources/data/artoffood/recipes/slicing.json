@@ -1,0 +1,11 @@
+{
+  "type": "artoffood:food_processing",
+  "group": "food_processing",
+  "processing": "slicing",
+  "input": {
+    "item": "artoffood:ingredients/cabbage"
+  },
+  "tool": {
+    "item": "artoffood:stone_knife"
+  }
+}

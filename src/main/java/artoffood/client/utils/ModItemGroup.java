@@ -1,7 +1,7 @@
 package artoffood.client.utils;
 
 import artoffood.ArtOfFood;
-import artoffood.common.ItemsRegistrator;
+import artoffood.common.items.ItemsRegistrator;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModItemGroup extends ItemGroup {
 
-    public static final ModItemGroup instance = new ModItemGroup("Art Of Food");
+    public static final ModItemGroup instance = new ModItemGroup("artoffood");
 
     public ModItemGroup(String label) {
         super(label);

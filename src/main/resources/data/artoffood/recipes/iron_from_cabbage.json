@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "xxx",
+    "x x",
+    "xxx"
+  ],
+  "key":
+  {
+    "x":
+    {
+      "item": "artoffood:cabbage"
+    }
+  },
+  "result":
+  {
+    "item": "minecraft:iron_ingot",
+    "count": 2
+  }
+}

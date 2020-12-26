@@ -1,5 +1,9 @@
 {
-  "item.artoffood.cabbage": "Cabbage",
+  "item.artoffood.ingredients.cabbage": "Cabbage",
+
+  "tags.processing.sliced": "Sliced",
+  "tags.filter.vegetable": "Vegetable",
+  "tags.filter.solid": "Solid",
 
   "taste.salinity": "Salinity",
   "taste.sweetness": "Sweetness",

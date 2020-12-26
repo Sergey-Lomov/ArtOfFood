@@ -6,5 +6,7 @@ import artoffood.core.models.FoodTagCategory;
 public class FoodTagsRegister {
 
     public static FoodTag VEGETABLE = new FoodTag(new FoodTagCategory[]{FoodTagCategory.FILTER});
+    public static FoodTag SOLID = new FoodTag(false, new FoodTagCategory[]{FoodTagCategory.FILTER});
+
     public static FoodTag SLICED = new FoodTag(new FoodTagCategory[]{FoodTagCategory.FILTER, FoodTagCategory.PROCESSING});
 }

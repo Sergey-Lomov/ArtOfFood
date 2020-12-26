@@ -1,16 +1,14 @@
 package artoffood.common.items;
 
-import artoffood.minebridge.models.MBIngredient;
+import artoffood.common.utils.ModNBTHelper;
+import artoffood.core.models.FoodTag;
+import artoffood.minebridge.models.MBIngredientType;
+import artoffood.minebridge.utils.MBIngredientHelper;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,20 +18,32 @@ import java.util.List;
 
 public class IngredientItem extends Item {
 
-    private MBIngredient ingredient;
+    private MBIngredientType type;
 
-    public IngredientItem(MBIngredient ingredient, Properties properties) {
+    public IngredientItem(MBIngredientType type, Properties properties) {
         super(properties);
-        this.ingredient = ingredient;
+        this.type = type;
+    }
+
+    public List<FoodTag> foodTags(ItemStack stack) {
+        List<String> processings = ModNBTHelper.processingsIds(stack);
+        return MBIngredientHelper.foodTags(type, processings);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        List<String> taste = ingredient.tasteDescription();
+
+        List<String> processings = ModNBTHelper.processingsIds(stack);
+        List<String> taste = MBIngredientHelper.tasteDescription(type, processings);
         if (!taste.isEmpty()) {
             taste.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
+        }
+
+        List<String> tags = MBIngredientHelper.tagsDescription(type, processings);
+        if (!tags.isEmpty()) {
+            tags.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }
     }
    /*

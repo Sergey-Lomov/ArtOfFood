@@ -4,17 +4,17 @@ import artoffood.core.models.IngredientType;
 
 public class MBIngredientType {
 
-    public String titleKey;
+    public String itemId;
     public int stackSize = 64;
-    IngredientType core;
+    public IngredientType core;
 
-    public MBIngredientType(String titleKey, IngredientType core) {
-        this.titleKey = titleKey;
+    public MBIngredientType(String itemId, IngredientType core) {
+        this.itemId = itemId;
         this.core = core;
     }
 
-    public MBIngredientType(String titleKey, int stackSize, IngredientType core) {
-        this.titleKey = titleKey;
+    public MBIngredientType(String itemId, int stackSize, IngredientType core) {
+        this.itemId = itemId;
         this.stackSize = stackSize;
         this.core = core;
     }

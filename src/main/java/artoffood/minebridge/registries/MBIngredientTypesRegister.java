@@ -5,5 +5,5 @@ import artoffood.minebridge.models.MBIngredientType;
 
 public class MBIngredientTypesRegister {
 
-    public static MBIngredientType CABBAGE = new MBIngredientType("title_cabbage", IngredientTypesRegister.CABBAGE);
+    public static MBIngredientType CABBAGE = new MBIngredientType("ingredients/cabbage", IngredientTypesRegister.CABBAGE);
 }

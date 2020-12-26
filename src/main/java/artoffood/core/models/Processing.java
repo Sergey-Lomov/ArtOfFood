@@ -40,4 +40,9 @@ public class Processing {
     public void updateTaste(Taste in) {
         tasteTransform.update(in);
     }
+    public void updateTags(List<FoodTag> in) {
+        tagsTransform.update(in);
+    }
+
+    public boolean available(List<FoodTag> tags) { return ingredientPredicate.test(tags); }
 }

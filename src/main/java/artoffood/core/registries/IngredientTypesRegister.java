@@ -14,7 +14,7 @@ public class IngredientTypesRegister {
             new Nutritional(150, 5),
             new TasteBuilder().bitterness(1).sweetness(1).acidity(1).build(),
             true,
-            new FoodTag[]{FoodTagsRegister.VEGETABLE},
+            new FoodTag[]{FoodTagsRegister.VEGETABLE, FoodTagsRegister.SOLID},
             new MainColorSchema( new Color(234,237,180))
     );
 }
