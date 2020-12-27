@@ -1,6 +1,7 @@
 package artoffood.common.data_providers;
 
 import artoffood.common.items.ItemsRegistrator;
+import artoffood.minebridge.registries.MBIngredientTypesRegister;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.RecipeProvider;
@@ -23,7 +24,7 @@ public class ModRecipesProvider extends RecipeProvider {
     @Override
     protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
         LOGGER.info("REGISTER RECIPES");
-        Item cabbage = ItemsRegistrator.ITEMS_MAP.get("cabbage").get();
+        Item cabbage = ItemsRegistrator.ITEMS_MAP.get(MBIngredientTypesRegister.CABBAGE.itemId).get();
         Item ironIngot = Items.IRON_INGOT;
         ShapedRecipeBuilder.shapedRecipe(cabbage)
                 .patternLine(" x ")

@@ -1,13 +1,12 @@
 package artoffood.minebridge.utils;
 
-import artoffood.common.items.IngredientItem;
 import artoffood.core.models.FoodTag;
 import artoffood.core.models.Taste;
 import artoffood.minebridge.models.MBIngredientType;
 import artoffood.minebridge.models.MBProcessing;
+import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.registries.MBFoodTagsRegister;
 import artoffood.minebridge.registries.MBProcessingsRegister;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,12 +15,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MBIngredientHelper {
 
     @OnlyIn(Dist.CLIENT) private static final String TASTE_SEPARATOR = ": ";
     @OnlyIn(Dist.CLIENT) private static final String TAGS_SEPARATOR = ", ";
+
+    public static MBItemRendering rendering(MBIngredientType type, List<String> processingsIds) {
+        List<MBProcessing> processings = processings(processingsIds);
+        MBItemRendering rendering = new MBItemRendering(type.rendering);
+        processings.forEach( p -> p.update(rendering));
+        return rendering;
+    }
 
     public static List<FoodTag> foodTags(MBIngredientType type, List<String> processingsIds) {
         List<FoodTag> tags = new ArrayList<>(Arrays.asList(type.core.tags));

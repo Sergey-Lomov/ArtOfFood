@@ -1,20 +1,35 @@
 package artoffood;
 
+import artoffood.client.rendering.IngredientColors;
+import artoffood.client.rendering.IngredientModel;
+import artoffood.common.items.IngredientItem;
 import artoffood.common.items.ItemsRegistrator;
 import artoffood.common.data_providers.ModRecipesProvider;
 import artoffood.common.recipies.FoodProcessingRecipe;
 import artoffood.common.recipies.RecipeSerializerRegistrator;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.renderer.color.ItemColors;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -23,7 +38,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(ArtOfFood.MOD_ID)
@@ -60,14 +77,11 @@ public class ArtOfFood
 
     private void setup(final FMLCommonSetupEvent event)
     {
-        // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
+        ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -83,14 +97,6 @@ public class ArtOfFood
                 map(m->m.getMessageSupplier().get()).
                 collect(Collectors.toList()));
     }
-
-//    private void registerRecipeSerializers (RegistryEvent.Register<IRecipeSerializer<?>> event) {
-//
-//        Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(RecipesTypesRegistrator.FOOD_PROCESSING.toString()), RecipesTypesRegistrator.FOOD_PROCESSING);
-//
-//        // Register the recipe serializer. This handles from json, from packet, and to packet.
-//        event.getRegistry().register(FoodProcessingRecipe.SERIALIZER);
-//    }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
@@ -116,10 +122,8 @@ public class ArtOfFood
         @SubscribeEvent
         public static void gatherData(GatherDataEvent event) {
             DataGenerator generator = event.getGenerator();
-            LOGGER.info("GATHER GLOBAL");
 
             if(event.includeServer()) {
-                LOGGER.info("GATHER SERVER");
                 generator.addProvider(new ModRecipesProvider(generator));
             }
 
@@ -128,6 +132,32 @@ public class ArtOfFood
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
+    public static class ClientEvents {
+
+        @OnlyIn(Dist.CLIENT)
+        @SubscribeEvent
+        public static void onModelBakeEvent(final ModelBakeEvent event) {
+
+            Optional<RegistryObject<Item>> first = ItemsRegistrator.ITEMS.getEntries().stream().findFirst();
+            ModelResourceLocation location = new ModelResourceLocation(first.get().get().getRegistryName(), "inventory");
+            IBakedModel existingModel = event.getModelRegistry().get(location);
+            IngredientModel customModel = new IngredientModel(existingModel);
+            event.getModelRegistry().put(location, customModel);
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @SubscribeEvent
+        public static void onColorHandlerEvent(ColorHandlerEvent.Item event)
+        {
+            ItemColors colors = event.getItemColors();
+            Stream<Item> items = ItemsRegistrator.ITEMS.getEntries().stream().map(ro -> ro.get());
+            Stream<Item> ingredients = items.filter( i -> i instanceof IngredientItem);
+            ingredients.forEach( i -> colors.register(IngredientColors.INSTANCE, i));
         }
     }
 }

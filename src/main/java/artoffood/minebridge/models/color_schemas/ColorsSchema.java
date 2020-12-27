@@ -1,4 +1,4 @@
-package artoffood.core.models.color_schemas;
+package artoffood.minebridge.models.color_schemas;
 
 import java.awt.*;
 import java.util.HashMap;

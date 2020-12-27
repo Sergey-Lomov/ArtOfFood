@@ -2,6 +2,9 @@ package artoffood.minebridge.models;
 
 import artoffood.core.models.FoodTag;
 import artoffood.core.models.Processing;
+import artoffood.minebridge.factories.MBItemRenderingTransformBuilder;
+import artoffood.minebridge.models.transforms.MBItemRenderingTransform;
+import artoffood.minebridge.models.transforms.colors_transform.ColorsTransform;
 
 import java.util.List;
 
@@ -9,22 +12,19 @@ public class MBProcessing {
 
     public String id;
     public Processing core;
+    private MBItemRenderingTransform renderingTransform = new MBItemRenderingTransformBuilder().build();
 
     public MBProcessing(String id, Processing core) {
         this.id = id;
         this.core = core;
     }
 
+    public MBProcessing(String id, Processing core, MBItemRenderingTransform renderingTransform) {
+        this.id = id;
+        this.core = core;
+        this.renderingTransform = renderingTransform;
+    }
+
     public boolean available(List<FoodTag> tags) { return core.available(tags); }
-//    public boolean available(List<String> tags) {
-//        Function<String, FoodTag> toFoodTag = t -> MBFoodTagsRegister.tagByTitle.get(t).getCore();
-//        List<FoodTag> foodTags = tags.stream().map(toFoodTag).collect(Collectors.toList());
-//        return core.available(foodTags);
-//    }
-//
-//    public List<String> updatedTags(List<String> tags) {
-//        Function<String, FoodTag> toFoodTag = t -> MBFoodTagsRegister.tagByTitle.get(t).getCore();
-//        Function<FoodTag, String> toStringTag = t -> MBFoodTagsRegister.tagByCore.get(t).titleKey;
-//        List<FoodTag> foodTags = tags.stream().map(toFoodTag).collect(Collectors.toList());
-//    }
+    public void update(MBItemRendering rendering) { renderingTransform.update(rendering); }
 }

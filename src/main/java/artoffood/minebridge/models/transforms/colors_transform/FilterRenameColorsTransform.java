@@ -1,6 +1,6 @@
-package artoffood.core.models.transforms.colors;
+package artoffood.minebridge.models.transforms.colors_transform;
 
-import artoffood.core.models.color_schemas.ColorsSchema;
+import artoffood.minebridge.models.color_schemas.ColorsSchema;
 import java.awt.*;
 
 public class FilterRenameColorsTransform implements ColorsTransform {

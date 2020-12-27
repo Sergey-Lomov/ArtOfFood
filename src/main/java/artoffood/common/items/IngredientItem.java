@@ -3,6 +3,7 @@ package artoffood.common.items;
 import artoffood.common.utils.ModNBTHelper;
 import artoffood.core.models.FoodTag;
 import artoffood.minebridge.models.MBIngredientType;
+import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.utils.MBIngredientHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
@@ -28,6 +29,11 @@ public class IngredientItem extends Item {
     public List<FoodTag> foodTags(ItemStack stack) {
         List<String> processings = ModNBTHelper.processingsIds(stack);
         return MBIngredientHelper.foodTags(type, processings);
+    }
+
+    public MBItemRendering rendering(ItemStack stack) {
+        List<String> processings = ModNBTHelper.processingsIds(stack);
+        return MBIngredientHelper.rendering(type, processings);
     }
 
     @Override

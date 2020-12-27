@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class ItemsRegistrator {
 
     public static final String itemGroupAmbasador = MBIngredientTypesRegister.CABBAGE.itemId;
+
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
     public static final HashMap<String, RegistryObject<Item>> ITEMS_MAP = new HashMap<>();
 
