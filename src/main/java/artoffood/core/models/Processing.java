@@ -6,28 +6,20 @@ import artoffood.core.models.transforms.nutritional.NutritionalTransform;
 import artoffood.core.models.transforms.tags.TagsTransform;
 import artoffood.core.models.transforms.taste.TasteTransform;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Processing {
 
     private TagsPredicate ingredientPredicate;
-    private List<InstrumentFunctional> instruments = Collections.emptyList();
+    private List<FoodToolFunctional> requiredFunctionals;
 
     private NutritionalTransform nutritionalTransform;
     private TasteTransform tasteTransform;
     private TagsTransform tagsTransform;
 
-    public Processing(TagsPredicate ingredientPredicate, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
+    public Processing(TagsPredicate ingredientPredicate, List<FoodToolFunctional> requiredFunctionals, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
         this.ingredientPredicate = ingredientPredicate;
-        this.nutritionalTransform = nutritionalTransform;
-        this.tasteTransform = tasteTransform;
-        this.tagsTransform = tagsTransform;
-    }
-
-    public Processing(TagsPredicate ingredientPredicate, List<InstrumentFunctional> instruments, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
-        this.ingredientPredicate = ingredientPredicate;
-        this.instruments = instruments;
+        this.requiredFunctionals = requiredFunctionals;
         this.nutritionalTransform = nutritionalTransform;
         this.tasteTransform = tasteTransform;
         this.tagsTransform = tagsTransform;
@@ -40,5 +32,7 @@ public class Processing {
         tagsTransform.update(in);
     }
 
-    public boolean available(List<FoodTag> tags) { return ingredientPredicate.test(tags); }
+    public boolean availableForIngredient(List<FoodTag> tags) { return ingredientPredicate.test(tags); }
+    public boolean availableWithTool(FoodTool foodTool) { return foodTool.containsAll(requiredFunctionals); }
+    public boolean availableWithoutTool() { return requiredFunctionals.isEmpty(); }
 }

@@ -1,7 +1,7 @@
 package artoffood.client.rendering;
 
 import artoffood.ArtOfFood;
-import artoffood.common.items.IngredientItem;
+import artoffood.common.items.FoodIngredientItem;
 import artoffood.minebridge.models.MBItemRendering;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;
@@ -24,10 +24,10 @@ public class IngredientOverridesList extends ItemOverrideList {
     @Override
     public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
     {
-        if (!(stack.getItem() instanceof IngredientItem))
+        if (!(stack.getItem() instanceof FoodIngredientItem))
             throw new IllegalStateException("IngredientOverridesList called with not IngredientItem stack");
 
-        MBItemRendering rendering = ((IngredientItem) stack.getItem()).rendering(stack);
+        MBItemRendering rendering = ((FoodIngredientItem) stack.getItem()).rendering(stack);
         if (HASHED_MODELS.containsKey(rendering))
             return HASHED_MODELS.get(rendering);
 

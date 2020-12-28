@@ -17,23 +17,23 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class IngredientItem extends Item {
+public class FoodIngredientItem extends Item {
 
-    private MBIngredientType type;
+    private MBIngredientType mbridge;
 
-    public IngredientItem(MBIngredientType type, Properties properties) {
+    public FoodIngredientItem(MBIngredientType mbridge, Properties properties) {
         super(properties);
-        this.type = type;
+        this.mbridge = mbridge;
     }
 
     public List<FoodTag> foodTags(ItemStack stack) {
         List<String> processings = ModNBTHelper.processingsIds(stack);
-        return MBIngredientHelper.foodTags(type, processings);
+        return MBIngredientHelper.foodTags(mbridge, processings);
     }
 
     public MBItemRendering rendering(ItemStack stack) {
         List<String> processings = ModNBTHelper.processingsIds(stack);
-        return MBIngredientHelper.rendering(type, processings);
+        return MBIngredientHelper.rendering(mbridge, processings);
     }
 
     @Override
@@ -42,12 +42,12 @@ public class IngredientItem extends Item {
         super.addInformation(stack, worldIn, tooltip, flagIn);
 
         List<String> processings = ModNBTHelper.processingsIds(stack);
-        List<String> taste = MBIngredientHelper.tasteDescription(type, processings);
+        List<String> taste = MBIngredientHelper.tasteDescription(mbridge, processings);
         if (!taste.isEmpty()) {
             taste.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }
 
-        List<String> tags = MBIngredientHelper.tagsDescription(type, processings);
+        List<String> tags = MBIngredientHelper.tagsDescription(mbridge, processings);
         if (!tags.isEmpty()) {
             tags.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }

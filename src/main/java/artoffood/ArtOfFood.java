@@ -2,27 +2,21 @@ package artoffood;
 
 import artoffood.client.rendering.IngredientColors;
 import artoffood.client.rendering.IngredientModel;
-import artoffood.common.items.IngredientItem;
+import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.ItemsRegistrator;
 import artoffood.common.data_providers.ModRecipesProvider;
-import artoffood.common.recipies.FoodProcessingRecipe;
 import artoffood.common.recipies.RecipeSerializerRegistrator;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
-import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -143,11 +137,14 @@ public class ArtOfFood
         @SubscribeEvent
         public static void onModelBakeEvent(final ModelBakeEvent event) {
 
-            Optional<RegistryObject<Item>> first = ItemsRegistrator.ITEMS.getEntries().stream().findFirst();
-            ModelResourceLocation location = new ModelResourceLocation(first.get().get().getRegistryName(), "inventory");
-            IBakedModel existingModel = event.getModelRegistry().get(location);
-            IngredientModel customModel = new IngredientModel(existingModel);
-            event.getModelRegistry().put(location, customModel);
+            Stream<RegistryObject<Item>> objects = ItemsRegistrator.ITEMS.getEntries().stream();
+            Stream<FoodIngredientItem> foodItems = objects.filter( ro -> ro.get() instanceof FoodIngredientItem).map( ro -> (FoodIngredientItem)ro.get());
+            foodItems.forEach( item -> {
+                ModelResourceLocation location = new ModelResourceLocation(item.getRegistryName(), "inventory");
+                IBakedModel existingModel = event.getModelRegistry().get(location);
+                IngredientModel customModel = new IngredientModel(existingModel);
+                event.getModelRegistry().put(location, customModel);
+            });
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -156,7 +153,7 @@ public class ArtOfFood
         {
             ItemColors colors = event.getItemColors();
             Stream<Item> items = ItemsRegistrator.ITEMS.getEntries().stream().map(ro -> ro.get());
-            Stream<Item> ingredients = items.filter( i -> i instanceof IngredientItem);
+            Stream<Item> ingredients = items.filter( i -> i instanceof FoodIngredientItem);
             ingredients.forEach( i -> colors.register(IngredientColors.INSTANCE, i));
         }
     }

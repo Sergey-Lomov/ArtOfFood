@@ -1,6 +1,10 @@
 {
   "item.artoffood.ingredients.cabbage": "Cabbage",
 
+  "item.artoffood.tools.stone_knife": "Stone Knife",
+  "item.artoffood.tools.iron_knife": "Iron Knife",
+  "item.artoffood.tools.obsidian_knife": "Obsidian Knife",
+
   "tags.processing.sliced": "Sliced",
   "tags.filter.vegetable": "Vegetable",
   "tags.filter.solid": "Solid",

@@ -7,21 +7,21 @@ import java.util.List;
 
 public class ChangeTagsTransform implements TagsTransform {
 
-    List<FoodTag> add;
-    List<FoodTag> remove;
+    List<FoodTag> from;
+    List<FoodTag> to;
 
     public void update(List<FoodTag> in) {
-        in.removeAll(remove);
-        in.addAll(add);
+        in.removeAll(from);
+        in.addAll(to);
     }
 
-    public ChangeTagsTransform(FoodTag add, FoodTag remove) {
-        this.add = new ArrayList<FoodTag>() {{ add(add); }};
-        this.remove = new ArrayList<FoodTag>() {{ add(remove); }};
+    public ChangeTagsTransform(FoodTag from, FoodTag to) {
+        this.from = new ArrayList<FoodTag>() {{ add(from); }};
+        this.to = new ArrayList<FoodTag>() {{ add(to); }};
     }
 
-    public ChangeTagsTransform(List<FoodTag> add, List<FoodTag> remove) {
-        this.add = add;
-        this.remove = remove;
+    public ChangeTagsTransform(List<FoodTag> from, List<FoodTag> to) {
+        this.from = from;
+        this.to = to;
     }
 }

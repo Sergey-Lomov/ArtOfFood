@@ -4,7 +4,6 @@ import artoffood.core.models.FoodTag;
 import artoffood.core.models.Processing;
 import artoffood.minebridge.factories.MBItemRenderingTransformBuilder;
 import artoffood.minebridge.models.transforms.MBItemRenderingTransform;
-import artoffood.minebridge.models.transforms.colors_transform.ColorsTransform;
 
 import java.util.List;
 
@@ -25,6 +24,9 @@ public class MBProcessing {
         this.renderingTransform = renderingTransform;
     }
 
-    public boolean available(List<FoodTag> tags) { return core.available(tags); }
+    public boolean availableForIngredient(List<FoodTag> tags) { return core.availableForIngredient(tags); }
+    public boolean availableWithTool(MBFoodTool tool) { return core.availableWithTool(tool.core); }
+    public boolean availableWithoutTool() { return core.availableWithoutTool(); }
+
     public void update(MBItemRendering rendering) { renderingTransform.update(rendering); }
 }

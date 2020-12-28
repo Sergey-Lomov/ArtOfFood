@@ -1,7 +1,7 @@
 package artoffood.common.recipies;
 
-import artoffood.ArtOfFood;
-import artoffood.common.items.IngredientItem;
+import artoffood.common.items.FoodIngredientItem;
+import artoffood.common.items.FoodToolItem;
 import artoffood.common.items.ItemsRegistrator;
 import artoffood.common.utils.ModNBTHelper;
 import artoffood.core.models.FoodTag;
@@ -18,104 +18,112 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class FoodProcessingRecipe implements ICraftingRecipe {
 
-    private final Ingredient input;
-    private final Ingredient tool;
     private final MBProcessing processing;
     private final int outputCount;
     private final ResourceLocation id;
 
-    public FoodProcessingRecipe(ResourceLocation id, Ingredient input, Ingredient tool, MBProcessing processing, int outputCount) {
+    private ItemStack ingredient = null;
+    private ItemStack tool = null;
+    private int toolIndex = 0;
+
+    public FoodProcessingRecipe(ResourceLocation id, MBProcessing processing, int outputCount) {
 
         this.id = id;
-        this.input = input;
         this.processing = processing;
-        this.tool = tool;
         this.outputCount = outputCount;
-
-        LogManager.getLogger(ArtOfFood.MOD_ID).info("Loaded " + this.toString());
     }
 
     @Override
     public String toString () {
-        return "FoodProcessingRecipe [input=" + input + " tool= " + tool + " processing= " + processing + " id=" + this.id + "]";
+        return "FoodProcessingRecipe [processing= " + processing + " id=" + this.id + "]";
     }
 
     @Override
-    public boolean matches (CraftingInventory inv, World worldIn) {
-        boolean foundTool = false;
-        boolean foundIngredient = false;
-        boolean foundAnotherItem = false;
+    public boolean matches (CraftingInventory inv, @NotNull World worldIn) {
+        tool = null;
+        ingredient = null;
+        boolean toolNeeded = !processing.availableWithoutTool();
 
-        for(int j = 0; j < inv.getSizeInventory(); ++j) {
-            ItemStack stack = inv.getStackInSlot(j);
+        for(int index = 0; index < inv.getSizeInventory(); ++index) {
+            ItemStack stack = inv.getStackInSlot(index);
             if (stack.isEmpty())
                 continue;
 
-            if (tool.test(stack)) {
-                if (!foundTool)
-                    foundTool = true;
-                else
-                    foundAnotherItem = true;
-            } else if (input.test(stack)) {
-                if (!foundIngredient && verifyIngredient(stack))
-                    foundIngredient = true;
-                else
-                    foundAnotherItem = true;
-            } else {
-                foundAnotherItem = true;
+            if (stack.getItem() instanceof FoodToolItem) {
+                if (toolNeeded) {
+                    FoodToolItem toolItem = ((FoodToolItem) stack.getItem());
+                    if (toolItem.validForProcessing(processing) && tool == null) {
+                        tool = stack;
+                        toolIndex = index;
+                        continue;
+                    }
+                    // Found invalid tool or second tool
+                    else return false;
+                }
+                // Found tool but processing need no tool
+                else return false;
             }
+
+            if (stack.getItem() instanceof FoodIngredientItem) {
+                if (verifyIngredient(stack) && ingredient == null) {
+                    ingredient = stack;
+                    continue;
+                }
+                // Found invalid ingredient or second ingredient
+                else return false;
+            }
+
+            // Found something unnecessary
+            return false;
         }
 
-        return foundIngredient && foundTool && !foundAnotherItem;
+        boolean validWithTool = ingredient != null && toolNeeded && tool != null;
+        boolean validWithoutTool = ingredient != null && !toolNeeded && tool == null;
+        return validWithTool || validWithoutTool;
     }
 
     private boolean verifyIngredient(ItemStack stack) {
-        if (!(stack.getItem() instanceof IngredientItem))
+        if (!(stack.getItem() instanceof FoodIngredientItem))
             return false;
 
-        List<FoodTag> tags = ((IngredientItem) stack.getItem()).foodTags(stack);
-        return processing.available(tags);
+        List<FoodTag> tags = ((FoodIngredientItem) stack.getItem()).foodTags(stack);
+        return processing.availableForIngredient(tags);
     }
 
     @Override
-    public ItemStack getCraftingResult (CraftingInventory inv) {
-
-        for(int i = 0; i < inv.getSizeInventory(); ++i) {
-            ItemStack stack = inv.getStackInSlot(i);
-            if (input.test(stack)) {
-                return processedStack(stack);
-            }
-        }
-
+    public @NotNull ItemStack getCraftingResult (@NotNull CraftingInventory inv) {
+        if (ingredient != null)
+            return processedStack(ingredient);
         return ItemStack.EMPTY;
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
+    public @NotNull NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
         NonNullList<ItemStack> nonnulllist = NonNullList.withSize(inv.getSizeInventory(), ItemStack.EMPTY);
 
-        for(int i = 0; i < nonnulllist.size(); ++i) {
-            ItemStack stack = inv.getStackInSlot(i);
-            if (tool.test(stack)) {
-                ItemStack damaged = damage(stack);
-                if (damaged != null)
-                    nonnulllist.set(i, damaged);
-            } else if (input.test(stack) && stack.hasContainerItem()) {
-                nonnulllist.set(i, stack.getContainerItem());
-            }
+        if (tool != null) {
+            ItemStack damaged = damage(tool);
+            if (damaged != null)
+                nonnulllist.set(toolIndex, damaged);
         }
 
         return nonnulllist;
     }
 
     private ItemStack damage(ItemStack tool) {
+        if (!(tool.getItem() instanceof FoodToolItem))
+            return null;
+
         ItemStack damaged = tool.copy();
+        if ( ((FoodToolItem)tool.getItem()).isUnbreakable() )
+            return damaged;
+
         damaged.setDamage(tool.getDamage() + 1);
         return damaged.getDamage() < tool.getMaxDamage() ? damaged : null;
     }
@@ -131,22 +139,22 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public ItemStack getRecipeOutput() {
+    public @NotNull ItemStack getRecipeOutput() {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public String getGroup() {
+    public @NotNull String getGroup() {
         return "";
     }
 
     @Override
-    public ResourceLocation getId () {
+    public @NotNull ResourceLocation getId () {
         return this.id;
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer () {
+    public @NotNull IRecipeSerializer<?> getSerializer () {
 
         return RecipeSerializerRegistrator.FOOD_PROCESSING.get();
     }
@@ -157,7 +165,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
 //    }
 
     @Override
-    public ItemStack getIcon () {
+    public @NotNull ItemStack getIcon () {
 
         return new ItemStack(ItemsRegistrator.ITEMS_MAP.get(ItemsRegistrator.itemGroupAmbasador).get());
     }
@@ -171,21 +179,11 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FoodProcessingRecipe> {
 
-        private static final String inputKey = "input";
-        private static final String toolKey = "tool";
         private static final String processingIdKey = "processing";
         private static final String outputCountKey = "output_count";
 
         @Override
-        public FoodProcessingRecipe read (ResourceLocation recipeId, JsonObject json) {
-
-            final JsonElement inputElement = JSONUtils.isJsonArray(json, inputKey) ?
-                    JSONUtils.getJsonArray(json, inputKey) : JSONUtils.getJsonObject(json, inputKey);
-            final Ingredient input = Ingredient.deserialize(inputElement);
-
-            final JsonElement toolElement = JSONUtils.isJsonArray(json, toolKey) ?
-                    JSONUtils.getJsonArray(json, toolKey) : JSONUtils.getJsonObject(json, toolKey);
-            final Ingredient tool = Ingredient.deserialize(toolElement);
+        public @NotNull FoodProcessingRecipe read (ResourceLocation recipeId, @NotNull JsonObject json) {
 
             final String processingId = JSONUtils.getString(json, processingIdKey);
             final MBProcessing processing = MBProcessingsRegister.processings.get(processingId);
@@ -196,14 +194,12 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
                 throw new IllegalStateException("Try to parse processing recipe with unknown processing id");
             }
 
-            return new FoodProcessingRecipe(recipeId, input, tool, processing, outputCount);
+            return new FoodProcessingRecipe(recipeId, processing, outputCount);
         }
 
         @Override
-        public FoodProcessingRecipe read (ResourceLocation recipeId, PacketBuffer buffer) {
+        public FoodProcessingRecipe read (@NotNull ResourceLocation recipeId, PacketBuffer buffer) {
 
-            final Ingredient input = Ingredient.read(buffer);
-            final Ingredient tool = Ingredient.read(buffer);
             final String processingId = buffer.readString();
             final int outputCount = buffer.readInt();
             final MBProcessing processing = MBProcessingsRegister.processings.get(processingId);
@@ -212,14 +208,12 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
                 throw new IllegalStateException("Try to read processing recipe with unknown processing id");
             }
 
-            return new FoodProcessingRecipe(recipeId, input, tool, processing, outputCount);
+            return new FoodProcessingRecipe(recipeId, processing, outputCount);
         }
 
         @Override
         public void write (PacketBuffer buffer, FoodProcessingRecipe recipe) {
 
-            recipe.input.write(buffer);
-            recipe.tool.write(buffer);
             buffer.writeString(recipe.processing.id);
             buffer.writeInt(recipe.outputCount);
         }

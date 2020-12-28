@@ -2,7 +2,9 @@ package artoffood.common.items;
 
 import artoffood.ArtOfFood;
 import artoffood.client.utils.ModItemGroup;
+import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredientType;
+import artoffood.minebridge.registries.MBFoodToolsRegister;
 import artoffood.minebridge.registries.MBIngredientTypesRegister;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
@@ -19,17 +21,21 @@ public class ItemsRegistrator {
     public static final HashMap<String, RegistryObject<Item>> ITEMS_MAP = new HashMap<>();
 
     public static void registerFoodTools() {
-        Item.Properties properties  = new Item.Properties().maxDamage(10).group(ModItemGroup.instance);
-        ITEMS.register("stone_knife", () -> new FoodToolItem(properties));
+        registerIngredient(MBIngredientTypesRegister.CABBAGE);
     }
 
     public static void registerIngredients() {
-        registerIngredient(MBIngredientTypesRegister.CABBAGE);
+        MBFoodToolsRegister.TOOLS.forEach(ItemsRegistrator::registerFoodTool);
     }
 
     private static void registerIngredient(MBIngredientType type) {
         Item.Properties properties = new Item.Properties().maxStackSize(type.stackSize).group(ModItemGroup.instance);
-        RegistryObject<Item> registryObject = ITEMS.register(type.itemId, () -> new IngredientItem(type, properties));
+        RegistryObject<Item> registryObject = ITEMS.register(type.itemId, () -> new FoodIngredientItem(type, properties));
         ITEMS_MAP.put(type.itemId, registryObject);
+    }
+
+    public static void registerFoodTool(MBFoodTool tool) {
+        Item.Properties properties  = new Item.Properties().maxDamage(tool.durability).group(ModItemGroup.instance);
+        ITEMS.register(tool.id, () -> new FoodToolItem(tool, properties));
     }
 }

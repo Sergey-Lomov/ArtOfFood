@@ -1,5 +1,5 @@
 package artoffood.core.models;
 
-public enum InstrumentFunctional {
+public enum FoodToolFunctional {
     KNIFE
 }

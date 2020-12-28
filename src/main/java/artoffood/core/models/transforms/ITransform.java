@@ -1,6 +1,5 @@
 package artoffood.core.models.transforms;
 
-public interface Transform<T> {
+public interface ITransform<T> {
     void update(T in);
 }
-
