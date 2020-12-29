@@ -22,13 +22,6 @@ public class RecipeSerializerRegistrator {
             FoodProcessingRecipe.Serializer::new
     );
 
-    /**
-     * Registers the {@link DeferredRegister} instance with the mod event bus.
-     * <p>
-     * This should be called during mod construction.
-     *
-     * @param modEventBus The mod event bus
-     */
     public static void register(final IEventBus modEventBus) {
         if (isRegistered) {
             throw new IllegalStateException("Already initialised");

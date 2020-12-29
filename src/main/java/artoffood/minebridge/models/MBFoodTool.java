@@ -4,7 +4,7 @@ import artoffood.core.models.FoodTool;
 
 public class MBFoodTool {
 
-    public static final int UNBREAKABLE_DURABILITY = Integer.MAX_VALUE;
+    public static final int UNBREAKABLE_DURABILITY = 0;
 
     public String id;
     public int durability;

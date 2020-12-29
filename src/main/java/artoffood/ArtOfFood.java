@@ -76,6 +76,7 @@ public class ArtOfFood
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
+        ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

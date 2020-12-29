@@ -16,14 +16,19 @@ public class MBProcessingsRegister {
 
     public static HashMap<String, MBProcessing> processings = new HashMap();
 
-    public static MBProcessing SLICING = register("slicing",
-            ProcessingsRegister.SLICING,
-            new MBItemRenderingTransformBuilder()
-                    .newModelKey("ingredients/sliced")
-                    .colorsTransform(new InnerToMainColorsTransform())
-                    .addLayer(MainColorSchema.mainKey)
-                    .build()
-    );
+    public static MBProcessing SLICING = registerWithInnerToMain("slicing", ProcessingsRegister.SLICING, "ingredients/sliced");
+    public static MBProcessing GRATE = registerWithInnerToMain("grate", ProcessingsRegister.GRATE, "ingredients/grated");
+
+    private static MBProcessing registerWithInnerToMain(String id, Processing core, String newModel){
+        MBItemRenderingTransform transform = new MBItemRenderingTransformBuilder()
+                .newModelKey(newModel)
+                .addLayer(MainColorSchema.mainKey)
+                .colorsTransform(new InnerToMainColorsTransform())
+                .build();
+        return new MBProcessing(id, core, transform) {{
+            processings.put(id, this);
+        }};
+    }
 
     private static MBProcessing register(String id, Processing core, MBItemRenderingTransform transform) {
         return new MBProcessing(id, core, transform) {{

@@ -11,6 +11,7 @@ public class MBFoodTagsRegister {
     public static HashMap<FoodTag, MBFoodTag> tagByCore = new HashMap();
 
     public static final MBFoodTag SLICED = register("processing.sliced", FoodTagsRegister.SLICED);
+    public static final MBFoodTag GRATED = register("processing.grated", FoodTagsRegister.GRATED);
     public static final MBFoodTag SOLID = register("filter.solid", FoodTagsRegister.SOLID);
     public static final MBFoodTag VEGETABLE = register("filter.vegetable", FoodTagsRegister.VEGETABLE);
 

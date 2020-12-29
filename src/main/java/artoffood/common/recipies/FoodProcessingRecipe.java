@@ -179,8 +179,8 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FoodProcessingRecipe> {
 
-        private static final String processingIdKey = "processing";
-        private static final String outputCountKey = "output_count";
+        public static final String processingIdKey = "processing";
+        public static final String outputCountKey = "output_count";
 
         @Override
         public @NotNull FoodProcessingRecipe read (ResourceLocation recipeId, @NotNull JsonObject json) {

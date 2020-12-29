@@ -17,6 +17,8 @@ public class MBFoodToolsRegister {
     public static final MBFoodTool IRON_KNIFE = register("iron_knife", FoodToolsRegister.KNIFE, 50);
     public static final MBFoodTool OBSIDIAN_KNIFE = register("obsidian_knife", FoodToolsRegister.KNIFE, MBFoodTool.UNBREAKABLE_DURABILITY);
 
+    public static final MBFoodTool STONE_GRATER = register("stone_grater", FoodToolsRegister.GRATER, 15);
+
     private static MBFoodTool register(String id, FoodTool core, int durability) {
         String fullId = TOOLS_DIR + "/" + id;
         MBFoodTool tool = new MBFoodTool(fullId, core, durability);

@@ -6,4 +6,5 @@ import artoffood.core.models.FoodToolFunctional;
 public class FoodToolsRegister {
 
     public static final FoodTool KNIFE = new FoodTool(FoodToolFunctional.KNIFE);
+    public static final FoodTool GRATER = new FoodTool(FoodToolFunctional.GRATER);
 }
