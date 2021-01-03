@@ -6,6 +6,9 @@
   "item.artoffood.tools.obsidian_knife": "Obsidian Knife",
   "item.artoffood.tools.stone_grater": "Stone Grater",
 
+  "inventories.kitchen_drawer": "Kitchen Drawer",
+  "inventories.kitchen_drawer_comment": "May store only cooking tools",
+
   "tags.processing.sliced": "Sliced",
   "tags.processing.grated": "Grated",
   "tags.filter.vegetable": "Vegetable",

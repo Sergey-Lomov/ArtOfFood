@@ -2,12 +2,11 @@ package artoffood.common.recipies;
 
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.FoodToolItem;
-import artoffood.common.items.ItemsRegistrator;
+import artoffood.common.utils.ItemsRegistrator;
 import artoffood.common.utils.ModNBTHelper;
 import artoffood.core.models.FoodTag;
 import artoffood.minebridge.models.MBProcessing;
 import artoffood.minebridge.registries.MBProcessingsRegister;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -167,7 +166,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     @Override
     public @NotNull ItemStack getIcon () {
 
-        return new ItemStack(ItemsRegistrator.ITEMS_MAP.get(ItemsRegistrator.itemGroupAmbasador).get());
+        return new ItemStack(ItemsRegistrator.PROCESSINGS_AMBASADOR);
     }
 
     private ItemStack processedStack(ItemStack source) {

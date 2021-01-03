@@ -2,16 +2,24 @@ package artoffood;
 
 import artoffood.client.rendering.IngredientColors;
 import artoffood.client.rendering.IngredientModel;
+import artoffood.common.blocks.devices.kitchen_drawer.KitchenDrawerScreen;
 import artoffood.common.items.FoodIngredientItem;
-import artoffood.common.items.ItemsRegistrator;
+import artoffood.common.utils.BlocksRegistrator;
+import artoffood.common.utils.ContainersRegistrator;
+import artoffood.common.utils.ItemsRegistrator;
 import artoffood.common.data_providers.ModRecipesProvider;
 import artoffood.common.recipies.RecipeSerializerRegistrator;
-import net.minecraft.block.Block;
+import artoffood.common.utils.TileEntityRegistrator;
+import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,7 +40,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,11 +69,15 @@ public class ArtOfFood
         MinecraftForge.EVENT_BUS.register(this);
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        RecipeSerializerRegistrator.register(modEventBus);
 
+        BlocksRegistrator.BLOCKS.register(modEventBus);
         ItemsRegistrator.registerIngredients();
         ItemsRegistrator.registerFoodTools();
-        ItemsRegistrator.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ItemsRegistrator.ITEMS.register(modEventBus);
+
+        RecipeSerializerRegistrator.register(modEventBus);
+        ContainersRegistrator.CONTAINERS.register(modEventBus);
+        TileEntityRegistrator.TILE_ENTITY_TYPES.register(modEventBus);
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -77,6 +88,10 @@ public class ArtOfFood
     private void doClientStuff(final FMLClientSetupEvent event) {
         ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
         ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
+
+        RenderTypeLookup.setRenderLayer(BlocksRegistrator.KITCHEN_DRAWER.get(), RenderType.getSolid());
+
+        ScreenManager.registerFactory(ContainersRegistrator.KITCHEN_DRAWER.get(), KitchenDrawerScreen::new);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -98,17 +113,6 @@ public class ArtOfFood
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
         LOGGER.info("HELLO from server starting");
-    }
-
-    // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
-    // Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-            // register a new block here
-            LOGGER.info("HELLO from Register Block");
-        }
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)

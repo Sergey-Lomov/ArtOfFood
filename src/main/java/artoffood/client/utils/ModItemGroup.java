@@ -1,12 +1,8 @@
 package artoffood.client.utils;
 
-import artoffood.ArtOfFood;
-import artoffood.common.items.ItemsRegistrator;
-import net.minecraft.item.Item;
+import artoffood.common.utils.ItemsRegistrator;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModItemGroup extends ItemGroup {
 
@@ -16,13 +12,8 @@ public class ModItemGroup extends ItemGroup {
         super(label);
     }
 
-    public ModItemGroup(int index, String label) {
-        super(index, label);
-    }
-
     @Override
     public ItemStack createIcon() {
-        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(ArtOfFood.MOD_ID, ItemsRegistrator.itemGroupAmbasador));
-        return new ItemStack(item, 1);
+        return new ItemStack(ItemsRegistrator.ITEM_GROUP_AMBASADOR, 1);
     }
 }

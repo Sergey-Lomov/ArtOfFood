@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"facing=east": {
+			"model": "artoffood:block/kitchen_drawer",
+			"y": 180
+		},
+		"facing=north": {
+			"model": "artoffood:block/kitchen_drawer",
+			"y": 90
+		},
+		"facing=south": {
+			"model": "artoffood:block/kitchen_drawer",
+			"y": 270
+		},
+		"facing=west": {
+			"model": "artoffood:block/kitchen_drawer",
+			"y": 0
+		}
+	}
+}
