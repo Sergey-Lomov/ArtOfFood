@@ -1,4 +1,6 @@
 {
+  "itemGroup.artoffood": "Art Of Food",
+
   "item.artoffood.ingredients.cabbage": "Cabbage",
 
   "item.artoffood.tools.stone_knife": "Stone Knife",
@@ -8,6 +10,7 @@
 
   "inventories.kitchen_drawer": "Kitchen Drawer",
   "inventories.kitchen_drawer_comment": "May store only cooking tools",
+  "inventories.processing_title": "Processing",
 
   "tags.processing.sliced": "Sliced",
   "tags.processing.grated": "Grated",

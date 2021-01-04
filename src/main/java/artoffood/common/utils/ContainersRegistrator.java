@@ -1,6 +1,7 @@
 package artoffood.common.utils;
 
 import artoffood.ArtOfFood;
+import artoffood.common.blocks.devices.countertop.CountertopContainer;
 import artoffood.common.blocks.devices.kitchen_drawer.KitchenDrawerContainer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -18,6 +19,8 @@ public class ContainersRegistrator {
 
     public static final RegistryObject<ContainerType<KitchenDrawerContainer>> KITCHEN_DRAWER = register("kitchen_drawer",
             KitchenDrawerContainer::createClientSide);
+    public static final RegistryObject<ContainerType<CountertopContainer>> COUNTERTOP = register("countertop",
+            CountertopContainer::createClientSide);
 
     @FunctionalInterface
     private interface FactoryFunc<C> {

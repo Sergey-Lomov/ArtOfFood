@@ -2,7 +2,8 @@ package artoffood;
 
 import artoffood.client.rendering.IngredientColors;
 import artoffood.client.rendering.IngredientModel;
-import artoffood.common.blocks.devices.kitchen_drawer.KitchenDrawerScreen;
+import artoffood.client.screens.CountertopScreen;
+import artoffood.client.screens.KitchenDrawerScreen;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.utils.BlocksRegistrator;
 import artoffood.common.utils.ContainersRegistrator;
@@ -17,9 +18,7 @@ import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +26,6 @@ import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -90,8 +88,10 @@ public class ArtOfFood
         ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
 
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.KITCHEN_DRAWER.get(), RenderType.getSolid());
+        RenderTypeLookup.setRenderLayer(BlocksRegistrator.COUNTERTOP.get(), RenderType.getSolid());
 
         ScreenManager.registerFactory(ContainersRegistrator.KITCHEN_DRAWER.get(), KitchenDrawerScreen::new);
+        ScreenManager.registerFactory(ContainersRegistrator.COUNTERTOP.get(), CountertopScreen::new);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

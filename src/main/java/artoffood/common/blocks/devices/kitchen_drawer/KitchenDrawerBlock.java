@@ -18,11 +18,11 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KitchenDrawer extends ContainerBlock {
+public class KitchenDrawerBlock extends ContainerBlock {
 
-    public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
+    private static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 
-    public KitchenDrawer() {
+    public KitchenDrawerBlock() {
 
         super(Block.Properties.create(Material.WOOD));
         this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH));

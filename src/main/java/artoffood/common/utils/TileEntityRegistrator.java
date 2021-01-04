@@ -1,6 +1,7 @@
 package artoffood.common.utils;
 
 import artoffood.ArtOfFood;
+import artoffood.common.blocks.devices.countertop.CountertopTileEntity;
 import artoffood.common.blocks.devices.kitchen_drawer.KitchenDrawerTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
@@ -17,6 +18,8 @@ public class TileEntityRegistrator {
 
     public static final RegistryObject<TileEntityType<KitchenDrawerTileEntity>> KITCHEN_DRAWER = register(
             "kitchen_drawer", KitchenDrawerTileEntity::new, BlocksRegistrator.KITCHEN_DRAWER);
+    public static final RegistryObject<TileEntityType<CountertopTileEntity>> COUNTERTOP = register(
+            "countertop", CountertopTileEntity::new, BlocksRegistrator.COUNTERTOP);
 
     private static <T extends TileEntity> RegistryObject<TileEntityType<T>> register (String name, Supplier<T> sup, RegistryObject<Block> block) {
         String fullname = ArtOfFood.MOD_ID + name;
