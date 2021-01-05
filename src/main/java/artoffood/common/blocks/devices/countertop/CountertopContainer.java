@@ -1,5 +1,8 @@
 package artoffood.common.blocks.devices.countertop;
 
+import artoffood.client.screens.slots_prompt.ISlotPromptProvider;
+import artoffood.client.screens.slots_prompt.SlotPrompt;
+import artoffood.client.screens.slots_prompt.TextComponentSlotPrompt;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.recipies.FoodProcessingRecipe;
@@ -9,6 +12,7 @@ import artoffood.common.utils.slots.FoodIngredientSlot;
 import artoffood.common.utils.slots.FoodProcessingResultSlot;
 import artoffood.common.utils.slots.FoodToolSlot;
 import artoffood.common.utils.slots.SlotReference;
+import artoffood.minebridge.utils.LocalisationManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -24,7 +28,11 @@ import net.minecraft.network.play.server.SSetSlotPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,7 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CountertopContainer extends PlayerInventoryContainer {
+public class CountertopContainer extends PlayerInventoryContainer implements ISlotPromptProvider {
 
     private static final int OUT_ROW_COUNT = 3;
     private static final int OUT_COLUMN_COUNT = 3;
@@ -68,14 +76,12 @@ public class CountertopContainer extends PlayerInventoryContainer {
 
     public CountertopContainer(int windowID,
                                 PlayerInventory playerInventory,
-                                /*, CountertopInventory countertopInventory*/
                                 IWorldPosCallable worldPosCallable) {
         super(ContainersRegistrator.COUNTERTOP.get(), windowID, playerInventory);
         if (ContainersRegistrator.COUNTERTOP.get() == null)
             throw new IllegalStateException("Must register COUNTERTOP before constructing a CountertopContainer!");
 
         this.worldPosCallable = worldPosCallable;
-        //this.countertopInventory = countertopInventory;
         addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_Y_POS);
 
         addSlot(new FoodIngredientSlot(inInventory, 0, IN_SLOTS_X_POS, INGREDIENT_SLOT_Y_POS));
@@ -111,32 +117,6 @@ public class CountertopContainer extends PlayerInventoryContainer {
         });
     }
 
-//    private void recreateOutSlot(PlayerEntity player, CraftingInventory craftingInventory, int outIndex) {
-//        final int column = outIndex % OUT_COLUMN_COUNT;
-//        final int row = outIndex / OUT_COLUMN_COUNT;
-//        final int x = OUT_SLOTS_X_POS + column * SLOT_X_SPACING;
-//        final int y = OUT_SLOTS_Y_POS + row * SLOT_Y_SPACING;
-//        //final CraftResultInventory resultInventory = new CraftResultInventory();
-//        final CraftResultInventory resultInventory;
-//
-//        if (outInventories.size() > outIndex)
-//           // outInventories.set(outIndex, resultInventory);
-//            resultInventory = outInventories.get(outIndex);
-//        else {
-//            resultInventory = new CraftResultInventory();
-//            outInventories.add(resultInventory);
-//        }
-//
-//        final CraftingResultSlot resultSlot = new CraftingResultSlot(player, craftingInventory, resultInventory, 0, x, y);
-//        int slotIndex = outIndex + FIRST_OUT_SLOT_INDEX;
-//        if (inventorySlots.size() > slotIndex) {
-//            resultSlot.slotNumber = slotIndex;
-//            inventorySlots.set(slotIndex, resultSlot);
-//        }
-//        else {
-//           addSlot(resultSlot);
-//        }
-//    }
     @Override
     protected int getTESlotsCount() {
         return NUMBER_OF_SLOTS;
@@ -252,7 +232,7 @@ public class CountertopContainer extends PlayerInventoryContainer {
     }
 
     @Override
-    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+    public @NotNull ItemStack slotClick(int slotId, int dragType, @NotNull ClickType clickTypeIn, @NotNull PlayerEntity player) {
         ItemStack result = super.slotClick(slotId, dragType, clickTypeIn, player);
 
         if (!player.world.isRemote && slotId >= 0 && slotId < inventorySlots.size()) {
@@ -277,4 +257,20 @@ public class CountertopContainer extends PlayerInventoryContainer {
     public void onCraftMatrixChanged(@NotNull IInventory inventoryIn) {
         worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
     }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public NonNullList<SlotPrompt> getPrompts(Slot slot) {
+        NonNullList<SlotPrompt> list = NonNullList.create();
+        if (slot instanceof FoodIngredientSlot) {
+            ITextComponent text = new StringTextComponent(LocalisationManager.Inventories.ingredient_slot_prompt());
+            list.add(new TextComponentSlotPrompt(slot, NonNullList.withSize(1, text)));
+        } else if (slot instanceof FoodToolSlot) {
+            ITextComponent text = new StringTextComponent(LocalisationManager.Inventories.tool_slot_prompt());
+            list.add(new TextComponentSlotPrompt(slot, NonNullList.withSize(1, text)));
+        }
+
+        return list;
+    }
+
 }

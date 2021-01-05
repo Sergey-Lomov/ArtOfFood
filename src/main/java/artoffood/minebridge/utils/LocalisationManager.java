@@ -25,5 +25,7 @@ public class LocalisationManager {
         public static String kitchen_drawer() { return I18n.format("inventories.kitchen_drawer"); }
         public static String kitchen_drawer_comment() { return I18n.format("inventories.kitchen_drawer_comment"); }
         public static String processing_title() { return I18n.format("inventories.processing_title"); }
+        public static String ingredient_slot_prompt() { return I18n.format("inventories.ingredient_slot_prompt"); }
+        public static String tool_slot_prompt() { return I18n.format("inventories.tool_slot_prompt"); }
     }
 }

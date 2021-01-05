@@ -91,7 +91,7 @@ public class ArtOfFood
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.COUNTERTOP.get(), RenderType.getSolid());
 
         ScreenManager.registerFactory(ContainersRegistrator.KITCHEN_DRAWER.get(), KitchenDrawerScreen::new);
-        ScreenManager.registerFactory(ContainersRegistrator.COUNTERTOP.get(), CountertopScreen::new);
+        ScreenManager.registerFactory(ContainersRegistrator.COUNTERTOP.get(),  CountertopScreen::new);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-public class CountertopScreen extends ContainerScreen<CountertopContainer> {
+public class CountertopScreen extends ModContainerScreen<CountertopContainer> {
 
     private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ArtOfFood.MOD_ID, "textures/gui/countertop.png");
     private static final float PLAYER_INV_LABEL_X_POS = 7;
