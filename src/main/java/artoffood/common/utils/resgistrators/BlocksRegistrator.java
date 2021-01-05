@@ -1,4 +1,4 @@
-package artoffood.common.utils;
+package artoffood.common.utils.resgistrators;
 
 import artoffood.ArtOfFood;
 import artoffood.common.blocks.devices.countertop.CountertopBlock;

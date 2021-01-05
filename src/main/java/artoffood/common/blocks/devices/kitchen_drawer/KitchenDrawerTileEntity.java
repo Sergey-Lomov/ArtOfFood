@@ -2,7 +2,7 @@ package artoffood.common.blocks.devices.kitchen_drawer;
 
 import artoffood.common.blocks.base.BaseInteractiveTileEntity;
 import artoffood.common.blocks.base.ModStorageInventory;
-import artoffood.common.utils.TileEntityRegistrator;
+import artoffood.common.utils.resgistrators.TileEntityRegistrator;
 import artoffood.minebridge.utils.LocalisationManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

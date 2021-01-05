@@ -2,7 +2,7 @@ package artoffood.common.blocks.devices.kitchen_drawer;
 
 import artoffood.ArtOfFood;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
-import artoffood.common.utils.ContainersRegistrator;
+import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.slots.FoodToolSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

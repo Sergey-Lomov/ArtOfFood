@@ -1,25 +1,35 @@
 package artoffood.common.blocks.devices.countertop;
 
 import artoffood.common.blocks.base.PlayerInventoryContainer;
-import artoffood.common.utils.ContainersRegistrator;
+import artoffood.common.items.FoodToolItem;
+import artoffood.common.recipies.FoodProcessingRecipe;
+import artoffood.common.utils.SilentCraftingInventory;
+import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.slots.FoodIngredientSlot;
+import artoffood.common.utils.slots.FoodProcessingResultSlot;
 import artoffood.common.utils.slots.FoodToolSlot;
+import artoffood.common.utils.slots.SlotReference;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.*;
-import net.minecraft.inventory.container.CraftingResultSlot;
+import net.minecraft.inventory.container.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SSetSlotPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CountertopContainer extends PlayerInventoryContainer {
@@ -29,8 +39,8 @@ public class CountertopContainer extends PlayerInventoryContainer {
     private static final int NUMBER_OF_OUT_SLOTS = OUT_ROW_COUNT * OUT_COLUMN_COUNT;
     private static final int NUMBER_OF_PROCESSING_SLOTS = 2;
     public static final int NUMBER_OF_SLOTS = NUMBER_OF_PROCESSING_SLOTS + NUMBER_OF_OUT_SLOTS;
-    private static final int INGREDIENT_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-    private static final int TOOL_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT + 1;
+    private static final int INGREDIENT_SLOT_INDEX = TE_FIRST_SLOT_INDEX;
+    private static final int TOOL_SLOT_INDEX = INGREDIENT_SLOT_INDEX + 1;
     private static final int FIRST_OUT_SLOT_INDEX = TOOL_SLOT_INDEX + 1;
 
     public static final int PLAYER_INVENTORY_Y_POS = 81;
@@ -40,23 +50,20 @@ public class CountertopContainer extends PlayerInventoryContainer {
     private static final int OUT_SLOTS_X_POS = 88;
     public static final int OUT_SLOTS_Y_POS = 15;
 
-//    private final CountertopInventory countertopInventory;
     private final IWorldPosCallable worldPosCallable;
     private final CraftingInventory inInventory = new CraftingInventory(this, 1, 2);
     private final List<CraftResultInventory> outInventories = new ArrayList<>(NUMBER_OF_OUT_SLOTS);
 
     public static CountertopContainer createServerSide(int windowID,
-                                                       PlayerInventory playerInventory/*,
-                                                       CountertopInventory inventory*/,
+                                                       PlayerInventory playerInventory,
                                                        IWorldPosCallable worldPosCallable) {
-        return new CountertopContainer(windowID, playerInventory/*, inventory*/, worldPosCallable);
+        return new CountertopContainer(windowID, playerInventory, worldPosCallable);
     }
 
     public static CountertopContainer createClientSide(int windowID,
                                                        PlayerInventory playerInventory,
                                                        PacketBuffer extraData) {
-//        CountertopInventory inventory = CountertopInventory.createForClientSideContainer();
-        return new CountertopContainer(windowID, playerInventory/*, inventory*/, IWorldPosCallable.DUMMY);
+        return new CountertopContainer(windowID, playerInventory, IWorldPosCallable.DUMMY);
     }
 
     public CountertopContainer(int windowID,
@@ -80,12 +87,56 @@ public class CountertopContainer extends PlayerInventoryContainer {
                 final int y = OUT_SLOTS_Y_POS + i * SLOT_Y_SPACING;
                 final CraftResultInventory resultInventory = new CraftResultInventory();
                 outInventories.add(resultInventory);
-                final CraftingResultSlot resultSlot = new CraftingResultSlot(playerInventory.player, inInventory, resultInventory, 0, x, y);
+                final FoodProcessingResultSlot resultSlot = new FoodProcessingResultSlot(
+                        playerInventory.player,
+                        resultInventory,
+                        new SlotReference(inInventory, 0, INGREDIENT_SLOT_INDEX),
+                        0, x, y);
                 this.addSlot(resultSlot);
             }
         }
+
+        addListener(new IContainerListener() {
+            @Override
+            public void sendAllContents(@NotNull Container containerToSend, @NotNull NonNullList<ItemStack> itemsList) { }
+
+            @Override
+            public void sendSlotContents(@NotNull Container containerToSend, int slotInd, @NotNull ItemStack stack) {
+                if (slotInd < FIRST_OUT_SLOT_INDEX || slotInd > FIRST_OUT_SLOT_INDEX + NUMBER_OF_OUT_SLOTS)
+                    worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
+            }
+
+            @Override
+            public void sendWindowProperty(@NotNull Container containerIn, int varToUpdate, int newValue) {}
+        });
     }
 
+//    private void recreateOutSlot(PlayerEntity player, CraftingInventory craftingInventory, int outIndex) {
+//        final int column = outIndex % OUT_COLUMN_COUNT;
+//        final int row = outIndex / OUT_COLUMN_COUNT;
+//        final int x = OUT_SLOTS_X_POS + column * SLOT_X_SPACING;
+//        final int y = OUT_SLOTS_Y_POS + row * SLOT_Y_SPACING;
+//        //final CraftResultInventory resultInventory = new CraftResultInventory();
+//        final CraftResultInventory resultInventory;
+//
+//        if (outInventories.size() > outIndex)
+//           // outInventories.set(outIndex, resultInventory);
+//            resultInventory = outInventories.get(outIndex);
+//        else {
+//            resultInventory = new CraftResultInventory();
+//            outInventories.add(resultInventory);
+//        }
+//
+//        final CraftingResultSlot resultSlot = new CraftingResultSlot(player, craftingInventory, resultInventory, 0, x, y);
+//        int slotIndex = outIndex + FIRST_OUT_SLOT_INDEX;
+//        if (inventorySlots.size() > slotIndex) {
+//            resultSlot.slotNumber = slotIndex;
+//            inventorySlots.set(slotIndex, resultSlot);
+//        }
+//        else {
+//           addSlot(resultSlot);
+//        }
+//    }
     @Override
     protected int getTESlotsCount() {
         return NUMBER_OF_SLOTS;
@@ -93,7 +144,7 @@ public class CountertopContainer extends PlayerInventoryContainer {
 
     @Override
     public boolean canInteractWith(@NotNull PlayerEntity playerIn) {
-        return true;/*countertopInventory.isUsableByPlayer(playerIn);*/
+        return true;
     }
 
     @Override
@@ -101,33 +152,129 @@ public class CountertopContainer extends PlayerInventoryContainer {
     {
         transferStackInSlot(playerIn, INGREDIENT_SLOT_INDEX);
         transferStackInSlot(playerIn, TOOL_SLOT_INDEX);
-        this.worldPosCallable.consume((world, p_217068_3_) -> {
-            clearContainer(playerIn, world, inInventory);
-        });
+        this.worldPosCallable.consume((world, p_217068_3_) -> clearContainer(playerIn, world, inInventory));
         super.onContainerClosed(playerIn);
     }
 
-    protected static void updateCraftingResult(int id, World world, PlayerEntity player, CraftingInventory inInventory, List<CraftResultInventory> outInventories) {
+    protected void updateCraftingResult(World world) {
         if (!world.isRemote) {
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
-            ItemStack itemStack = ItemStack.EMPTY;
-            Optional<ICraftingRecipe> optional = world.getServer().getRecipeManager().getRecipe(IRecipeType.CRAFTING, inInventory, world);
-            int variant = 0;
-            if (optional.isPresent()) {
-                ICraftingRecipe craftingRecipe = optional.get();
-                if (outInventories.get(variant).canUseRecipe(world, serverPlayerEntity, craftingRecipe)) {
-                    itemStack = craftingRecipe.getCraftingResult(inInventory);
-                }
-            }
+            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)playerInventory.player;
+            ItemStack ingredient = getSlot(INGREDIENT_SLOT_INDEX).getStack();
+            ItemStack tool = getSlot(TOOL_SLOT_INDEX).getStack();
 
-            outInventories.get(variant).setInventorySlotContents(0, itemStack);
-            serverPlayerEntity.connection.sendPacket(new SSetSlotPacket(id, FIRST_OUT_SLOT_INDEX + variant, itemStack));
+            clearResultSlots();
+
+            if (!ingredient.isEmpty())
+                if (!tool.isEmpty())
+                    updateToConcreteResult(world, serverPlayerEntity);
+                else
+                    updateToAvailableResults(world, serverPlayerEntity, ingredient);
+
+            sendOutPackages(serverPlayerEntity);
         }
     }
 
-    public void onCraftMatrixChanged(IInventory inventoryIn) {
-        this.worldPosCallable.consume((world, p_217069_2_) -> {
-            updateCraftingResult(windowId, world, playerInventory.player, inInventory, outInventories);
-        });
+    protected void clearResultSlots () {
+        for (CraftResultInventory inventory: outInventories) {
+            inventory.setInventorySlotContents(0,ItemStack.EMPTY);
+        }
+    }
+
+    protected void sendOutPackages (ServerPlayerEntity serverPlayerEntity) {
+        for (int i = 0; i < outInventories.size(); i++) {
+            ItemStack outStack = outInventories.get(i).getStackInSlot(0);
+            IPacket<?> packet = new SSetSlotPacket(windowId, FIRST_OUT_SLOT_INDEX + i, outStack);
+            serverPlayerEntity.connection.sendPacket(packet);
+            inventorySlots.get(FIRST_OUT_SLOT_INDEX + i).onSlotChanged();
+        }
+    }
+
+    protected void updateToConcreteResult (World world,
+                                           ServerPlayerEntity serverPlayerEntity) {
+        ItemStack itemStack = ItemStack.EMPTY;
+
+        MinecraftServer server = Objects.requireNonNull(world.getServer());
+        Optional<ICraftingRecipe> optional = server.getRecipeManager().getRecipe(IRecipeType.CRAFTING, inInventory, world);
+        if (optional.isPresent()) {
+            ICraftingRecipe craftingRecipe = optional.get();
+            if (outInventories.get(0).canUseRecipe(world, serverPlayerEntity, craftingRecipe)) {
+                itemStack = craftingRecipe.getCraftingResult(inInventory);
+                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(FIRST_OUT_SLOT_INDEX);
+                slot.tool = new SlotReference(inInventory, 1, TOOL_SLOT_INDEX);
+            }
+        }
+
+        outInventories.get(0).setInventorySlotContents(0, itemStack);
+    }
+
+    protected void updateToAvailableResults (World world,
+                                             ServerPlayerEntity serverPlayerEntity,
+                                             ItemStack ingredient) {
+        MinecraftServer server = Objects.requireNonNull(world.getServer());
+        RecipeManager recipeManager = server.getRecipeManager();
+        NonNullList<SlotReference> toolRefs = NonNullList.create();
+        for (int i = 0; i < playerInventory.getSizeInventory(); i++) {
+            ItemStack stack = playerInventory.getStackInSlot(i);
+            if (stack.getItem() instanceof FoodToolItem)
+                toolRefs.add(new SlotReference(playerInventory, i, VANILLA_FIRST_SLOT_INDEX + i));
+        }
+
+        NonNullList<FoodProcessingRecipe> recipes = NonNullList.create();
+        NonNullList<SlotReference> uniqueToolRefs = NonNullList.create();
+
+        for (SlotReference toolRef: toolRefs) {
+            CraftingInventory fakeInventory = new SilentCraftingInventory(1, 2);
+            fakeInventory.setInventorySlotContents(0, ingredient);
+            fakeInventory.setInventorySlotContents(1, toolRef.getStack());
+            Optional<ICraftingRecipe> optional = recipeManager.getRecipe(IRecipeType.CRAFTING, fakeInventory, world);
+            if (optional.isPresent() && optional.get() instanceof FoodProcessingRecipe) {
+                FoodProcessingRecipe recipe = (FoodProcessingRecipe)optional.get();
+                if (!recipes.contains(recipe)) {
+                    recipes.add(recipe);
+                    uniqueToolRefs.add(toolRef);
+                }
+            }
+        }
+
+        for (int i = 0; i < recipes.size() && i < NUMBER_OF_OUT_SLOTS; i++) {
+            ItemStack itemStack = ItemStack.EMPTY;
+            FoodProcessingRecipe recipe = recipes.get(i);
+            SlotReference toolRef = uniqueToolRefs.get(i);
+            CraftResultInventory inventory = outInventories.get(i);
+            if (inventory.canUseRecipe(world, serverPlayerEntity, recipe)) {
+                itemStack = recipe.getCraftingResult(ingredient, toolRef.getStack());
+                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(FIRST_OUT_SLOT_INDEX + i);
+                slot.tool = toolRef;
+            }
+
+            outInventories.get(i).setInventorySlotContents(0, itemStack);
+        }
+    }
+
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+        ItemStack result = super.slotClick(slotId, dragType, clickTypeIn, player);
+
+        if (!player.world.isRemote && slotId >= 0 && slotId < inventorySlots.size()) {
+            if (inventorySlots.get(slotId) instanceof FoodProcessingResultSlot) {
+                FoodProcessingResultSlot slot = (FoodProcessingResultSlot) inventorySlots.get(slotId);
+                ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) player;
+
+                IPacket<?> ingredientPacket = new SSetSlotPacket(windowId, slot.ingredient.containerSlotId, slot.ingredient.getStack());
+                serverPlayerEntity.connection.sendPacket(ingredientPacket);
+
+                if (slot.tool != null) {
+                    IPacket<?> toolPacket = new SSetSlotPacket(windowId, slot.tool.containerSlotId, slot.tool.getStack());
+                    serverPlayerEntity.connection.sendPacket(toolPacket);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public void onCraftMatrixChanged(@NotNull IInventory inventoryIn) {
+        worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
     }
 }

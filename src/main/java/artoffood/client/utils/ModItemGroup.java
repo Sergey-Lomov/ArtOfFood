@@ -1,8 +1,9 @@
 package artoffood.client.utils;
 
-import artoffood.common.utils.ItemsRegistrator;
+import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ModItemGroup extends ItemGroup {
 
@@ -13,7 +14,7 @@ public class ModItemGroup extends ItemGroup {
     }
 
     @Override
-    public ItemStack createIcon() {
+    public @NotNull ItemStack createIcon() {
         return new ItemStack(ItemsRegistrator.ITEM_GROUP_AMBASADOR, 1);
     }
 }

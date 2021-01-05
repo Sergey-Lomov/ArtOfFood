@@ -1,25 +1,21 @@
 package artoffood.client.rendering;
 
-import artoffood.ArtOfFood;
-import artoffood.minebridge.models.MBItemRendering;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 public class IngredientModel implements IBakedModel {
 
-    private IBakedModel defaultModel;
-    private IngredientOverridesList overridesList;
+    private final IBakedModel defaultModel;
+    private final IngredientOverridesList overridesList;
 
     public IngredientModel(IBakedModel defaultModel)
     {
@@ -27,11 +23,8 @@ public class IngredientModel implements IBakedModel {
         this.overridesList = new IngredientOverridesList();
     }
 
-    public static final ModelResourceLocation modelLocation
-            = new ModelResourceLocation(new ResourceLocation(ArtOfFood.MOD_ID, "ingredient_abstract"), "inventory");
-
     @Override
-    public ItemOverrideList getOverrides() {
+    public @NotNull ItemOverrideList getOverrides() {
         return overridesList;
     }
 
@@ -51,12 +44,12 @@ public class IngredientModel implements IBakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public @NotNull TextureAtlasSprite getParticleTexture() {
         return defaultModel.getParticleTexture();
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
         return defaultModel.getQuads(state, side, rand) ;
     }
 

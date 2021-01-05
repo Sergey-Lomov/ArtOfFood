@@ -2,7 +2,7 @@ package artoffood.common.blocks.devices.countertop;
 
 import artoffood.common.blocks.base.BaseInteractiveTileEntity;
 import artoffood.common.blocks.base.ModStorageInventory;
-import artoffood.common.utils.TileEntityRegistrator;
+import artoffood.common.utils.resgistrators.TileEntityRegistrator;
 import artoffood.minebridge.utils.LocalisationManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -15,12 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class CountertopTileEntity extends BaseInteractiveTileEntity {
 
-//    private final CountertopInventory countertopInventory;
-
     public CountertopTileEntity()
     {
         super(TileEntityRegistrator.COUNTERTOP.get());
-//        countertopInventory = CountertopInventory.createForTileEntity(this::canPlayerAccessInventory, this::markDirty);
     }
 
     @Override
@@ -45,8 +42,7 @@ public class CountertopTileEntity extends BaseInteractiveTileEntity {
                                 @NotNull PlayerInventory playerInventory,
                                 @NotNull PlayerEntity p_createMenu_3_) {
         return CountertopContainer.createServerSide(windowId,
-                playerInventory
-                /*, countertopInventory*/,
+                playerInventory,
                 IWorldPosCallable.of(world, pos));
     }
 }

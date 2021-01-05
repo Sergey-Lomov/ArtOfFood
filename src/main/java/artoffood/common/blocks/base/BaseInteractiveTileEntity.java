@@ -2,6 +2,7 @@ package artoffood.common.blocks.base;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
@@ -61,7 +62,9 @@ public abstract class BaseInteractiveTileEntity extends TileEntity implements IN
     }
 
     public void dropAllContents(World world, BlockPos blockPos) {
-        InventoryHelper.dropInventoryItems(world, blockPos, getInventory());
+        IInventory inventory = getInventory();
+        if (inventory != null)
+            InventoryHelper.dropInventoryItems(world, blockPos, inventory);
     }
 
     @Override

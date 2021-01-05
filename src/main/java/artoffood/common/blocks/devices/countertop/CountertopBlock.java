@@ -1,12 +1,9 @@
 package artoffood.common.blocks.devices.countertop;
 
-import artoffood.common.blocks.base.ModStorageInventory;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
-import net.minecraft.inventory.container.WorkbenchContainer;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
@@ -14,7 +11,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
@@ -61,11 +57,6 @@ public class CountertopBlock extends ContainerBlock {
         INamedContainerProvider inamedcontainerprovider = this.getContainer(state, worldIn, pos);
         if (inamedcontainerprovider != null) {
             player.openContainer(inamedcontainerprovider);
-//            if (inamedcontainerprovider instanceof CountertopTileEntity) {
-//                CountertopTileEntity tileEntity = (CountertopTileEntity) inamedcontainerprovider;
-//                ModStorageInventory.Notify dropAll = () -> tileEntity.dropAllContents(tileEntity.getWorld(), tileEntity.getPos());
-//                tileEntity.getInventory().setCloseInventoryNotificationLambda(dropAll);
-//            }
         }
         return ActionResultType.CONSUME;
     }

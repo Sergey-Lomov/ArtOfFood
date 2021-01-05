@@ -76,7 +76,7 @@ public abstract class PlayerInventoryContainer extends Container  {
             sourceSlot.onSlotChanged();
         }
 
-        sourceSlot.onTake(playerEntity, sourceStack);
-        return copyOfSourceStack;
+        boolean takeFailed = sourceSlot.onTake(playerEntity, copyOfSourceStack).isEmpty();
+        return takeFailed ? ItemStack.EMPTY : copyOfSourceStack;
     }
 }

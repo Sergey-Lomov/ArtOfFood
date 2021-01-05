@@ -11,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class IngredientOverridesList extends ItemOverrideList {
     private static final HashMap<MBItemRendering, IBakedModel> HASHED_MODELS = new HashMap<>();
 
     @Override
-    public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
+    public IBakedModel getOverrideModel(@NotNull IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
     {
         if (!(stack.getItem() instanceof FoodIngredientItem))
             throw new IllegalStateException("IngredientOverridesList called with not IngredientItem stack");

@@ -2,13 +2,15 @@ package artoffood.common.recipies;
 
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.FoodToolItem;
-import artoffood.common.utils.ItemsRegistrator;
+import artoffood.common.utils.ModInventoryHelper;
+import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.common.utils.ModNBTHelper;
 import artoffood.core.models.FoodTag;
 import artoffood.minebridge.models.MBProcessing;
 import artoffood.minebridge.registries.MBProcessingsRegister;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraft.network.PacketBuffer;
@@ -18,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -27,9 +30,21 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     private final int outputCount;
     private final ResourceLocation id;
 
-    private ItemStack ingredient = null;
-    private ItemStack tool = null;
-    private int toolIndex = 0;
+    private @Nullable ItemStack ingredient(IInventory inv) {
+        ItemStack ingredient = ModInventoryHelper.soloStackOfType(inv, FoodIngredientItem.class);
+        if (ingredient != null)
+            return verifyIngredient(ingredient) ? ingredient : null;
+
+        return null;
+    }
+
+    private @Nullable ItemStack tool(IInventory inv) {
+        ItemStack tool = ModInventoryHelper.soloStackOfType(inv, FoodToolItem.class);
+        if (tool != null)
+            return verifyTool(tool) ? tool : null;
+
+        return null;
+    }
 
     public FoodProcessingRecipe(ResourceLocation id, MBProcessing processing, int outputCount) {
 
@@ -44,50 +59,20 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public boolean matches (CraftingInventory inv, @NotNull World worldIn) {
-        tool = null;
-        ingredient = null;
+    public boolean matches (@NotNull CraftingInventory inv, @NotNull World worldIn) {
+        ItemStack ingredient = ingredient(inv);
+        ItemStack tool = tool(inv);
         boolean toolNeeded = !processing.availableWithoutTool();
-
-        for(int index = 0; index < inv.getSizeInventory(); ++index) {
-            ItemStack stack = inv.getStackInSlot(index);
-            if (stack.isEmpty())
-                continue;
-
-            if (stack.getItem() instanceof FoodToolItem) {
-                if (toolNeeded) {
-                    FoodToolItem toolItem = ((FoodToolItem) stack.getItem());
-                    if (toolItem.validForProcessing(processing) && tool == null) {
-                        tool = stack;
-                        toolIndex = index;
-                        continue;
-                    }
-                    // Found invalid tool or second tool
-                    else return false;
-                }
-                // Found tool but processing need no tool
-                else return false;
-            }
-
-            if (stack.getItem() instanceof FoodIngredientItem) {
-                if (verifyIngredient(stack) && ingredient == null) {
-                    ingredient = stack;
-                    continue;
-                }
-                // Found invalid ingredient or second ingredient
-                else return false;
-            }
-
-            // Found something unnecessary
-            return false;
-        }
 
         boolean validWithTool = ingredient != null && toolNeeded && tool != null;
         boolean validWithoutTool = ingredient != null && !toolNeeded && tool == null;
         return validWithTool || validWithoutTool;
     }
 
-    private boolean verifyIngredient(ItemStack stack) {
+    private boolean verifyIngredient(@Nullable ItemStack stack) {
+        if (stack == null)
+            return false;
+
         if (!(stack.getItem() instanceof FoodIngredientItem))
             return false;
 
@@ -95,9 +80,29 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         return processing.availableForIngredient(tags);
     }
 
+    private boolean verifyTool(@Nullable ItemStack stack) {
+        if (stack == null)
+            return false;
+
+        if (!(stack.getItem() instanceof FoodToolItem))
+            return false;
+
+        FoodToolItem tool = (FoodToolItem)stack.getItem();
+        boolean processingValid = tool.validForProcessing(processing);
+        boolean damageValid = stack.getDamage() < stack.getMaxDamage() || tool.isUnbreakable();
+        return processingValid && damageValid;
+    }
+
     @Override
     public @NotNull ItemStack getCraftingResult (@NotNull CraftingInventory inv) {
+        ItemStack ingredient = ingredient(inv);
         if (ingredient != null)
+            return processedStack(ingredient);
+        return ItemStack.EMPTY;
+    }
+
+    public @NotNull ItemStack getCraftingResult (@NotNull ItemStack ingredient, @Nullable ItemStack tool) {
+        if (verifyTool(tool) && verifyIngredient(ingredient))
             return processedStack(ingredient);
         return ItemStack.EMPTY;
     }
@@ -106,25 +111,25 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     public @NotNull NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
         NonNullList<ItemStack> nonnulllist = NonNullList.withSize(inv.getSizeInventory(), ItemStack.EMPTY);
 
-        if (tool != null) {
-            ItemStack damaged = damage(tool);
-            if (damaged != null)
-                nonnulllist.set(toolIndex, damaged);
+        ItemStack tool = tool(inv);
+        int toolIndex = ModInventoryHelper.firstIndexOfType(inv, FoodToolItem.class);
+        if (tool != null && toolIndex >= 0 && toolIndex <= nonnulllist.size()) {
+            nonnulllist.set(toolIndex, damage(tool));
         }
 
         return nonnulllist;
     }
 
-    private ItemStack damage(ItemStack tool) {
+    public @NotNull ItemStack damage(ItemStack tool) {
         if (!(tool.getItem() instanceof FoodToolItem))
-            return null;
+            return ItemStack.EMPTY;
 
         ItemStack damaged = tool.copy();
         if ( ((FoodToolItem)tool.getItem()).isUnbreakable() )
             return damaged;
 
         damaged.setDamage(tool.getDamage() + 1);
-        return damaged.getDamage() < tool.getMaxDamage() ? damaged : null;
+        return damaged.getDamage() < tool.getMaxDamage() ? damaged : ItemStack.EMPTY;
     }
 
     @Override
@@ -182,7 +187,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         public static final String outputCountKey = "output_count";
 
         @Override
-        public @NotNull FoodProcessingRecipe read (ResourceLocation recipeId, @NotNull JsonObject json) {
+        public @NotNull FoodProcessingRecipe read (@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
 
             final String processingId = JSONUtils.getString(json, processingIdKey);
             final MBProcessing processing = MBProcessingsRegister.processings.get(processingId);

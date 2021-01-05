@@ -1,4 +1,4 @@
-package artoffood.common.utils;
+package artoffood.common.utils.resgistrators;
 
 import artoffood.ArtOfFood;
 import artoffood.client.utils.ModItemGroup;
@@ -11,11 +11,8 @@ import artoffood.minebridge.registries.MBIngredientTypesRegister;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.HashMap;
 
 public class ItemsRegistrator {
 
