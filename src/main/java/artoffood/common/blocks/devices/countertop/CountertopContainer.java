@@ -1,8 +1,6 @@
 package artoffood.common.blocks.devices.countertop;
 
-import artoffood.client.screens.slots_prompt.ISlotPromptProvider;
-import artoffood.client.screens.slots_prompt.SlotPrompt;
-import artoffood.client.screens.slots_prompt.TextComponentSlotPrompt;
+import artoffood.client.screens.slots_prompt.*;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.recipies.FoodProcessingRecipe;
@@ -61,6 +59,8 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
     private final IWorldPosCallable worldPosCallable;
     private final CraftingInventory inInventory = new CraftingInventory(this, 1, 2);
     private final List<CraftResultInventory> outInventories = new ArrayList<>(NUMBER_OF_OUT_SLOTS);
+    private final NonNullList<SlotPrompt> ingredientSlotPrompts;
+    private final NonNullList<SlotPrompt> toolSlotPrompts;
 
     public static CountertopContainer createServerSide(int windowID,
                                                        PlayerInventory playerInventory,
@@ -84,8 +84,10 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         this.worldPosCallable = worldPosCallable;
         addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_Y_POS);
 
-        addSlot(new FoodIngredientSlot(inInventory, 0, IN_SLOTS_X_POS, INGREDIENT_SLOT_Y_POS));
-        addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));
+        Slot ingredientSlot = addSlot(new FoodIngredientSlot(inInventory, 0, IN_SLOTS_X_POS, INGREDIENT_SLOT_Y_POS));
+        Slot toolSlot = addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));
+        ingredientSlotPrompts = inSlotPrompts(ingredientSlot, LocalisationManager.Inventories.ingredient_slot_prompt());
+        toolSlotPrompts = inSlotPrompts(toolSlot, LocalisationManager.Inventories.tool_slot_prompt());
 
         for (int i = 0; i < OUT_ROW_COUNT; ++i) {
             for (int j = 0; j < OUT_COLUMN_COUNT; ++j) {
@@ -115,6 +117,21 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             @Override
             public void sendWindowProperty(@NotNull Container containerIn, int varToUpdate, int newValue) {}
         });
+    }
+
+    private NonNullList<SlotPrompt> inSlotPrompts(Slot slot, String message) {
+        NonNullList<SlotPrompt> prompts = NonNullList.create();
+        NonNullList<ITextComponent> textComponents = NonNullList.withSize(1, new StringTextComponent(message));
+        prompts.add(new TextComponentSlotPrompt(slot, textComponents));
+
+        List<Slot> sublist = this.inventorySlots.subList(VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT);
+        List<Slot> playerInventorySlots = new ArrayList<>(sublist);
+        HighlightSlotPrompt highlightPrompt = new HighlightPromptBuilder()
+                .validationSlots(playerInventorySlots)
+                .predicate(s -> slot.isItemValid(s.getStack()))
+                .build(slot);
+        prompts.add(highlightPrompt);
+        return prompts;
     }
 
     @Override
@@ -261,16 +278,12 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
     @Override
     @OnlyIn(Dist.CLIENT)
     public NonNullList<SlotPrompt> getPrompts(Slot slot) {
-        NonNullList<SlotPrompt> list = NonNullList.create();
         if (slot instanceof FoodIngredientSlot) {
-            ITextComponent text = new StringTextComponent(LocalisationManager.Inventories.ingredient_slot_prompt());
-            list.add(new TextComponentSlotPrompt(slot, NonNullList.withSize(1, text)));
+            return ingredientSlotPrompts;
         } else if (slot instanceof FoodToolSlot) {
-            ITextComponent text = new StringTextComponent(LocalisationManager.Inventories.tool_slot_prompt());
-            list.add(new TextComponentSlotPrompt(slot, NonNullList.withSize(1, text)));
+            return toolSlotPrompts;
         }
 
-        return list;
+        return NonNullList.create();
     }
-
 }
