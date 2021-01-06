@@ -4,9 +4,15 @@ import net.minecraft.inventory.container.Slot;
 
 public abstract class SlotPrompt {
 
-    public final Slot slot;
+    public enum Type {
+        HOVERED, EMPTY
+    }
 
-    protected SlotPrompt(Slot slot) {
+    public final Slot slot;
+    public final Type type;
+
+    protected SlotPrompt(Slot slot, Type type) {
         this.slot = slot;
+        this.type = type;
     }
 }

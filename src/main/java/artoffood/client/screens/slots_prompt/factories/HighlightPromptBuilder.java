@@ -1,5 +1,6 @@
-package artoffood.client.screens.slots_prompt;
+package artoffood.client.screens.slots_prompt.factories;
 
+import artoffood.client.screens.slots_prompt.HighlightSlotPrompt;
 import artoffood.client.utils.TextureInAtlas;
 import artoffood.client.utils.Textures;
 import net.minecraft.inventory.container.Slot;

@@ -1,6 +1,7 @@
 package artoffood.common.blocks.devices.kitchen_drawer;
 
 import artoffood.ArtOfFood;
+import artoffood.client.screens.Constants;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.slots.FoodToolSlot;
@@ -43,7 +44,7 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
         }
 
         for (int x = 0; x < TE_INVENTORY_SLOT_COUNT; x++) {
-            int x_pos = INVENTORY_X_POS + SLOT_X_SPACING * x;
+            int x_pos = INVENTORY_X_POS + Constants.SLOT_FULL_SIZE * x;
             addSlot(new FoodToolSlot(drawerInventory, x, x_pos, TE_INVENTORY_YPOS));
         }
     }

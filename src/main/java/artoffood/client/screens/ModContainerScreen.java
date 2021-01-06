@@ -1,11 +1,7 @@
 package artoffood.client.screens;
 
-import artoffood.client.screens.slots_prompt.HighlightSlotPrompt;
-import artoffood.client.screens.slots_prompt.ISlotPromptProvider;
-import artoffood.client.screens.slots_prompt.SlotPrompt;
-import artoffood.client.screens.slots_prompt.TextComponentSlotPrompt;
+import artoffood.client.screens.slots_prompt.*;
 import artoffood.client.utils.TextureInAtlas;
-import artoffood.client.utils.Textures;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -22,7 +18,6 @@ import java.util.List;
 public abstract class ModContainerScreen <T extends Container> extends ContainerScreen<T> {
 
     protected final @Nullable ISlotPromptProvider promptProvider;
-//    protected boolean preventPrompts = false;
 
     public ModContainerScreen(T screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
@@ -36,49 +31,50 @@ public abstract class ModContainerScreen <T extends Container> extends Container
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        if (promptProvider != null
-                && hoveredSlot != null
+        boolean isHoveredValid = hoveredSlot != null
                 && hoveredSlot.getStack().isEmpty()
-                && !hoveredSlot.isItemValid(playerInventory.getItemStack())) {
-            NonNullList<SlotPrompt> prompts = promptProvider.getPrompts(hoveredSlot);
-            if (!prompts.isEmpty())
-                render(prompts, matrixStack, mouseX, mouseY);
+                && !hoveredSlot.isItemValid(playerInventory.getItemStack());
+
+        for (Slot slot : container.inventorySlots) {
+            renderPrompts(slot, isHoveredValid, matrixStack, mouseX, mouseY);
         }
     }
 
-    private void render(NonNullList<SlotPrompt> prompts, @NotNull MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderPrompts(Slot slot, boolean isHoveredValid, @NotNull MatrixStack matrixStack, int mouseX, int mouseY) {
         // TODO: Move rendering logic to different classes - prompt renderers. Add registrator for connect prompt type with rederer.
+        if (promptProvider == null) return;
+        NonNullList<SlotPrompt> prompts = promptProvider.getPrompts(slot);
 
         for (SlotPrompt prompt: prompts) {
+            if (prompt.type == SlotPrompt.Type.HOVERED && (!isHoveredValid || slot != hoveredSlot)) continue;
+            if (prompt.type == SlotPrompt.Type.EMPTY && !slot.getStack().isEmpty()) continue;
+
             if (prompt instanceof TextComponentSlotPrompt) {
                 TextComponentSlotPrompt textPrompt = (TextComponentSlotPrompt)prompt;
                 FontRenderer font = textPrompt.font == null ? this.font : textPrompt.font;
                 renderWrappedToolTip(matrixStack, textPrompt.textComponents, mouseX, mouseY, font);
-            } else if (prompt instanceof HighlightSlotPrompt) {
+            } else if (prompt instanceof HighlightSlotPrompt && minecraft != null) {
                 HighlightSlotPrompt highlightPrompt = (HighlightSlotPrompt)prompt;
                 minecraft.textureManager.bindTexture(highlightPrompt.atlasTexture);
                 TextureInAtlas texture = highlightPrompt.texture;
-                int xDisplacement = (Constants.SLOT_SIZE - texture.uWidth) / 2;
-                int yDisplacement = (Constants.SLOT_SIZE - texture.vHeight) / 2;
-                List<Slot> slots = highlightPrompt.validSlots();
-                for (Slot slot : slots) {
-                    final int x = guiLeft + slot.xPos + xDisplacement;
-                    final int y = guiTop + slot.yPos + yDisplacement;
-                    blit(matrixStack, x, y, texture.uOffset, texture.vOffset, texture.uWidth, texture.vHeight);
+                List<Slot> validSlots = highlightPrompt.validSlots();
+                for (Slot validSlot : validSlots) {
+                    renderOverSlot(validSlot, texture, matrixStack);
                 }
+            } else if (prompt instanceof StubSlotPrompt && minecraft != null) {
+                StubSlotPrompt stubPrompt = (StubSlotPrompt)prompt;
+                minecraft.textureManager.bindTexture(stubPrompt.atlasTexture);
+                TextureInAtlas texture = stubPrompt.texture;
+                renderOverSlot(slot, texture, matrixStack);
             }
         }
     }
 
-//    @Override
-//    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-//        preventPrompts = true;
-//        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-//    }
-//
-//    @Override
-//    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-//        preventPrompts = false;
-//        return super.mouseReleased(mouseX, mouseY, button);
-//    }
+    private void renderOverSlot(Slot slot, TextureInAtlas texture, @NotNull MatrixStack matrixStack) {
+        int xDisplacement = (Constants.SLOT_INNER_SIZE - texture.uWidth) / 2;
+        int yDisplacement = (Constants.SLOT_INNER_SIZE - texture.vHeight) / 2;
+        final int x = guiLeft + slot.xPos + xDisplacement;
+        final int y = guiTop + slot.yPos + yDisplacement;
+        blit(matrixStack, x, y, texture.uOffset, texture.vOffset, texture.uWidth, texture.vHeight);
+    }
 }

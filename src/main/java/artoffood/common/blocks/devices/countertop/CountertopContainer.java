@@ -1,6 +1,9 @@
 package artoffood.common.blocks.devices.countertop;
 
+import artoffood.client.screens.Constants;
 import artoffood.client.screens.slots_prompt.*;
+import artoffood.client.screens.slots_prompt.factories.HighlightPromptBuilder;
+import artoffood.client.screens.slots_prompt.factories.StubSlotPromptTextures;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.recipies.FoodProcessingRecipe;
@@ -88,11 +91,12 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         Slot toolSlot = addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));
         ingredientSlotPrompts = inSlotPrompts(ingredientSlot, LocalisationManager.Inventories.ingredient_slot_prompt());
         toolSlotPrompts = inSlotPrompts(toolSlot, LocalisationManager.Inventories.tool_slot_prompt());
+        toolSlotPrompts.add(new StubSlotPrompt(toolSlot, StubSlotPromptTextures.TOOL_TEXTURE));
 
         for (int i = 0; i < OUT_ROW_COUNT; ++i) {
             for (int j = 0; j < OUT_COLUMN_COUNT; ++j) {
-                final int x = OUT_SLOTS_X_POS + j * SLOT_X_SPACING;
-                final int y = OUT_SLOTS_Y_POS + i * SLOT_Y_SPACING;
+                final int x = OUT_SLOTS_X_POS + j * Constants.SLOT_FULL_SIZE;
+                final int y = OUT_SLOTS_Y_POS + i * Constants.SLOT_FULL_SIZE;
                 final CraftResultInventory resultInventory = new CraftResultInventory();
                 outInventories.add(resultInventory);
                 final FoodProcessingResultSlot resultSlot = new FoodProcessingResultSlot(

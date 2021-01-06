@@ -21,7 +21,7 @@ public class HighlightSlotPrompt extends SlotPrompt {
                                Predicate<? super Slot> predicate,
                                ResourceLocation atlasTexture,
                                TextureInAtlas texture) {
-        super(slot);
+        super(slot, Type.HOVERED);
         this.validationSlots = validationSlots;
         this.predicate = predicate;
         this.atlasTexture = atlasTexture;
