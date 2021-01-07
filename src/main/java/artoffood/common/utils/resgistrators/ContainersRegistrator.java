@@ -24,7 +24,7 @@ public class ContainersRegistrator {
 
     @FunctionalInterface
     private interface FactoryFunc<C> {
-        public C apply(int windowId, PlayerInventory inv, PacketBuffer data);
+        C apply(int windowId, PlayerInventory inv, PacketBuffer data);
     }
 
     private static <T extends Container> RegistryObject<ContainerType<T>> register(String name, FactoryFunc<T> func) {

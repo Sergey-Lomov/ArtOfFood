@@ -1,7 +1,6 @@
 package artoffood.common.utils.slots;
 
 import artoffood.common.recipies.FoodProcessingRecipe;
-import artoffood.common.recipies.RecipeTypesRegistrator;
 import artoffood.common.utils.SilentCraftingInventory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -14,6 +13,8 @@ import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public class FoodProcessingResultSlot extends Slot {
     private final PlayerEntity player;
     private int amountCrafted;
     public SlotReference ingredient;
-    public SlotReference tool;
+    public @Nullable SlotReference tool;
 
     public FoodProcessingResultSlot(PlayerEntity player,
                                     IInventory inventoryIn,
@@ -38,11 +39,11 @@ public class FoodProcessingResultSlot extends Slot {
         this.ingredient = ingredient;
     }
 
-    public boolean isItemValid(ItemStack stack) {
+    public boolean isItemValid(@NotNull ItemStack stack) {
         return false;
     }
 
-    public ItemStack decrStackSize(int amount) {
+    public @NotNull ItemStack decrStackSize(int amount) {
         if (this.getHasStack()) {
             this.amountCrafted += Math.min(amount, this.getStack().getCount());
         }
@@ -50,7 +51,7 @@ public class FoodProcessingResultSlot extends Slot {
         return super.decrStackSize(amount);
     }
 
-    protected void onCrafting(ItemStack stack, int amount) {
+    protected void onCrafting(@NotNull ItemStack stack, int amount) {
         this.amountCrafted += amount;
         this.onCrafting(stack);
     }
@@ -60,7 +61,7 @@ public class FoodProcessingResultSlot extends Slot {
     }
 
     @Override
-    protected void onCrafting(ItemStack stack) {
+    protected void onCrafting(@NotNull ItemStack stack) {
         if (this.amountCrafted > 0) {
             stack.onCrafting(player.world, player, amountCrafted);
             BasicEventHooks.firePlayerCraftingEvent(player, stack, craftMatrixStub());
@@ -73,7 +74,7 @@ public class FoodProcessingResultSlot extends Slot {
         this.amountCrafted = 0;
     }
 
-    public ItemStack onTake(PlayerEntity thePlayer, ItemStack stack) {
+    public @NotNull ItemStack onTake(@NotNull PlayerEntity thePlayer, @NotNull ItemStack stack) {
 
         if (tool == null || tool.getStack().isEmpty())
             return ItemStack.EMPTY;

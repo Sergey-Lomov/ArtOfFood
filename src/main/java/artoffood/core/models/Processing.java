@@ -10,12 +10,12 @@ import java.util.List;
 
 public class Processing {
 
-    private TagsPredicate ingredientPredicate;
-    private List<FoodToolFunctional> requiredFunctionals;
+    private final TagsPredicate ingredientPredicate;
+    private final List<FoodToolFunctional> requiredFunctionals;
 
-    private NutritionalTransform nutritionalTransform;
-    private TasteTransform tasteTransform;
-    private TagsTransform tagsTransform;
+    private final NutritionalTransform nutritionalTransform;
+    private final TasteTransform tasteTransform;
+    private final TagsTransform tagsTransform;
 
     public Processing(TagsPredicate ingredientPredicate, List<FoodToolFunctional> requiredFunctionals, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
         this.ingredientPredicate = ingredientPredicate;

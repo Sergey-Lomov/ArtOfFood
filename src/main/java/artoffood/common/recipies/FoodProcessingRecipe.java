@@ -163,11 +163,6 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         return RecipeSerializerRegistrator.FOOD_PROCESSING.get();
     }
 
-//    @Override
-//    public IRecipeType<?> getType () {
-//        return RecipeTypesRegistrator.FOOD_PROCESSING;
-//    }
-
     @Override
     public @NotNull ItemStack getIcon () {
 

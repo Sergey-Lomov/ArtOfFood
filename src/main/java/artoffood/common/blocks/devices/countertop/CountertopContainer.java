@@ -1,10 +1,14 @@
 package artoffood.common.blocks.devices.countertop;
 
 import artoffood.client.screens.Constants;
-import artoffood.client.screens.slots_prompt.*;
-import artoffood.client.screens.slots_prompt.factories.HighlightPromptBuilder;
-import artoffood.client.screens.slots_prompt.factories.StubSlotPromptTextures;
+import artoffood.client.screens.slot_prompt.*;
+import artoffood.client.screens.slot_prompt.factories.HighlightPromptBuilder;
+import artoffood.client.screens.slot_prompt.factories.ReferenceSlotPromptBuilder;
+import artoffood.client.screens.slot_prompt.factories.StubPromptBuilder;
+import artoffood.client.screens.slot_prompt.factories.TextPromptBuilder;
+import artoffood.client.screens.slot_prompt.lists.StubSlotPromptTextures;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
+import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.recipies.FoodProcessingRecipe;
 import artoffood.common.utils.SilentCraftingInventory;
@@ -14,11 +18,15 @@ import artoffood.common.utils.slots.FoodProcessingResultSlot;
 import artoffood.common.utils.slots.FoodToolSlot;
 import artoffood.common.utils.slots.SlotReference;
 import artoffood.minebridge.utils.LocalisationManager;
+import artoffood.networking.IProcessingSlotPacketHandler;
+import artoffood.networking.ModNetworking;
+import artoffood.networking.packets.SSetProcessingResultSlotPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.*;
 import net.minecraft.inventory.container.*;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipeType;
@@ -29,8 +37,6 @@ import net.minecraft.network.play.server.SSetSlotPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CountertopContainer extends PlayerInventoryContainer implements ISlotPromptProvider {
+public class CountertopContainer extends PlayerInventoryContainer implements ISlotPromptProvider, IProcessingSlotPacketHandler {
 
     private static final int OUT_ROW_COUNT = 3;
     private static final int OUT_COLUMN_COUNT = 3;
@@ -91,7 +97,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         Slot toolSlot = addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));
         ingredientSlotPrompts = inSlotPrompts(ingredientSlot, LocalisationManager.Inventories.ingredient_slot_prompt());
         toolSlotPrompts = inSlotPrompts(toolSlot, LocalisationManager.Inventories.tool_slot_prompt());
-        toolSlotPrompts.add(new StubSlotPrompt(toolSlot, StubSlotPromptTextures.TOOL_TEXTURE));
+        toolSlotPrompts.add(new StubPromptBuilder(StubSlotPromptTextures.TOOL_TEXTURE).build(toolSlot));
 
         for (int i = 0; i < OUT_ROW_COUNT; ++i) {
             for (int j = 0; j < OUT_COLUMN_COUNT; ++j) {
@@ -125,8 +131,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
     private NonNullList<SlotPrompt> inSlotPrompts(Slot slot, String message) {
         NonNullList<SlotPrompt> prompts = NonNullList.create();
-        NonNullList<ITextComponent> textComponents = NonNullList.withSize(1, new StringTextComponent(message));
-        prompts.add(new TextComponentSlotPrompt(slot, textComponents));
+        prompts.add(new TextPromptBuilder().addText(message).build(slot));
 
         List<Slot> sublist = this.inventorySlots.subList(VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT);
         List<Slot> playerInventorySlots = new ArrayList<>(sublist);
@@ -183,9 +188,17 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
     protected void sendOutPackages (ServerPlayerEntity serverPlayerEntity) {
         for (int i = 0; i < outInventories.size(); i++) {
+            final int index = FIRST_OUT_SLOT_INDEX + i;
             ItemStack outStack = outInventories.get(i).getStackInSlot(0);
-            IPacket<?> packet = new SSetSlotPacket(windowId, FIRST_OUT_SLOT_INDEX + i, outStack);
-            serverPlayerEntity.connection.sendPacket(packet);
+            IPacket<?> stackPacket = new SSetSlotPacket(windowId, index, outStack);
+            serverPlayerEntity.connection.sendPacket(stackPacket);
+            if (inventorySlots.get(index) instanceof FoodProcessingResultSlot) {
+                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(index);
+                final int ingredientId = slot.ingredient.containerSlotId;
+                final int toolId = slot.tool != null ? slot.tool.containerSlotId : SSetProcessingResultSlotPacket.NULL_SLOT_CODE;
+                SSetProcessingResultSlotPacket refPacket = new SSetProcessingResultSlotPacket(windowId, index, ingredientId, toolId);
+                ModNetworking.sendToClient(refPacket, serverPlayerEntity);
+            }
             inventorySlots.get(FIRST_OUT_SLOT_INDEX + i).onSlotChanged();
         }
     }
@@ -286,8 +299,46 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             return ingredientSlotPrompts;
         } else if (slot instanceof FoodToolSlot) {
             return toolSlotPrompts;
+        } else if (slot instanceof FoodProcessingResultSlot) {
+            FoodProcessingResultSlot resultSlot = (FoodProcessingResultSlot)slot;
+            if (!resultSlot.getStack().isEmpty() && resultSlot.tool != null) {
+                Slot toolSource = inventorySlots.get(resultSlot.tool.containerSlotId);
+                Slot toolDestination = inventorySlots.get(TOOL_SLOT_INDEX);
+                ReferenceSlotPrompt prompt = new ReferenceSlotPromptBuilder(toolSource, toolDestination).build(resultSlot);
+                return NonNullList.withSize(1, prompt);
+            }
         }
 
         return NonNullList.create();
+    }
+
+    @Override
+    public void handleProcessingSlotUpdate(int slotId, int ingredientId, int toolId) {
+        if (!isValidSlot(slotId, FoodProcessingResultSlot.class, Item.class))
+            throw new IllegalStateException("Try to handle food processing slot update with invalid slot id");
+        FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(slotId);
+
+        if (!isValidSlot(ingredientId, Slot.class, FoodIngredientItem.class))
+            throw new IllegalStateException("Try to handle food processing slot update with invalid ingredient id");
+        Slot ingredient = inventorySlots.get(ingredientId);
+
+        Slot tool = null;
+        if (!isValidSlot(toolId, Slot.class, FoodToolItem.class)) {
+            if (toolId != SSetProcessingResultSlotPacket.NULL_SLOT_CODE)
+                throw new IllegalStateException("Try to handle food processing slot update with invalid tool id");
+        } else {
+            tool = inventorySlots.get(toolId);
+        }
+
+        slot.ingredient = new SlotReference(ingredient.inventory, ingredient.getSlotIndex(), ingredientId);
+        slot.tool = tool != null ? new SlotReference(tool.inventory, tool.getSlotIndex(), toolId) : null;
+    }
+
+    private boolean isValidSlot(int slotId, Class slotType, Class itemType) {
+        if (slotId < 0 || slotId >= inventorySlots.size()) return false;
+        if (!(slotType.isAssignableFrom(inventorySlots.get(slotId).getClass()))) return false;
+
+        boolean validItemType = itemType.isAssignableFrom(inventorySlots.get(slotId).getStack().getItem().getClass());
+        return validItemType || inventorySlots.get(slotId).getStack().isEmpty();
     }
 }

@@ -4,6 +4,11 @@ import artoffood.client.rendering.IngredientColors;
 import artoffood.client.rendering.IngredientModel;
 import artoffood.client.screens.CountertopScreen;
 import artoffood.client.screens.KitchenDrawerScreen;
+import artoffood.client.screens.slot_prompt.HighlightSlotPrompt;
+import artoffood.client.screens.slot_prompt.ReferenceSlotPrompt;
+import artoffood.client.screens.slot_prompt.StubSlotPrompt;
+import artoffood.client.screens.slot_prompt.TextSlotPrompt;
+import artoffood.client.screens.slot_prompt.rendering.*;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.utils.resgistrators.BlocksRegistrator;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
@@ -11,6 +16,7 @@ import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.common.data_providers.ModRecipesProvider;
 import artoffood.common.recipies.RecipeSerializerRegistrator;
 import artoffood.common.utils.resgistrators.TileEntityRegistrator;
+import artoffood.networking.ModNetworking;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -66,6 +72,7 @@ public class ArtOfFood
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
+        ModNetworking.registerMessages();
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         BlocksRegistrator.BLOCKS.register(modEventBus);
@@ -84,14 +91,19 @@ public class ArtOfFood
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
-        ModelLoader.instance().addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
 
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.KITCHEN_DRAWER.get(), RenderType.getSolid());
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.COUNTERTOP.get(), RenderType.getSolid());
 
         ScreenManager.registerFactory(ContainersRegistrator.KITCHEN_DRAWER.get(), KitchenDrawerScreen::new);
         ScreenManager.registerFactory(ContainersRegistrator.COUNTERTOP.get(),  CountertopScreen::new);
+
+        SlotPromptRenderingManager.register(TextSlotPrompt.class, new TextPromptRenderer());
+        SlotPromptRenderingManager.register(StubSlotPrompt.class, new StubPromptRenderer());
+        SlotPromptRenderingManager.register(HighlightSlotPrompt.class, new HighlightPromptRenderer());
+        SlotPromptRenderingManager.register(ReferenceSlotPrompt.class, new ReferencePromptRenderer());
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

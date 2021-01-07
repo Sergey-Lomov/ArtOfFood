@@ -6,8 +6,8 @@ import artoffood.minebridge.models.MBItemRendering;
 
 public class MBIngredientTypeBuilder {
 
-    private String itemId;
-    private IngredientType core;
+    private final String itemId;
+    private final IngredientType core;
     private int stackSize = 64;
     public MBItemRendering rendering = null;
 

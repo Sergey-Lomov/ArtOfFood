@@ -1,4 +1,4 @@
-package artoffood.client.screens.slots_prompt;
+package artoffood.client.screens.slot_prompt;
 
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.NonNullList;

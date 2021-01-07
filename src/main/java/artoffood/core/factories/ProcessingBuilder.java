@@ -13,8 +13,8 @@ import java.util.List;
 
 public class ProcessingBuilder {
 
-    private TagsPredicate ingredientPredicate;
-    private List<FoodToolFunctional> requiredFunctional = new ArrayList<>();
+    private final TagsPredicate ingredientPredicate;
+    private final List<FoodToolFunctional> requiredFunctional = new ArrayList<>();
     private NutritionalTransform nutritionalTransform = NutritionalTransform.EMPTY;
     private TasteTransform tasteTransform = TasteTransform.EMPTY;
     private TagsTransform tagsTransform = TagsTransform.EMPTY;

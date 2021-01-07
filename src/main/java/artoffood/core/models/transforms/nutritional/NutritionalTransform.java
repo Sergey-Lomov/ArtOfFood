@@ -5,7 +5,7 @@ import artoffood.core.models.transforms.ITransform;
 
 public interface NutritionalTransform extends ITransform<Nutritional> {
 
-    public static final NutritionalTransform EMPTY = new NutritionalTransform() {
+    NutritionalTransform EMPTY = new NutritionalTransform() {
         @Override
         public void update(Nutritional in) { }
     };

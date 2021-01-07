@@ -12,7 +12,7 @@ public class FoodProcessingFinishedRecipe implements IFinishedRecipe {
 
     private static final String PROCESSING_LOCATION_PREFIX = "food_processings/";
 
-    private MBProcessing processing;
+    private final MBProcessing processing;
 
     public FoodProcessingFinishedRecipe(MBProcessing procesing) {
         this.processing = procesing;

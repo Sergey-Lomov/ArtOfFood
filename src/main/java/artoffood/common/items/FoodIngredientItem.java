@@ -19,7 +19,7 @@ import java.util.List;
 
 public class FoodIngredientItem extends Item {
 
-    private MBIngredientType mbridge;
+    private final MBIngredientType mbridge;
 
     public FoodIngredientItem(MBIngredientType mbridge, Properties properties) {
         super(properties);
@@ -52,16 +52,4 @@ public class FoodIngredientItem extends Item {
             tags.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }
     }
-   /*
-    @Override
-    public void onUse(World worldIn, LivingEntity livingEntityIn, ItemStack stack, int count) {
-        stack.getTag().putString("stuffing", "apple");
-    }
-
-    @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        stack.getTag().putString("stuffing", "apple");
-        return ActionResult.resultConsume(stack);
-    }*/
 }
