@@ -1,26 +1,26 @@
 package artoffood.minebridge.factories;
 
-import artoffood.core.models.IngredientType;
-import artoffood.minebridge.models.MBIngredientType;
+import artoffood.core.models.IngredientPrototype;
+import artoffood.minebridge.models.MBIngredientPrototype;
 import artoffood.minebridge.models.MBItemRendering;
 
 public class MBIngredientTypeBuilder {
 
     private final String itemId;
-    private final IngredientType core;
+    private final IngredientPrototype core;
     private int stackSize = 64;
     public MBItemRendering rendering = null;
 
-    public MBIngredientTypeBuilder(String itemId, IngredientType core) {
+    public MBIngredientTypeBuilder(String itemId, IngredientPrototype core) {
         this.itemId = itemId;
         this.core = core;
     }
 
-    public MBIngredientType build() {
+    public MBIngredientPrototype build() {
         if (rendering == null)
             rendering = new MBItemRenderingBuilder(itemId).build();
 
-        return new MBIngredientType(itemId, core, stackSize, rendering);
+        return new MBIngredientPrototype(itemId, core, stackSize, rendering);
     }
 
     public MBIngredientTypeBuilder stackSize(int stackSize) {

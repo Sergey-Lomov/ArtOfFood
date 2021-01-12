@@ -7,9 +7,11 @@ import java.util.List;
 
 public class MBItemRendering {
 
+    public static final MBItemRendering EMPTY = new MBItemRendering("", new ArrayList<>(), new ColorsSchema());
+
     public String modelKey;
-    public List<String> layers = new ArrayList<>();
-    public ColorsSchema colors = new ColorsSchema();
+    public List<String> layers;
+    public ColorsSchema colors;
 
     public MBItemRendering(String modelKey, List<String> layers, ColorsSchema colors) {
         this.modelKey = modelKey;

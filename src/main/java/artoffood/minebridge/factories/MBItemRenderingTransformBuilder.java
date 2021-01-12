@@ -1,9 +1,7 @@
 package artoffood.minebridge.factories;
 
-import artoffood.minebridge.models.color_schemas.MainColorSchema;
 import artoffood.minebridge.models.transforms.MBItemRenderingTransform;
 import artoffood.minebridge.models.transforms.colors_transform.ColorsTransform;
-import artoffood.minebridge.models.transforms.colors_transform.InnerToMainColorsTransform;
 
 import java.util.ArrayList;
 import java.util.List;

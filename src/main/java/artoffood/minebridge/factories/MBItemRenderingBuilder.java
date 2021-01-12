@@ -1,6 +1,5 @@
 package artoffood.minebridge.factories;
 
-import artoffood.minebridge.models.MBIngredientType;
 import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
 

@@ -1,53 +1,60 @@
 package artoffood.common.items;
 
-import artoffood.common.utils.ModNBTHelper;
-import artoffood.core.models.FoodTag;
-import artoffood.minebridge.models.MBIngredientType;
-import artoffood.minebridge.models.MBItemRendering;
+import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
+import artoffood.common.capabilities.ingredient.IngredientEntityProvider;
+import artoffood.core.models.Ingredient;
+import artoffood.minebridge.models.MBIngredient;
+import artoffood.minebridge.models.MBIngredientPrototype;
 import artoffood.minebridge.utils.MBIngredientHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FoodIngredientItem extends Item {
 
-    private final MBIngredientType mbridge;
+    private final @Nullable  MBIngredientPrototype prototype;
 
-    public FoodIngredientItem(MBIngredientType mbridge, Properties properties) {
+    public FoodIngredientItem(@Nullable MBIngredientPrototype prototype, Properties properties) {
         super(properties);
-        this.mbridge = mbridge;
+        this.prototype = prototype;
     }
 
-    public List<FoodTag> foodTags(ItemStack stack) {
-        List<String> processings = ModNBTHelper.processingsIds(stack);
-        return MBIngredientHelper.foodTags(mbridge, processings);
-    }
-
-    public MBItemRendering rendering(ItemStack stack) {
-        List<String> processings = ModNBTHelper.processingsIds(stack);
-        return MBIngredientHelper.rendering(mbridge, processings);
+    @Nullable
+    @Override
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+        return new IngredientEntityProvider(prototype);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(@NotNull ItemStack stack, @Nullable World worldIn,
+                               @NotNull List<ITextComponent> tooltip,
+                               @NotNull ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
 
-        List<String> processings = ModNBTHelper.processingsIds(stack);
-        List<String> taste = MBIngredientHelper.tasteDescription(mbridge, processings);
+        AtomicReference<MBIngredient> ingredient = new AtomicReference<>(MBIngredient.EMPTY);
+        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(c -> ingredient.set(c.getIngredient()));
+
+        if (ingredient.get() == MBIngredient.EMPTY) return;
+
+        List<String> taste = MBIngredientHelper.tasteDescription(ingredient.get());
         if (!taste.isEmpty()) {
             taste.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }
 
-        List<String> tags = MBIngredientHelper.tagsDescription(mbridge, processings);
+        List<String> tags = MBIngredientHelper.tagsDescription(ingredient.get());
         if (!tags.isEmpty()) {
             tags.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
         }

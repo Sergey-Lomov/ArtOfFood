@@ -3,18 +3,14 @@ package artoffood.client.screens;
 import artoffood.client.screens.slot_prompt.*;
 import artoffood.client.screens.slot_prompt.rendering.SlotPromptRenderingManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public abstract class ModContainerScreen <T extends Container> extends ContainerScreen<T> {
 

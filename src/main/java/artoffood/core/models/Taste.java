@@ -1,6 +1,6 @@
 package artoffood.core.models;
 
-public class Taste {
+public class Taste implements Cloneable{
 
     public float salinity;
     public float sweetness;
@@ -22,5 +22,14 @@ public class Taste {
         this.acidity = acidity;
         this.bitterness = bitterness;
         this.umami = umami;
+    }
+
+    @Override
+    protected Taste clone() {
+        return new Taste(salinity, sweetness, acidity, bitterness, umami);
+    }
+
+    public float totalPower() {
+        return salinity + sweetness + acidity + bitterness + umami;
     }
 }

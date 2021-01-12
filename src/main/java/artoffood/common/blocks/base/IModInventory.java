@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
+// TODO: Change to capabiltites - required by Forge guidelines: https://forums.minecraftforge.net/topic/61757-common-issues-and-recommendations/.
 public interface IModInventory extends IInventory {
 
     @FunctionalInterface

@@ -1,12 +1,10 @@
 package artoffood.minebridge.registries;
 
-import artoffood.core.models.FoodTag;
 import artoffood.core.models.Processing;
 import artoffood.core.registries.ProcessingsRegister;
 import artoffood.minebridge.factories.MBItemRenderingTransformBuilder;
-import artoffood.minebridge.models.MBFoodTag;
 import artoffood.minebridge.models.MBProcessing;
-import artoffood.minebridge.models.color_schemas.MainColorSchema;
+import artoffood.minebridge.models.color_schemas.ColorsSchema;
 import artoffood.minebridge.models.transforms.MBItemRenderingTransform;
 import artoffood.minebridge.models.transforms.colors_transform.InnerToMainColorsTransform;
 
@@ -22,7 +20,7 @@ public class MBProcessingsRegister {
     private static MBProcessing registerWithInnerToMain(String id, Processing core, String newModel){
         MBItemRenderingTransform transform = new MBItemRenderingTransformBuilder()
                 .newModelKey(newModel)
-                .addLayer(MainColorSchema.mainKey)
+                .addLayer(ColorsSchema.MAIN_KEY)
                 .colorsTransform(new InnerToMainColorsTransform())
                 .build();
         return new MBProcessing(id, core, transform) {{

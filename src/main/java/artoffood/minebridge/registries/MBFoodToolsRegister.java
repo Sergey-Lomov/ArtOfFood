@@ -19,6 +19,7 @@ public class MBFoodToolsRegister {
 
     public static final MBFoodTool STONE_GRATER = register("stone_grater", FoodToolsRegister.GRATER, 15);
 
+    // TODO: Make all register public, to provide possbility to another developers to add recipes and e.t.c. Valid only if JSON serialization for all entities will not be implemented.
     private static MBFoodTool register(String id, FoodTool core, int durability) {
         String fullId = TOOLS_DIR + "/" + id;
         MBFoodTool tool = new MBFoodTool(fullId, core, durability);

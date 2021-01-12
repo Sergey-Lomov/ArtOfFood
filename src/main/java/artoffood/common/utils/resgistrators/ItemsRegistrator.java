@@ -5,9 +5,9 @@ import artoffood.client.utils.ModItemGroup;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.minebridge.models.MBFoodTool;
-import artoffood.minebridge.models.MBIngredientType;
+import artoffood.minebridge.models.MBIngredientPrototype;
 import artoffood.minebridge.registries.MBFoodToolsRegister;
-import artoffood.minebridge.registries.MBIngredientTypesRegister;
+import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -21,7 +21,7 @@ public class ItemsRegistrator {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
 
     public static final Item ITEM_GROUP_AMBASADOR = new FoodIngredientItem(
-            MBIngredientTypesRegister.CABBAGE,
+            MBIngredientPrototypesRegister.CABBAGE,
             new Item.Properties().group(ModItemGroup.instance));
 
     public static final Item PROCESSINGS_AMBASADOR = new FoodToolItem(
@@ -33,7 +33,7 @@ public class ItemsRegistrator {
     }
 
     public static void registerIngredients() {
-        registerIngredient(MBIngredientTypesRegister.CABBAGE);
+        registerIngredient(MBIngredientPrototypesRegister.CABBAGE);
     }
 
     public static void registerBlockItem(String name, Block block, int stackSize) {
@@ -42,7 +42,7 @@ public class ItemsRegistrator {
         ITEMS.register(BLOCK_ITEMS_PREFIX + name, () -> blockItem);
     }
 
-    private static void registerIngredient(MBIngredientType type) {
+    private static void registerIngredient(MBIngredientPrototype type) {
         Item.Properties properties = new Item.Properties().maxStackSize(type.stackSize).group(ModItemGroup.instance);
         ITEMS.register(type.itemId, () -> new FoodIngredientItem(type, properties));
     }

@@ -1,6 +1,7 @@
 package artoffood.client.rendering;
 
 import artoffood.ArtOfFood;
+import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.minebridge.models.MBItemRendering;
 import net.minecraft.client.renderer.model.*;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class IngredientOverridesList extends ItemOverrideList {
 
@@ -25,17 +27,22 @@ public class IngredientOverridesList extends ItemOverrideList {
     @Override
     public IBakedModel getOverrideModel(@NotNull IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
     {
-        if (!(stack.getItem() instanceof FoodIngredientItem))
-            throw new IllegalStateException("IngredientOverridesList called with not IngredientItem stack");
+        AtomicReference<MBItemRendering> rendering = new AtomicReference<>(null);
+        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                c -> rendering.set(c.getIngredient().rendering)
+        );
 
-        MBItemRendering rendering = ((FoodIngredientItem) stack.getItem()).rendering(stack);
-        if (HASHED_MODELS.containsKey(rendering))
-            return HASHED_MODELS.get(rendering);
+        if (rendering.get() == null)
+            throw new IllegalStateException("IngredientOverridesList called with not valid IngredientEntityCapability");
 
-        ResourceLocation location = new ResourceLocation(ArtOfFood.MOD_ID, "item/" + rendering.modelKey);
+        if (HASHED_MODELS.containsKey(rendering.get()))
+            return HASHED_MODELS.get(rendering.get());
+
+        ResourceLocation location = new ResourceLocation(ArtOfFood.MOD_ID, "item/" + rendering.get().modelKey);
         TextureAtlasSprite texture = ATLAS.getSprite(location);
+        assert ModelLoader.instance() != null;
         IBakedModel result = ModelLoader.instance().getBakedModel(location, ModelRotation.X0_Y0, rm -> texture);
-        HASHED_MODELS.put(rendering, result);
+        HASHED_MODELS.put(rendering.get(), result);
 
         return result;
     }

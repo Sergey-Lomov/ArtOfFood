@@ -9,6 +9,7 @@ import artoffood.client.screens.slot_prompt.ReferenceSlotPrompt;
 import artoffood.client.screens.slot_prompt.StubSlotPrompt;
 import artoffood.client.screens.slot_prompt.TextSlotPrompt;
 import artoffood.client.screens.slot_prompt.rendering.*;
+import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.utils.resgistrators.BlocksRegistrator;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
@@ -87,7 +88,7 @@ public class ArtOfFood
 
     private void setup(final FMLCommonSetupEvent event)
     {
-
+        IngredientEntityCapability.register();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {

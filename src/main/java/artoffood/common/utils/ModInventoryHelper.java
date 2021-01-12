@@ -8,7 +8,7 @@ public class ModInventoryHelper {
 
     public static final int UNFOUND_INDEX = -1;
 
-    public static @Nullable ItemStack soloStackOfType(IInventory inv, Class<?> type) {
+    public static @Nullable ItemStack containsSoloStackOfType(IInventory inv, Class<?> type) {
         ItemStack result = null;
         for(int index = 0; index < inv.getSizeInventory(); ++index) {
             ItemStack stack = inv.getStackInSlot(index);

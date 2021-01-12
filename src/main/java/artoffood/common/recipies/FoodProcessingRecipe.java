@@ -1,11 +1,10 @@
 package artoffood.common.recipies;
 
+import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.utils.ModInventoryHelper;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
-import artoffood.common.utils.ModNBTHelper;
-import artoffood.core.models.FoodTag;
 import artoffood.minebridge.models.MBProcessing;
 import artoffood.minebridge.registries.MBProcessingsRegister;
 import com.google.gson.JsonObject;
@@ -22,7 +21,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FoodProcessingRecipe implements ICraftingRecipe {
 
@@ -31,7 +30,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     private final ResourceLocation id;
 
     private @Nullable ItemStack ingredient(IInventory inv) {
-        ItemStack ingredient = ModInventoryHelper.soloStackOfType(inv, FoodIngredientItem.class);
+        ItemStack ingredient = ModInventoryHelper.containsSoloStackOfType(inv, FoodIngredientItem.class);
         if (ingredient != null)
             return verifyIngredient(ingredient) ? ingredient : null;
 
@@ -39,7 +38,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     }
 
     private @Nullable ItemStack tool(IInventory inv) {
-        ItemStack tool = ModInventoryHelper.soloStackOfType(inv, FoodToolItem.class);
+        ItemStack tool = ModInventoryHelper.containsSoloStackOfType(inv, FoodToolItem.class);
         if (tool != null)
             return verifyTool(tool) ? tool : null;
 
@@ -73,11 +72,11 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         if (stack == null)
             return false;
 
-        if (!(stack.getItem() instanceof FoodIngredientItem))
-            return false;
-
-        List<FoodTag> tags = ((FoodIngredientItem) stack.getItem()).foodTags(stack);
-        return processing.availableForIngredient(tags);
+        AtomicBoolean isValid = new AtomicBoolean(false);
+        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                c -> isValid.set( processing.availableForIngredient(c.getTags()))
+        );
+        return isValid.get();
     }
 
     private boolean verifyTool(@Nullable ItemStack stack) {
@@ -171,7 +170,9 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
 
     private ItemStack processedStack(ItemStack source) {
         ItemStack result = source.copy();
-        ModNBTHelper.addProcessingId(result, processing.id);
+        result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                c -> c.applyProcessing(processing)
+        );
         result.setCount(outputCount);
         return result;
     }

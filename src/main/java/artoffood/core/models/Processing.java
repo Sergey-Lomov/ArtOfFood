@@ -25,11 +25,10 @@ public class Processing {
         this.tagsTransform = tagsTransform;
     }
 
-    public void updateTaste(Taste in) {
-        tasteTransform.update(in);
-    }
-    public void updateTags(List<FoodTag> in) {
-        tagsTransform.update(in);
+    public void updateIngredient(Ingredient ingredient) {
+        nutritionalTransform.update(ingredient.nutritional);
+        tasteTransform.update(ingredient.taste);
+        tagsTransform.update(ingredient.tags);
     }
 
     public boolean availableForIngredient(List<FoodTag> tags) { return ingredientPredicate.test(tags); }

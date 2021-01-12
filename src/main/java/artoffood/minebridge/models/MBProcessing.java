@@ -4,6 +4,7 @@ import artoffood.core.models.FoodTag;
 import artoffood.core.models.Processing;
 import artoffood.minebridge.factories.MBItemRenderingTransformBuilder;
 import artoffood.minebridge.models.transforms.MBItemRenderingTransform;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -28,5 +29,8 @@ public class MBProcessing {
     public boolean availableWithTool(MBFoodTool tool) { return core.availableWithTool(tool.core); }
     public boolean availableWithoutTool() { return core.availableWithoutTool(); }
 
-    public void update(MBItemRendering rendering) { renderingTransform.update(rendering); }
+    public void updateIngredient(@NotNull MBIngredient ingredient) {
+        core.updateIngredient(ingredient.core);
+        renderingTransform.update(ingredient.rendering);
+    }
 }

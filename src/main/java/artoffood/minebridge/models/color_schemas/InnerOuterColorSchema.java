@@ -4,11 +4,11 @@ import java.awt.*;
 
 public class InnerOuterColorSchema extends ColorsSchema {
 
-    public static String innerKey = "inner";
-    public static String outerKey = "outer";
+    public static String INNER_KEY = "inner";
+    public static String OUTER_KEY = "outer";
 
     public InnerOuterColorSchema(Color inner, Color outer) {
-        put(innerKey, inner);
-        put(outerKey, outer);
+        put(INNER_KEY, inner);
+        put(OUTER_KEY, outer);
     }
 }
