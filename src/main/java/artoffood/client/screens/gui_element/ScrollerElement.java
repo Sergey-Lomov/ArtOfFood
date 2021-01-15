@@ -47,7 +47,7 @@ public class ScrollerElement extends GuiElement {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY)) return true;
 
-        if (absoluteFrame.contains(mouseX, mouseY))
+        if (absoluteFrame.contains(mouseX, mouseY) && button == LEFT_MOUSE_BUTTON)
             onFocus = true;
 
         if (onFocus) {
@@ -71,8 +71,8 @@ public class ScrollerElement extends GuiElement {
     }
 
     public void scrollTo(int newDisplacement) {
-        int displacement = newDisplacement < 0 ? 0 : newDisplacement;
-        displacement = displacement > maxDisplacement ? maxDisplacement : displacement;
+        int displacement = Math.max(newDisplacement, 0);
+        displacement = Math.min(displacement, maxDisplacement);
         missedDisplacement = 0;
         final Rectangle newFrame = new Rectangle(initPoint.x, initPoint.y, getFrame().width, getFrame().height);
         newFrame.translate(0, displacement);

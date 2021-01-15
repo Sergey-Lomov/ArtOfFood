@@ -1,10 +1,7 @@
 package artoffood.client.screens.gui_element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -17,7 +14,7 @@ public abstract class GuiListCell<T> extends GuiElement {
     }
 
     public @Nullable T model;
-    public @Nullable Delegate delegate;
+    public @Nullable Delegate<T> delegate;
     protected Boolean isSelected = false;
     public int unselectedBorderColor = Color.black.getRGB();
     public int selectedBorderColor = Color.white.getRGB();
@@ -47,7 +44,7 @@ public abstract class GuiListCell<T> extends GuiElement {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (super.mouseClicked(mouseX, mouseY, button)) return true;
 
-        if (absoluteFrame.contains(mouseX, mouseY)) {
+        if (absoluteFrame.contains(mouseX, mouseY) && LEFT_MOUSE_BUTTON == button) {
             if (delegate != null)
                 delegate.didClickCell(this);
 

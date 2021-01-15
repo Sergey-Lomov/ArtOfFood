@@ -6,8 +6,6 @@ import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
-
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
 
 public class ConceptListCell extends GuiListCell<ConceptCellViewModel> {
@@ -27,6 +25,8 @@ public class ConceptListCell extends GuiListCell<ConceptCellViewModel> {
     @Override
     protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
         super.preChildsRender(matrixStack, mouseX, mouseY, partialTick);
+
+        if (model == null) return;
 
         ITextComponent text = new StringTextComponent(model.title);
         final int yInset = (HEIGHT - model.font.FONT_HEIGHT) / 2;
