@@ -15,7 +15,7 @@ public class HighlightPromptBuilder extends SlotPromptBuilder<HighlightPromptBui
 
     private List<Slot> validationSlots = new ArrayList<>();
     private Predicate<? super Slot> predicate = (s) -> true;
-    private Texture texture = Textures.GREEN_BORDER;
+    private Texture texture = Textures.GREEN_SLOT_BORDER;
 
     @Override
     protected int defaultRenderOrder() {

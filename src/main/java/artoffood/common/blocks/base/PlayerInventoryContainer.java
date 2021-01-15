@@ -20,7 +20,6 @@ public abstract class PlayerInventoryContainer extends Container  {
     protected static final int VANILLA_FIRST_SLOT_INDEX = 0;
     protected static final int TE_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    public static final int INVENTORY_X_POS = 7;
     public static final int HOTBAR_Y_DISPLACEMENT = 58;
 
     protected final PlayerInventory playerInventory;
@@ -31,16 +30,16 @@ public abstract class PlayerInventoryContainer extends Container  {
         playerInventory = inventory;
     }
 
-    protected void addPlayerInventorySlots(PlayerInventory inventory, int y_pos) {
+    protected void addPlayerInventorySlots(PlayerInventory inventory, int x_pos, int y_pos) {
         final int HOTBAR_Y_POS = HOTBAR_Y_DISPLACEMENT + y_pos;
         for (int x = 0; x < HOTBAR_SLOT_COUNT; x++) {
-            addSlot(new Slot(inventory, x, INVENTORY_X_POS + Constants.SLOT_FULL_SIZE * x, HOTBAR_Y_POS));
+            addSlot(new Slot(inventory, x, x_pos + Constants.SLOT_FULL_SIZE * x, HOTBAR_Y_POS));
         }
 
         for (int y = 0; y < PLAYER_INVENTORY_ROW_COUNT; y++) {
             for (int x = 0; x < PLAYER_INVENTORY_COLUMN_COUNT; x++) {
                 int slotNumber = HOTBAR_SLOT_COUNT + y * PLAYER_INVENTORY_COLUMN_COUNT + x;
-                int xpos = INVENTORY_X_POS + x * Constants.SLOT_FULL_SIZE;
+                int xpos = x_pos + x * Constants.SLOT_FULL_SIZE;
                 int ypos = y_pos + y * Constants.SLOT_FULL_SIZE;
                 addSlot(new Slot(inventory, slotNumber,  xpos, ypos));
             }

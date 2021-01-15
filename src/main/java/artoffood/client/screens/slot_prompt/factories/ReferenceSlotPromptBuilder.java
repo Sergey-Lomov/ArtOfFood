@@ -11,7 +11,7 @@ public class ReferenceSlotPromptBuilder extends SlotPromptBuilder {
 
     private final Slot source;
     private final Slot destination;
-    private Texture sourceTexture = Textures.GREEN_BORDER;
+    private Texture sourceTexture = Textures.GREEN_SLOT_BORDER;
 
     @Override
     protected int defaultRenderOrder() {

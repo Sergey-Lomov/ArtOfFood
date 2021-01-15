@@ -58,7 +58,8 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
     private static final int TOOL_SLOT_INDEX = INGREDIENT_SLOT_INDEX + 1;
     private static final int FIRST_OUT_SLOT_INDEX = TOOL_SLOT_INDEX + 1;
 
-    public static final int PLAYER_INVENTORY_Y_POS = 81;
+    public static final int PLAYER_INVENTORY_X_POS = 110;
+    public static final int PLAYER_INVENTORY_Y_POS = 97;
     private static final int IN_SLOTS_X_POS = 34;
     private static final int INGREDIENT_SLOT_Y_POS = 21;
     private static final int TOOL_SLOT_Y_POS = 44;
@@ -91,7 +92,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             throw new IllegalStateException("Must register COUNTERTOP before constructing a CountertopContainer!");
 
         this.worldPosCallable = worldPosCallable;
-        addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_Y_POS);
+        addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_X_POS, PLAYER_INVENTORY_Y_POS);
 
         Slot ingredientSlot = addSlot(new FoodIngredientSlot(inInventory, 0, IN_SLOTS_X_POS, INGREDIENT_SLOT_Y_POS));
         Slot toolSlot = addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));

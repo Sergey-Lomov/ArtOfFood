@@ -14,7 +14,8 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
 
     private static final int TE_INVENTORY_SLOT_COUNT = KitchenDrawerTileEntity.NUMBER_OF_SLOTS;
     public static final int TE_INVENTORY_YPOS = 28;
-    public static final int PLAYER_INVENTORY_YPOS = 58;
+    public static final int PLAYER_INVENTORY_X_POS = 7;
+    public static final int PLAYER_INVENTORY_Y_POS = 58;
 
     private final KitchenDrawerInventory drawerInventory;
 
@@ -35,7 +36,7 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
             throw new IllegalStateException("Must register KITCHEN_DRAWER before constructing a KitchenDrawerContainer!");
 
         this.drawerInventory = drawerInventory;
-        addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_YPOS);
+        addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_X_POS, PLAYER_INVENTORY_Y_POS);
 
         if (TE_INVENTORY_SLOT_COUNT != drawerInventory.getSizeInventory()) {
             LogManager.getLogger(ArtOfFood.MOD_ID).warn("Mismatched slot count in KitchenDrawerContainer("
@@ -44,7 +45,7 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
         }
 
         for (int x = 0; x < TE_INVENTORY_SLOT_COUNT; x++) {
-            int x_pos = INVENTORY_X_POS + Constants.SLOT_FULL_SIZE * x;
+            int x_pos = PLAYER_INVENTORY_X_POS + Constants.SLOT_FULL_SIZE * x;
             addSlot(new FoodToolSlot(drawerInventory, x, x_pos, TE_INVENTORY_YPOS));
         }
     }

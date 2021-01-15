@@ -8,5 +8,6 @@ public class Textures {
 
     public static final ResourceLocation WIDGETS_ATLAS = new ResourceLocation(ArtOfFood.MOD_ID, "textures/gui/widgets.png");
 
-    public static final Texture GREEN_BORDER = new Texture(WIDGETS_ATLAS, 0, 24,24,24);
+    public static final Texture GREEN_SLOT_BORDER = new Texture(WIDGETS_ATLAS, 0, 24,24,24);
+    public static final Texture MIDDLE_SCROLLER = new Texture(WIDGETS_ATLAS, 0, 65,6,27);
 }

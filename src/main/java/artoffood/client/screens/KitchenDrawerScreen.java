@@ -43,7 +43,7 @@ public class KitchenDrawerScreen extends ContainerScreen<KitchenDrawerContainer>
         final StringTextComponent comment = new StringTextComponent(commentString);
         font.func_243248_b(matrixStack, comment, LABELS_X_POS, DRAWER_COMMENT_LABEL_YPOS, Color.white.getRGB());
 
-        final float PLAYER_INV_LABEL_YPOS = KitchenDrawerContainer.PLAYER_INVENTORY_YPOS - FONT_Y_SPACING;
+        final float PLAYER_INV_LABEL_YPOS = KitchenDrawerContainer.PLAYER_INVENTORY_Y_POS - FONT_Y_SPACING;
         font.func_243248_b(matrixStack, playerInventory.getDisplayName(), LABELS_X_POS, PLAYER_INV_LABEL_YPOS, Color.darkGray.getRGB());
     }
 
