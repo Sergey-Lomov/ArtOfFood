@@ -23,5 +23,8 @@
   "taste.sweetness": "Sweetness",
   "taste.acidity": "Acidity",
   "taste.bitterness": "Bitterness",
-  "taste.umami": "Umami"
+  "taste.umami": "Umami",
+
+  "concepts.title.processing": "Processing",
+  "concepts.title.blendy_salty_salad": "Common salad"
 }

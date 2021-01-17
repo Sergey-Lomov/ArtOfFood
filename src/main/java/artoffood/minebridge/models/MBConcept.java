@@ -1,9 +1,12 @@
 package artoffood.minebridge.models;
 
+import artoffood.client.utils.Texture;
 import artoffood.core.models.Concept;
 import artoffood.core.models.Ingredient;
 import artoffood.minebridge.registries.MBVisualSlotsTypesRegister;
+import artoffood.minebridge.utils.LocalisationManager;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.TransportationHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

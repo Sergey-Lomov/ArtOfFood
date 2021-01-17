@@ -15,6 +15,8 @@ public class GUILabel extends GUIView {
     public Point insets = new Point();
     public ITextComponent text = new StringTextComponent("");
     public int textColor = Color.black.getRGB();
+    public boolean useShadow = false;
+    public int shadowTextColor = Color.black.getRGB();
 
     public GUILabel(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -28,6 +30,8 @@ public class GUILabel extends GUIView {
     @Override
     protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
-        font.func_243248_b(matrixStack, text, contentFrame.x + insets.x, contentFrame.y + insets.y, textColor );
+        if (useShadow)
+            font.func_243248_b(matrixStack, text, contentFrame.x + insets.x + 1, contentFrame.y + insets.y + 1, shadowTextColor);
+        font.func_243248_b(matrixStack, text, contentFrame.x + insets.x, contentFrame.y + insets.y, textColor);
     }
 }

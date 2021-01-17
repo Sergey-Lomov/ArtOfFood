@@ -1,11 +1,11 @@
 package artoffood.minebridge.concepts;
 
+import artoffood.core.models.Ingredient;
 import artoffood.core.registries.ConceptsRegister;
-import artoffood.minebridge.models.MBConcept;
-import artoffood.minebridge.models.MBIngredient;
-import artoffood.minebridge.models.MBItemRendering;
-import artoffood.minebridge.models.MBVisualSlot;
+import artoffood.core.registries.IngredientPrototypesRegister;
+import artoffood.minebridge.models.*;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
+import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import net.minecraft.util.NonNullList;
 import org.jetbrains.annotations.NotNull;
 

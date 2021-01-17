@@ -8,8 +8,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LocalisationManager {
 
     private static final String TAGS_PREFIX = "tags.";
+    private static final String CONCEPTS_TITLE_PREFIX = "concepts.title.";
 
     public static String tag(String key) { return I18n.format(TAGS_PREFIX + key); }
+    public static String conceptTitle(String key) { return I18n.format(CONCEPTS_TITLE_PREFIX + key); }
 
     public static class Taste {
 
