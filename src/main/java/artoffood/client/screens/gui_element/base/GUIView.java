@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
@@ -26,7 +27,6 @@ public abstract class GUIView extends AbstractGui {
     protected NonNullList<GUIView> childs = NonNullList.create();
 
     private Rectangle frame;
-    protected Rectangle visibilityFrame;
     protected Rectangle absoluteFrame;
     protected Rectangle contentFrame;
     private int leftBorderWidth = 1;
@@ -38,9 +38,12 @@ public abstract class GUIView extends AbstractGui {
     public int bottomRightBorderColor = Color.decode("#FFFFFF").getRGB();
     public int cornerBorderColor = Color.decode("#8B8B8B").getRGB();
 
+    public Consumer<GUIView> parentFrameUpdateHandler = v -> {};
+
+
     public GUIView(int x, int y, int width, int height) {
         this.frame = new Rectangle(x, y, width, height);
-        updateSecondaryFrames();
+        handleFrameUpdate();
     }
 
     // Getters/setters
@@ -51,7 +54,7 @@ public abstract class GUIView extends AbstractGui {
 
     public void setFrame(Rectangle frame) {
         this.frame = frame;
-        updateSecondaryFrames();
+        handleFrameUpdate();
     }
 
     public void setBorderWidth(int width) {
@@ -59,7 +62,7 @@ public abstract class GUIView extends AbstractGui {
         rightBorderWidth = width;
         topBorderWidth = width;
         bottomBorderWidth = width;
-        updateSecondaryFrames();
+        handleFrameUpdate();
     }
 
     public void setBorderWidth(int left, int top, int right, int bottom) {
@@ -67,10 +70,10 @@ public abstract class GUIView extends AbstractGui {
         rightBorderWidth = right;
         topBorderWidth = top;
         bottomBorderWidth = bottom;
-        updateSecondaryFrames();
+        handleFrameUpdate();
     }
 
-    private void updateSecondaryFrames() {
+    private void handleFrameUpdate() {
         if (parent == null) {
             absoluteFrame = frame;
         } else {
@@ -86,14 +89,16 @@ public abstract class GUIView extends AbstractGui {
                 absoluteFrame.width - leftBorderWidth - rightBorderWidth,
                 absoluteFrame.height - topBorderWidth - bottomBorderWidth);
 
-        for (GUIView child: childs)
-            child.updateSecondaryFrames();
+        for (GUIView child: childs) {
+            child.parentFrameUpdateHandler.accept(child);
+            child.handleFrameUpdate();
+        }
     }
 
     public void removeChild(GUIView child) {
         childs.remove(child);
         child.parent = null;
-        child.updateSecondaryFrames();
+        child.handleFrameUpdate();
     }
 
     public void addChild(GUIView child) {
@@ -102,7 +107,7 @@ public abstract class GUIView extends AbstractGui {
             if (child.parent != null)
                 child.parent.removeChild(child);
             child.parent = this;
-            child.updateSecondaryFrames();
+            child.handleFrameUpdate();
         }
     }
 

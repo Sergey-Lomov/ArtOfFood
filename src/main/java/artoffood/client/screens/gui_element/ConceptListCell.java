@@ -9,6 +9,7 @@ import java.awt.*;
 public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
 
     public static final int HEIGHT = 20;
+    private static final int TITLE_INSET = 4;
 
     protected GUILabel titleLabel = new GUILabel(0,0,0,0);
 
@@ -21,6 +22,12 @@ public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
         contentView.bottomRightBorderColor = new Color(0,0,0, 0.25f).getRGB();
         contentView.setBorderWidth(1, 1, 1, 2);
 
+        titleLabel.parentFrameUpdateHandler = l -> {
+            final int y = (contentView.getFrame().height - titleLabel.font.FONT_HEIGHT) / 2;
+            final Point point = new Point(TITLE_INSET, y);
+            final Dimension dimension = new Dimension(contentFrame.width - TITLE_INSET, titleLabel.font.FONT_HEIGHT);
+            l.setFrame(new Rectangle(point, dimension));
+        };
         contentView.addChild(titleLabel);
     }
 

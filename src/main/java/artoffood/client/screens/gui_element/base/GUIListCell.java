@@ -23,6 +23,9 @@ public abstract class GUIListCell<T> extends GUIView {
 
     public GUIListCell() {
         super(0, 0, 0, 0);
+
+        contentView.parentFrameUpdateHandler = c -> c.setFrame(new Rectangle(contentFrame.getSize()));
+
         addChild(contentView);
         updateBorderColor();
     }
@@ -35,12 +38,12 @@ public abstract class GUIListCell<T> extends GUIView {
         final int height = calcHeight(width);
         setFrame(new Rectangle(x, y, width, height));
     }
-
-    @Override
-    public void setFrame(Rectangle frame) {
-        super.setFrame(frame);
-        contentView.setFrame(new Rectangle(contentFrame.getSize()));
-    }
+//
+//    @Override
+//    public void setFrame(Rectangle frame) {
+//        super.setFrame(frame);
+//        contentView.setFrame(new Rectangle(contentFrame.getSize()));
+//    }
 
     public void setIsSelected(Boolean isSelected) {
         this.isSelected = isSelected;
