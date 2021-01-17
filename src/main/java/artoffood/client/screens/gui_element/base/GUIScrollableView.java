@@ -61,4 +61,9 @@ public class GUIScrollableView extends GUIView {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return super.mouseClicked(mouseX + contentOffset.x, mouseY + contentOffset.y, button);
     }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX + contentOffset.x, mouseY + contentOffset.y);
+    }
 }

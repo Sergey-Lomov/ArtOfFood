@@ -149,6 +149,10 @@ public abstract class GUIView extends AbstractGui {
         return false;
     }
 
+    public void mouseMoved(double mouseX, double mouseY) {
+        childs.forEach(c -> c.mouseMoved(mouseX, mouseY));
+    }
+
     // Rendering
 
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {

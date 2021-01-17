@@ -102,4 +102,10 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> {
         conceptsList.mouseScrolled(mouseX, mouseY, delta);
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        conceptsList.mouseMoved(mouseX, mouseY);
+        super.mouseMoved(mouseX, mouseY);
+    }
 }

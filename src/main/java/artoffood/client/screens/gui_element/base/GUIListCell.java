@@ -16,9 +16,11 @@ public abstract class GUIListCell<T> extends GUIView {
     public @Nullable Delegate<T> delegate;
     protected @Nullable T model;
     protected Boolean isSelected = false;
+    protected Boolean isHighlighted = false;
     protected GUITextureView contentView = new GUITextureView(0,0,0,0);
 
-    public int unselectedBorderColor = Color.black.getRGB();
+    public int normalBorderColor = Color.black.getRGB();
+    public int highlightedBorderColor = Color.lightGray.getRGB();
     public int selectedBorderColor = Color.white.getRGB();
 
     public GUIListCell() {
@@ -38,15 +40,14 @@ public abstract class GUIListCell<T> extends GUIView {
         final int height = calcHeight(width);
         setFrame(new Rectangle(x, y, width, height));
     }
-//
-//    @Override
-//    public void setFrame(Rectangle frame) {
-//        super.setFrame(frame);
-//        contentView.setFrame(new Rectangle(contentFrame.getSize()));
-//    }
 
     public void setIsSelected(Boolean isSelected) {
         this.isSelected = isSelected;
+        updateBorderColor();
+    }
+
+    public void setIsHiglighted(Boolean isSelected) {
+        this.isHighlighted = isSelected;
         updateBorderColor();
     }
 
@@ -70,9 +71,19 @@ public abstract class GUIListCell<T> extends GUIView {
         return false;
     }
 
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mouseY);
+        setIsHiglighted(absoluteFrame.contains(mouseX, mouseY));
+    }
+
     protected void updateBorderColor() {
-        topLeftBorderColor = isSelected ? selectedBorderColor : unselectedBorderColor;
-        cornerBorderColor = isSelected ? selectedBorderColor : unselectedBorderColor;
-        bottomRightBorderColor = isSelected ? selectedBorderColor : unselectedBorderColor;
+        int color = normalBorderColor;
+        if (isHighlighted) color = highlightedBorderColor;
+        if (isSelected) color = selectedBorderColor;
+
+        topLeftBorderColor = color;
+        cornerBorderColor = color;
+        bottomRightBorderColor = color;
     }
 }
