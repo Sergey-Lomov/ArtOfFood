@@ -1,4 +1,4 @@
-package artoffood.client.screens.gui_element;
+package artoffood.client.screens.gui_element.base;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
@@ -6,23 +6,23 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.util.OptionalInt;
 
-public class ScrollableView extends GuiElement {
+public class GUIScrollableView extends GUIView {
 
     protected int contentWidth = 0, contentHeight = 0;
     public Point contentOffset = new Point(0, 0);
 
-    public ScrollableView(int x, int y, int width, int height) {
+    public GUIScrollableView(int x, int y, int width, int height) {
         super(x, y, width, height);
     }
 
     @Override
-    public void addChild(GuiElement child) {
+    public void addChild(GUIView child) {
         super.addChild(child);
         updateContentSize();
     }
 
     @Override
-    public void removeChild(GuiElement child) {
+    public void removeChild(GUIView child) {
         super.removeChild(child);
         updateContentSize();
     }
@@ -50,7 +50,7 @@ public class ScrollableView extends GuiElement {
     }
 
     @Override
-    protected void renderChild(GuiElement child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         matrixStack.push();
         matrixStack.translate(-contentOffset.x, -contentOffset.y, 0);
         super.renderChild(child, matrixStack, mouseX, mouseY, partialTicks);

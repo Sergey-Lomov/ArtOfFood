@@ -3,9 +3,8 @@ package artoffood.client.screens;
 import artoffood.ArtOfFood;
 import artoffood.client.screens.gui_element.ConceptCellViewModel;
 import artoffood.client.screens.gui_element.ConceptListCell;
-import artoffood.client.screens.gui_element.GuiList;
+import artoffood.client.screens.gui_element.base.GUIVerticalList;
 import artoffood.common.blocks.devices.countertop.CountertopContainer;
-import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.utils.LocalisationManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -28,7 +27,7 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> {
     private static final int CONCEPT_LIST_TOP = 16;
     private static final int CONCEPT_LIST_LEFT = 6;
 
-    private GuiList conceptsList;
+    private GUIVerticalList conceptsList;
 
     public CountertopScreen(CountertopContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
@@ -46,7 +45,7 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> {
             models.add(new ConceptCellViewModel(title, font, Color.yellow.getRGB()));
         }
 
-        conceptsList = new GuiList(ConceptListCell.class, models, guiLeft + CONCEPT_LIST_LEFT, guiTop + CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
+        conceptsList = new GUIVerticalList(ConceptListCell.class, models, guiLeft + CONCEPT_LIST_LEFT, guiTop + CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
     }
 
     @Override

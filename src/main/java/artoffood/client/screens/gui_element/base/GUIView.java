@@ -1,4 +1,4 @@
-package artoffood.client.screens.gui_element;
+package artoffood.client.screens.gui_element.base;
 
 import artoffood.client.utils.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -16,25 +16,28 @@ import java.awt.*;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 
-public abstract class GuiElement extends AbstractGui {
+public abstract class GUIView extends AbstractGui {
 
     protected static final int LEFT_MOUSE_BUTTON = 0;
     protected static final int RIGHT_MOUSE_BUTTON = 1;
     protected static final int MIDDLE_MOUSE_BUTTON = 2;
 
-    private @Nullable GuiElement parent;
-    protected NonNullList<GuiElement> childs = NonNullList.create();
+    private @Nullable GUIView parent;
+    protected NonNullList<GUIView> childs = NonNullList.create();
 
     private Rectangle frame;
     protected Rectangle absoluteFrame;
     protected Rectangle contentFrame;
-    private int borderWidth = 1;
+    private int leftBorderWidth = 1;
+    private int rightBorderWidth = 1;
+    private int topBorderWidth = 1;
+    private int bottomBorderWidth = 1;
 
-    protected int topLeftBorderColor = Color.decode("#373737").getRGB();
-    protected int bottomRightBorderColor = Color.decode("#FFFFFF").getRGB();
-    protected int cornerBorderColor = Color.decode("#8B8B8B").getRGB();
+    public int topLeftBorderColor = Color.decode("#373737").getRGB();
+    public int bottomRightBorderColor = Color.decode("#FFFFFF").getRGB();
+    public int cornerBorderColor = Color.decode("#8B8B8B").getRGB();
 
-    public GuiElement(int x, int y, int width, int height) {
+    public GUIView(int x, int y, int width, int height) {
         this.frame = new Rectangle(x, y, width, height);
         updateSecondaryFrames();
     }
@@ -50,15 +53,20 @@ public abstract class GuiElement extends AbstractGui {
         updateSecondaryFrames();
     }
 
-    public int getBorderWidth() {
-        return borderWidth;
+    public void setBorderWidth(int width) {
+        leftBorderWidth = width;
+        rightBorderWidth = width;
+        topBorderWidth = width;
+        bottomBorderWidth = width;
+        updateSecondaryFrames();
     }
 
-    public void setBorderWidth(int width) {
-        if (borderWidth != width) {
-            borderWidth = width;
-            updateSecondaryFrames();
-        }
+    public void setBorderWidth(int left, int top, int right, int bottom) {
+        leftBorderWidth = left;
+        rightBorderWidth = right;
+        topBorderWidth = top;
+        bottomBorderWidth = bottom;
+        updateSecondaryFrames();
     }
 
     private void updateSecondaryFrames() {
@@ -72,22 +80,22 @@ public abstract class GuiElement extends AbstractGui {
                     frame.height);
         }
 
-        contentFrame = new Rectangle(absoluteFrame.x + borderWidth,
-                absoluteFrame.y + borderWidth,
-                absoluteFrame.width - borderWidth * 2,
-                absoluteFrame.height - borderWidth * 2);
+        contentFrame = new Rectangle(absoluteFrame.x + leftBorderWidth,
+                absoluteFrame.y + topBorderWidth,
+                absoluteFrame.width - leftBorderWidth - rightBorderWidth,
+                absoluteFrame.height - topBorderWidth - bottomBorderWidth);
 
-        for (GuiElement child: childs)
+        for (GUIView child: childs)
             child.updateSecondaryFrames();
     }
 
-    public void removeChild(GuiElement child) {
+    public void removeChild(GUIView child) {
         childs.remove(child);
         child.parent = null;
         child.updateSecondaryFrames();
     }
 
-    public void addChild(GuiElement child) {
+    public void addChild(GUIView child) {
         if (!childs.contains(child)) {
             childs.add(child);
             if (child.parent != null)
@@ -100,7 +108,7 @@ public abstract class GuiElement extends AbstractGui {
     // Controls events handling
 
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        for (GuiElement child: childs) {
+        for (GUIView child: childs) {
             if (child.mouseScrolled(mouseX, mouseY, delta))
                 return true;
         }
@@ -109,7 +117,7 @@ public abstract class GuiElement extends AbstractGui {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (GuiElement child: childs) {
+        for (GUIView child: childs) {
             if (child.mouseClicked(mouseX, mouseY, button))
                 return true;
         }
@@ -118,7 +126,7 @@ public abstract class GuiElement extends AbstractGui {
     }
 
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        for (GuiElement child: childs) {
+        for (GUIView child: childs) {
             if (child.mouseDragged(mouseX, mouseY, button, dragX, dragY))
                     return true;
         }
@@ -127,7 +135,7 @@ public abstract class GuiElement extends AbstractGui {
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for (GuiElement child: childs) {
+        for (GUIView child: childs) {
             if (child.mouseReleased(mouseX, mouseY, button))
                 return true;
         }
@@ -155,26 +163,26 @@ public abstract class GuiElement extends AbstractGui {
         GL11.glPopAttrib();
     };
 
-    protected void renderChild(GuiElement child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         child.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     protected void postChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {};
 
     protected void renderBorder(MatrixStack matrixStack) {
-        if (borderWidth == 0) return;
+        if (leftBorderWidth == 0 && rightBorderWidth == 0 && bottomBorderWidth == 0 && topBorderWidth == 0) return;
 
         final int x = absoluteFrame.x;
         final int y = absoluteFrame.y;
         final int maxX = x + absoluteFrame.width;
         final int maxY = y + absoluteFrame.height;
 
-        fill(matrixStack, x, y, maxX - borderWidth, y + borderWidth, topLeftBorderColor);
-        fill(matrixStack, x, y, x + borderWidth, maxY - borderWidth, topLeftBorderColor);
-        fill(matrixStack, x + borderWidth, maxY - borderWidth, maxX, maxY, bottomRightBorderColor);
-        fill(matrixStack, maxX, y + borderWidth, maxX - borderWidth, maxY, bottomRightBorderColor);
-        fill(matrixStack, maxX - borderWidth, y, maxX, y + borderWidth, cornerBorderColor);
-        fill(matrixStack, x, maxY - borderWidth, x + borderWidth, maxY, cornerBorderColor);
+        fill(matrixStack, x, y, maxX - rightBorderWidth, y + topBorderWidth, topLeftBorderColor);
+        fill(matrixStack, x, y + topBorderWidth, x + leftBorderWidth, maxY - bottomBorderWidth, topLeftBorderColor);
+        fill(matrixStack, x + leftBorderWidth, maxY - bottomBorderWidth, maxX, maxY, bottomRightBorderColor);
+        fill(matrixStack, maxX, y + topBorderWidth, maxX - rightBorderWidth, maxY - bottomBorderWidth, bottomRightBorderColor);
+        fill(matrixStack, maxX - rightBorderWidth, y, maxX, y + topBorderWidth, cornerBorderColor);
+        fill(matrixStack, x, maxY - bottomBorderWidth, x + leftBorderWidth, maxY, cornerBorderColor);
     }
 
     protected void configInnerScissor(MatrixStack matrixStack) {
@@ -197,8 +205,10 @@ public abstract class GuiElement extends AbstractGui {
         GL11.glScissor(Math.round(positionVector.getX()) * f, y * f, intersection.width * f, intersection.height * f);
     }
 
-    protected void renderTexture(Texture texture, MatrixStack matrixStack, int x, int y) {
+    protected void renderTexture(Texture texture, MatrixStack matrixStack, Rectangle inFrame) {
         Minecraft.getInstance().textureManager.bindTexture(texture.atlasTexture);
-        blit(matrixStack, contentFrame.x + x, contentFrame.y + y, texture.uOffset, texture.vOffset, texture.uWidth, texture.vHeight);
+        final int width = Math.min(texture.uWidth, inFrame.width);
+        final int height = Math.min(texture.vHeight, inFrame.height);
+        blit(matrixStack, inFrame.x, inFrame.y, texture.uOffset, texture.vOffset, width, height);
     }
 }

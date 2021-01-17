@@ -1,4 +1,4 @@
-package artoffood.client.screens.gui_element;
+package artoffood.client.screens.gui_element.base;
 
 
 import artoffood.ArtOfFood;
@@ -16,29 +16,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
-public class GuiList<T, C extends GuiListCell<T>> extends GuiElement implements ScrollerElement.Delegate, GuiListCell.Delegate<T> {
+public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implements GUIScroller.Delegate, GUIListCell.Delegate<T> {
 
     private static final Logger logger = LogManager.getLogger(ArtOfFood.MOD_ID);
 
     protected Class<C> cellsClass;
     protected List<C> cells;
-    protected ScrollerElement scroller;
-    protected ScrollableView scrollableView;
+    protected GUIScroller scroller;
+    protected GUIScrollableView scrollableView;
 
     protected Texture scrollTexture = Textures.MIDDLE_SCROLLER;
-    protected int intercellSpace = 3;
+    protected int intercellSpace = 0;
     protected int scrollSeparatorWidth = 1;
     protected float mouseScrollingSpeedCoeeficient = 20;
 
     public int innerColor = Color.decode("#8B8B8B").getRGB();
     public int separatorColor = Color.decode("#373737").getRGB();
 
-    public GuiList(Class<C> cellsClass, List<T> models, int x, int y, int width, int height) {
+    public GUIVerticalList(Class<C> cellsClass, List<T> models, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.cellsClass = cellsClass;
 
         final int cellsWidth = contentFrame.width - scrollSeparatorWidth - scrollTexture.uWidth;
-        scrollableView = new ScrollableView(0, 0, cellsWidth, contentFrame.height);
+        scrollableView = new GUIScrollableView(0, 0, cellsWidth, contentFrame.height);
         scrollableView.setBorderWidth(0);
         addChild(scrollableView);
 
@@ -47,14 +47,14 @@ public class GuiList<T, C extends GuiListCell<T>> extends GuiElement implements 
         for (T model: models) {
             try {
                 final C newCell = cellsClass.newInstance();
-                newCell.model = model;
+                newCell.setModel(model);
                 newCell.setFrame(0, currentY, cellsWidth);
                 newCell.delegate = this;
                 currentY += newCell.getFrame().height + intercellSpace;
                 cells.add(newCell);
                 scrollableView.addChild(newCell);
             } catch (Exception e) {
-                logger.error("Invalid cell class in GuiList");
+                logger.error("Invalid cell class in GUIVerticalList. Probably " + cellsClass.getSimpleName() + " has no public constructor without arguments");
             }
         }
 
@@ -64,7 +64,7 @@ public class GuiList<T, C extends GuiListCell<T>> extends GuiElement implements 
     protected void setupScroll() {
         final int scrollerX = contentFrame.width - scrollTexture.uWidth;
         final int maxDisplacement = contentFrame.height - scrollTexture.vHeight;
-        scroller = new ScrollerElement(scrollTexture, scrollerX, 0, scrollTexture.uWidth, scrollTexture.vHeight, maxDisplacement);
+        scroller = new GUIScroller(scrollTexture, scrollerX, 0, scrollTexture.uWidth, scrollTexture.vHeight, maxDisplacement);
         scroller.delegate = this;
         addChild(scroller);
     }
@@ -80,11 +80,11 @@ public class GuiList<T, C extends GuiListCell<T>> extends GuiElement implements 
 
         // Draw scroll separator
         final int separatorX = maxX - scrollTexture.uWidth;
-        fill(matrixStack, separatorX, contentFrame.y, separatorX - getBorderWidth(), maxY, separatorColor);
+        fill(matrixStack, separatorX, contentFrame.y, separatorX - scrollSeparatorWidth, maxY, separatorColor);
     }
 
     @Override
-    public void didScroll(ScrollerElement scroll, double position) {
+    public void didScroll(GUIScroller scroll, double position) {
         scrollableView.setRelativeOffset(0, position);
     }
 
@@ -103,7 +103,7 @@ public class GuiList<T, C extends GuiListCell<T>> extends GuiElement implements 
     }
 
     @Override
-    public void didClickCell(GuiListCell<T> cell) {
+    public void didClickCell(GUIListCell<T> cell) {
         cells.forEach( c -> c.setIsSelected(false));
         cell.setIsSelected(true);
     }

@@ -1,38 +1,37 @@
 package artoffood.client.screens.gui_element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
+import artoffood.client.screens.Textures;
+import artoffood.client.screens.gui_element.base.GUILabel;
+import artoffood.client.screens.gui_element.base.GUIListCell;
 
-import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
+import java.awt.*;
 
-public class ConceptListCell extends GuiListCell<ConceptCellViewModel> {
+public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
 
     public static final int HEIGHT = 20;
-    public static final int LEFT_INSET = 4;
 
-    ConceptListCell() {
+    protected GUILabel titleLabel = new GUILabel(0,0,0,0);
+
+    public ConceptListCell() {
         super();
+
+        contentView.texture = Textures.GRAY_NOISE_BACK;
+        contentView.topLeftBorderColor = Color.decode("#AAAAAA").getRGB();
+        contentView.cornerBorderColor = Color.decode("#737373").getRGB();
+        contentView.bottomRightBorderColor = new Color(0,0,0, 0.25f).getRGB();
+        contentView.setBorderWidth(1, 1, 1, 2);
+
+        contentView.addChild(titleLabel);
+    }
+
+    @Override
+    public void setModel(ConceptCellViewModel model) {
+        super.setModel(model);
+        titleLabel.setText(model.title);
     }
 
     @Override
     protected int calcHeight(int widthLimit) {
         return HEIGHT;
-    }
-
-    @Override
-    protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        super.preChildsRender(matrixStack, mouseX, mouseY, partialTick);
-
-        if (model == null) return;
-
-        ITextComponent text = new StringTextComponent(model.title);
-        final int yInset = (HEIGHT - model.font.FONT_HEIGHT) / 2;
-        GL11.glPushAttrib(GL_SCISSOR_BIT);
-        configInnerScissor(matrixStack);
-        model.font.func_243248_b(matrixStack, text, absoluteFrame.x + LEFT_INSET, absoluteFrame.y + yInset, model.textColor);
-        GL11.glPopAttrib();
     }
 }

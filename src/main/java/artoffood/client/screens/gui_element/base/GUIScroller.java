@@ -1,4 +1,4 @@
-package artoffood.client.screens.gui_element;
+package artoffood.client.screens.gui_element.base;
 
 import artoffood.client.utils.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -7,10 +7,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class ScrollerElement extends GuiElement {
+public class GUIScroller extends GUIView {
 
     public interface Delegate {
-        void didScroll(ScrollerElement scroll, double position); // Position from 0 to 1
+        void didScroll(GUIScroller scroll, double position); // Position from 0 to 1
     }
 
     protected Texture texture;
@@ -21,7 +21,7 @@ public class ScrollerElement extends GuiElement {
 
     public @Nullable Delegate delegate;
 
-    public ScrollerElement(Texture texture, int x, int y, int width, int height, int maxDisplacement) {
+    public GUIScroller(Texture texture, int x, int y, int width, int height, int maxDisplacement) {
         super(x, y, width, height);
         this.texture = texture;
         this.initPoint = new Point(x, y);
@@ -40,7 +40,9 @@ public class ScrollerElement extends GuiElement {
 
     @Override
     protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        renderTexture(texture, matrixStack, 0, 0);
+        super.preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
+
+        renderTexture(texture, matrixStack, absoluteFrame);
     }
 
     @Override
