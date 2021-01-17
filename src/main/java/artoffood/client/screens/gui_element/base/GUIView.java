@@ -26,6 +26,7 @@ public abstract class GUIView extends AbstractGui {
     protected NonNullList<GUIView> childs = NonNullList.create();
 
     private Rectangle frame;
+    protected Rectangle visibilityFrame;
     protected Rectangle absoluteFrame;
     protected Rectangle contentFrame;
     private int leftBorderWidth = 1;
@@ -145,9 +146,9 @@ public abstract class GUIView extends AbstractGui {
 
     // Rendering
 
-    public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
         preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
-        childsRender(matrixStack, mouseX, mouseY, partialTicks);
+        childsRender(matrixStack, mouseX, mouseY, partialTicks, transformedParent);
         postChildsRender(matrixStack, mouseX, mouseY, partialTicks);
     }
 
@@ -155,16 +156,23 @@ public abstract class GUIView extends AbstractGui {
         renderBorder(matrixStack);
     };
 
-    protected void childsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    protected void childsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
+        final Vector4f positionVector = new Vector4f(contentFrame.x, contentFrame.y, 0, 1);
+        positionVector.transform(matrixStack.getLast().getMatrix());
+        final Rectangle transformedThis = new Rectangle(Math.round(positionVector.getX()), Math.round(positionVector.getY()), contentFrame.width, contentFrame.height);
+        final Rectangle intersection = safeIntersection(transformedThis, transformedParent);
+
+        if (intersection.isEmpty()) return;
+
         GL11.glPushAttrib(GL_SCISSOR_BIT);
         GL11.glEnable(GL_SCISSOR_TEST);
-        configInnerScissor(matrixStack);
-        childs.forEach(c -> renderChild(c, matrixStack, mouseX, mouseY, partialTicks));
+        configInnerScissor(matrixStack, intersection);
+        childs.forEach(c -> renderChild(c, matrixStack, mouseX, mouseY, partialTicks, intersection));
         GL11.glPopAttrib();
     };
 
-    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        child.render(matrixStack, mouseX, mouseY, partialTicks);
+    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
+        child.render(matrixStack, mouseX, mouseY, partialTicks, transformedParent);
     }
 
     protected void postChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {};
@@ -185,24 +193,11 @@ public abstract class GUIView extends AbstractGui {
         fill(matrixStack, x, maxY - bottomBorderWidth, x + leftBorderWidth, maxY, cornerBorderColor);
     }
 
-    protected void configInnerScissor(MatrixStack matrixStack) {
+    protected void configInnerScissor(MatrixStack matrixStack, Rectangle visible) {
         final MainWindow window = Minecraft.getInstance().getMainWindow();
-
         final int f = (int)window.getGuiScaleFactor();
-        final Vector4f positionVector = new Vector4f(contentFrame.x, contentFrame.y, 0, 1);
-        positionVector.transform(matrixStack.getLast().getMatrix());
-        final Rectangle updateContentFrame = new Rectangle(Math.round(positionVector.getX()), Math.round(positionVector.getY()), contentFrame.width, contentFrame.height);
-
-        final Rectangle intersection;
-        if (parent != null)
-            intersection = updateContentFrame.intersection(parent.contentFrame);
-        else
-            intersection = updateContentFrame;
-
-        if (intersection.width <= 0 || intersection.height <= 0) return;
-
-        final int y = (window.getScaledHeight() - Math.round(positionVector.getY()) - updateContentFrame.height);
-        GL11.glScissor(Math.round(positionVector.getX()) * f, y * f, intersection.width * f, intersection.height * f);
+        final int y = (window.getScaledHeight() - visible.y - visible.height);
+        GL11.glScissor(visible.x * f, y * f, visible.width * f, visible.height * f);
     }
 
     protected void renderTexture(Texture texture, MatrixStack matrixStack, Rectangle inFrame) {
@@ -210,5 +205,12 @@ public abstract class GUIView extends AbstractGui {
         final int width = Math.min(texture.uWidth, inFrame.width);
         final int height = Math.min(texture.vHeight, inFrame.height);
         blit(matrixStack, inFrame.x, inFrame.y, texture.uOffset, texture.vOffset, width, height);
+    }
+
+    private Rectangle safeIntersection(@Nullable Rectangle r1, @Nullable Rectangle r2) {
+        if (r1 == null && r2 == null) return new Rectangle();
+        if (r1 == null) return r2;
+        if (r2 == null) return r1;
+        return r1.intersection(r2);
     }
 }

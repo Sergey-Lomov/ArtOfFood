@@ -50,10 +50,10 @@ public class GUIScrollableView extends GUIView {
     }
 
     @Override
-    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, Rectangle transformedParent) {
         matrixStack.push();
         matrixStack.translate(-contentOffset.x, -contentOffset.y, 0);
-        super.renderChild(child, matrixStack, mouseX, mouseY, partialTicks);
+        super.renderChild(child, matrixStack, mouseX, mouseY, partialTicks, transformedParent);
         matrixStack.pop();
     }
 
