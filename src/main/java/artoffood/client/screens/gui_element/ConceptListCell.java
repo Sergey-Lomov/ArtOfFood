@@ -5,6 +5,8 @@ import artoffood.client.screens.gui_element.base.GUILabel;
 import artoffood.client.screens.gui_element.base.GUIListCell;
 import artoffood.client.screens.gui_element.base.GUITextureView;
 import artoffood.minebridge.utils.LocalisationManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
@@ -63,5 +65,10 @@ public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
     @Override
     protected int calcHeight(int widthLimit) {
         return HEIGHT;
+    }
+
+    @Override
+    protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        super.preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
     }
 }

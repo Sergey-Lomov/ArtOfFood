@@ -35,6 +35,7 @@ public abstract class GUIListCell<T> extends GUIView {
     public void setModel(T model) {
         this.model = model;
     }
+    public T getModel() { return model; }
 
     public void setFrame(int x, int y, int width) {
         final int height = calcHeight(width);

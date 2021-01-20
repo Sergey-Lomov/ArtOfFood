@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class OneOfTagPredicate implements TagsPredicate {
+public class OneOfTagsPredicate implements TagsPredicate {
 
     List<FoodTag> validTags = new ArrayList<>();
 
-    public OneOfTagPredicate(FoodTag ... validTags) {
+    public OneOfTagsPredicate(FoodTag ... validTags) {
         this.validTags.addAll(Arrays.asList(validTags));
     }
 

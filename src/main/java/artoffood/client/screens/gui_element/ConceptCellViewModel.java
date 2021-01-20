@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.ItemRenderer;
 
 public class ConceptCellViewModel {
 
-    final MBConcept concept;
-    final FontRenderer font;
-    final ItemRenderer itemRenderer;
+    public final MBConcept concept;
+    public final FontRenderer font;
+    public final ItemRenderer itemRenderer;
 
     public ConceptCellViewModel(MBConcept concept, FontRenderer font, ItemRenderer itemRenderer) {
         this.concept = concept;

@@ -6,6 +6,11 @@ public class MBVisualSlotType {
     public final @Nullable String hintKey;
     public final @Nullable String stubKey;
 
+    public MBVisualSlotType(@Nullable String universalKey) {
+        this.hintKey = universalKey;
+        this.stubKey = universalKey;
+    }
+
     public MBVisualSlotType(@Nullable String hintKey, @Nullable String stubKey) {
         this.hintKey = hintKey;
         this.stubKey = stubKey;

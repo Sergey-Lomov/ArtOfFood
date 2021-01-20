@@ -23,7 +23,7 @@ public class ReferencePromptRenderer extends SlotPromptRenderer {
         if (refPrompt.source == refPrompt.destination) return false;
 
         ItemRenderer itemRenderer = screen.getMinecraft().getItemRenderer();
-        screen.getMinecraft().textureManager.bindTexture(refPrompt.sourceTexture.atlasTexture);
+        screen.getMinecraft().textureManager.bindTexture(refPrompt.sourceTexture.atlas.resource);
         PromptRenderingUtils.renderOverSlot(refPrompt.source, refPrompt.sourceTexture, screen, matrixStack);
 
         final int x = screen.getGuiLeft() + refPrompt.destination.xPos;

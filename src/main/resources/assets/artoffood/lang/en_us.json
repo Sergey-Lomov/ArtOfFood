@@ -26,5 +26,11 @@
   "taste.umami": "Umami",
 
   "concepts.title.processing": "Processing",
-  "concepts.title.blendy_salty_salad": "Common salad"
+  "concepts.title.blendy_salty_salad": "Common salad",
+
+  "slot_hint.spice": "Any spice",
+  "slot_hint.salad_dressing": "Dressing: sauce or oil",
+  "slot_hint.not_solid_meat_or_seafood": "Not solid meat or seafood",
+  "slot_hint.sliced_or_grated_vegetable": "Sliced or grated vegetable",
+  "slot_hint.salad_advanced": "Advanced component: sliced/grated vegetable or not solid meats/seafood"
 }

@@ -32,8 +32,8 @@ public class MBBlendySaltySalad extends MBConcept {
         NonNullList<MBVisualSlot> slots = NonNullList.create();
         slots.add(new MBVisualSlot(Slots.SLICED_OR_GRATED_VEGETABLE, 0.25f, 0.25f));
         slots.add(new MBVisualSlot(Slots.SLICED_OR_GRATED_VEGETABLE, 0.75f, 0.25f));
-        slots.add(new MBVisualSlot(Slots.NOT_SOLID_MEAT_OR_SEAFOOD, 0.25f, 0.75f));
-        slots.add(new MBVisualSlot(Slots.NOT_SOLID_MEAT_OR_SEAFOOD, 0.75f, 0.75f));
+        slots.add(new MBVisualSlot(Slots.SALAD_ADVANCED_COMPONENT, 0.25f, 0.75f));
+        slots.add(new MBVisualSlot(Slots.SALAD_ADVANCED_COMPONENT, 0.75f, 0.75f));
         slots.add(new MBVisualSlot(Slots.SALAD_DRESSING, 0.25f, 0.5f));
         slots.add(new MBVisualSlot(Slots.SPICE, 0.5f, 0.25f));
         slots.add(new MBVisualSlot(Slots.SPICE, 0.5f, 0.75f));

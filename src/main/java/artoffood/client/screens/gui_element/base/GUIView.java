@@ -2,6 +2,7 @@ package artoffood.client.screens.gui_element.base;
 
 import artoffood.client.utils.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 
-public abstract class GUIView extends AbstractGui {
+public class GUIView extends AbstractGui {
 
     protected static final int LEFT_MOUSE_BUTTON = 0;
     protected static final int RIGHT_MOUSE_BUTTON = 1;
@@ -34,6 +35,7 @@ public abstract class GUIView extends AbstractGui {
     private int topBorderWidth = 1;
     private int bottomBorderWidth = 1;
 
+    public @Nullable Integer backColor = null;
     public int topLeftBorderColor = Color.decode("#373737").getRGB();
     public int bottomRightBorderColor = Color.decode("#FFFFFF").getRGB();
     public int cornerBorderColor = Color.decode("#8B8B8B").getRGB();
@@ -101,6 +103,11 @@ public abstract class GUIView extends AbstractGui {
         child.handleFrameUpdate();
     }
 
+    public void removeAllChilds() {
+        if (!childs.isEmpty())
+            childs.forEach(c -> removeChild(c));
+    }
+
     public void addChild(GUIView child) {
         if (!childs.contains(child)) {
             childs.add(child);
@@ -162,6 +169,8 @@ public abstract class GUIView extends AbstractGui {
     }
 
     protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        if (backColor != null)
+            fill(matrixStack, contentFrame.x, contentFrame.y, (int)contentFrame.getMaxX(), (int)contentFrame.getMaxY(), backColor);
         renderBorder(matrixStack);
     };
 
@@ -210,10 +219,10 @@ public abstract class GUIView extends AbstractGui {
     }
 
     protected void renderTexture(Texture texture, MatrixStack matrixStack, Rectangle inFrame) {
-        Minecraft.getInstance().textureManager.bindTexture(texture.atlasTexture);
+        Minecraft.getInstance().textureManager.bindTexture(texture.atlas.resource);
         final int width = Math.min(texture.uWidth, inFrame.width);
         final int height = Math.min(texture.vHeight, inFrame.height);
-        blit(matrixStack, inFrame.x, inFrame.y, texture.uOffset, texture.vOffset, width, height);
+        blit(matrixStack, inFrame.x, inFrame.y, texture.uOffset, texture.vOffset, width, height, texture.atlas.width, texture.atlas.height);
     }
 
     private Rectangle safeIntersection(@Nullable Rectangle r1, @Nullable Rectangle r2) {

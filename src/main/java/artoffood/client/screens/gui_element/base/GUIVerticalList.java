@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,7 +19,12 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implements GUIScroller.Delegate, GUIListCell.Delegate<T> {
 
+    public interface Delegate<T> {
+        void didSelectCell(GUIListCell<T> cell);
+    }
+
     private static final Logger logger = LogManager.getLogger(ArtOfFood.MOD_ID);
+    private static final int DEFAULT_BACK_COLOR = Color.decode("#8B8B8B").getRGB();
 
     protected Class<C> cellsClass;
     protected List<C> cells;
@@ -30,12 +36,13 @@ public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implem
     protected int scrollSeparatorWidth = 1;
     protected float mouseScrollingSpeedCoeeficient = 20;
 
-    public int innerColor = Color.decode("#8B8B8B").getRGB();
     public int separatorColor = Color.decode("#373737").getRGB();
+    public @Nullable Delegate<T> delegate;
 
     public GUIVerticalList(Class<C> cellsClass, List<T> models, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.cellsClass = cellsClass;
+        this.backColor = DEFAULT_BACK_COLOR;
 
         final int cellsWidth = contentFrame.width - scrollSeparatorWidth - scrollTexture.uWidth;
         scrollableView = new GUIScrollableView(0, 0, cellsWidth, contentFrame.height);
@@ -73,12 +80,8 @@ public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implem
     public void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
 
-        // Fill backgound
         final int maxX = contentFrame.x + contentFrame.width;
         final int maxY = contentFrame.y + contentFrame.height;
-        fill(matrixStack, contentFrame.x, contentFrame.y, maxX, maxY, innerColor);
-
-        // Draw scroll separator
         final int separatorX = maxX - scrollTexture.uWidth;
         fill(matrixStack, separatorX, contentFrame.y, separatorX - scrollSeparatorWidth, maxY, separatorColor);
     }
@@ -104,7 +107,11 @@ public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implem
 
     @Override
     public void didClickCell(GUIListCell<T> cell) {
+        if (cell.isSelected) return;
+
         cells.forEach( c -> c.setIsSelected(false));
         cell.setIsSelected(true);
+        if (delegate != null && cellsClass.isAssignableFrom(cell.getClass()))
+            delegate.didSelectCell((C) cell);
     }
 }

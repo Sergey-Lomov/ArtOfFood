@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+// TODO: Check, does this class unused after implementing concepts
 public class FoodProcessingResultSlot extends Slot {
 
     private final int INGREDIENT_STUB_INDEX = 0;

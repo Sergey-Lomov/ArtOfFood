@@ -1,22 +1,16 @@
 package artoffood.networking.packets;
 
-import artoffood.ArtOfFood;
 import artoffood.networking.IProcessingSlotPacketHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.network.play.IClientPlayNetHandler;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.function.Supplier;
 
+// TODO: Check does this class became unused when concepts will be implemented
 public class SSetProcessingResultSlotPacket {
 
     public static final int NULL_SLOT_CODE = -1;
@@ -25,9 +19,6 @@ public class SSetProcessingResultSlotPacket {
     private int slot;
     private int ingredientSlot;
     private int toolSlot;
-
-    public SSetProcessingResultSlotPacket() {
-    }
 
     public SSetProcessingResultSlotPacket(int windowIdIn, int slotId, int ingredientSlotId, int toolSlotId) {
         this.windowId = windowIdIn;

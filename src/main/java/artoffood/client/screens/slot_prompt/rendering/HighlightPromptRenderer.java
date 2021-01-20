@@ -21,7 +21,7 @@ public class HighlightPromptRenderer extends SlotPromptRenderer {
         if (!(prompt instanceof HighlightSlotPrompt)) return false;
 
         HighlightSlotPrompt highlightPrompt = (HighlightSlotPrompt) prompt;
-        screen.getMinecraft().textureManager.bindTexture(highlightPrompt.texture.atlasTexture);
+        screen.getMinecraft().textureManager.bindTexture(highlightPrompt.texture.atlas.resource);
         List<Slot> validSlots = highlightPrompt.validSlots();
         for (Slot validSlot : validSlots) {
             PromptRenderingUtils.renderOverSlot(validSlot, highlightPrompt.texture, screen, matrixStack);

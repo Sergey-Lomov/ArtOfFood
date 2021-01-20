@@ -27,7 +27,7 @@ public class CountertopTileEntity extends BaseInteractiveTileEntity {
 
     @Override
     protected int getNumberOfSlots() {
-        return CountertopContainer.NUMBER_OF_SLOTS;
+        return 0;
     }
 
     @Override
