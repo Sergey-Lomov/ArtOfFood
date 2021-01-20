@@ -44,3 +44,4 @@ gradle-app.setting
 *.gz
 run/logs/debug-1.log.gz
 *.idea
+*.hprof
