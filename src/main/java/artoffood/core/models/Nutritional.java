@@ -14,4 +14,8 @@ public class Nutritional implements Cloneable {
     protected Nutritional clone() {
         return new Nutritional(calorie, digestibility);
     }
+
+    public boolean equals(Nutritional n) {
+        return calorie == n.calorie && digestibility == n.digestibility;
+    }
 }

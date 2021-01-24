@@ -1,8 +1,6 @@
 {
   "itemGroup.artoffood": "Art Of Food",
 
-  "item.artoffood.ingredients.cabbage": "Cabbage",
-
   "item.artoffood.tools.stone_knife": "Stone Knife",
   "item.artoffood.tools.iron_knife": "Iron Knife",
   "item.artoffood.tools.obsidian_knife": "Obsidian Knife",
@@ -14,10 +12,10 @@
   "inventories.ingredient_slot_prompt": "This slot should contain cooking ingredient",
   "inventories.tool_slot_prompt": "This slot may contain cooking tool",
 
-  "tags.processing.sliced": "Sliced",
-  "tags.processing.grated": "Grated",
-  "tags.filter.vegetable": "Vegetable",
-  "tags.filter.solid": "Solid",
+  "tags.sliced": "Sliced",
+  "tags.grated": "Grated",
+  "tags.vegetable": "Vegetable",
+  "tags.solid": "Solid",
 
   "taste.salinity": "Salinity",
   "taste.sweetness": "Sweetness",
@@ -25,8 +23,14 @@
   "taste.bitterness": "Bitterness",
   "taste.umami": "Umami",
 
+  "ingredients/cabbage": "Cabbage",
+  "ingredients/tomato": "Tomato",
+  "ingredients/sunflower_oil": "Sunflower Oil",
+  "ingredients/rock_salt": "Rock salt",
+
   "concepts.title.processing": "Processing",
   "concepts.title.blendy_salty_salad": "Common salad",
+  "concepts.title.test": "Test",
 
   "slot_hint.spice": "Any spice",
   "slot_hint.salad_dressing": "Dressing: sauce or oil",

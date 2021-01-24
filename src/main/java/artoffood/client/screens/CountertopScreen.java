@@ -77,7 +77,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         screenView.render(matrixStack, mouseX, mouseY, partialTicks, null);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override

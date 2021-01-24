@@ -10,25 +10,25 @@ public class FoodTagsRegister {
 
     public static List<FoodTag> TAGS = new ArrayList<>();
 
-    public static FoodTag SALTY = register(FoodTagCategory.TASTE);
-    public static FoodTag SWEET = register(FoodTagCategory.TASTE);
-    public static FoodTag ACIDIC = register(FoodTagCategory.TASTE);
-    public static FoodTag BITTER = register(FoodTagCategory.TASTE);
-    public static FoodTag STRONG_UMAMI = register(FoodTagCategory.TASTE);
-    public static FoodTag INSIPID = register(FoodTagCategory.TASTE);
+    public static final FoodTag SALTY = register(FoodTagCategory.TASTE);
+    public static final FoodTag SWEET = register(FoodTagCategory.TASTE);
+    public static final FoodTag ACIDIC = register(FoodTagCategory.TASTE);
+    public static final FoodTag BITTER = register(FoodTagCategory.TASTE);
+    public static final FoodTag STRONG_UMAMI = register(FoodTagCategory.TASTE);
+    public static final FoodTag INSIPID = register(FoodTagCategory.TASTE);
 
-    public static FoodTag VEGETABLE = register(FoodTagCategory.FILTER);
-    public static FoodTag MEAT = register(FoodTagCategory.FILTER);
-    public static FoodTag SEAFOOD = register(FoodTagCategory.FILTER);
-    public static FoodTag SOLID = register(false, FoodTagCategory.FILTER);
-    public static FoodTag SOUCE = register( FoodTagCategory.FILTER);
-    public static FoodTag SPICE = register(FoodTagCategory.FILTER);
+    public static final FoodTag VEGETABLE = register(FoodTagCategory.FILTER);
+    public static final FoodTag MEAT = register(FoodTagCategory.FILTER);
+    public static final FoodTag SEAFOOD = register(FoodTagCategory.FILTER);
+    public static final FoodTag SOLID = register(false, FoodTagCategory.FILTER);
+    public static final FoodTag SAUCE = register( FoodTagCategory.FILTER);
+    public static final FoodTag SPICE = register(FoodTagCategory.FILTER);
 
-    public static FoodTag SLICED = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
-    public static FoodTag GRATED = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
-    public static FoodTag OIL = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
+    public static final FoodTag SLICED = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
+    public static final FoodTag GRATED = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
+    public static final FoodTag OIL = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
 
-    public static FoodTag SALAD = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
+    public static final FoodTag SALAD = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
 /*
     public static FoodTag CONTENTS_VEGETABLE = register(false, FoodTagCategory.CONTENT);
     public static FoodTag CONTENTS_SEAFOOD = register(false,FoodTagCategory.CONTENT);

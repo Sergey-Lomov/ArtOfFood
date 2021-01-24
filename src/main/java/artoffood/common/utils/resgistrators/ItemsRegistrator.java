@@ -2,7 +2,9 @@ package artoffood.common.utils.resgistrators;
 
 import artoffood.ArtOfFood;
 import artoffood.client.utils.ModItemGroup;
-import artoffood.common.items.FoodIngredientItem;
+import artoffood.common.items.ConceptResultItem;
+import artoffood.common.items.ConceptResultPreviewItem;
+import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredientPrototype;
@@ -20,7 +22,10 @@ public class ItemsRegistrator {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
 
-    public static final Item ITEM_GROUP_AMBASADOR = new FoodIngredientItem(
+    public static final ConceptResultItem CONCEPT_RESULT_ITEM = new ConceptResultItem(new Item.Properties().maxStackSize(64));
+    public static final ConceptResultPreviewItem CONCEPT_RESULT_PREVIEW_ITEM = new ConceptResultPreviewItem(new Item.Properties().maxStackSize(1));
+
+    public static final Item ITEM_GROUP_AMBASADOR = new PrototypedIngredientItem(
             MBIngredientPrototypesRegister.CABBAGE,
             new Item.Properties().group(ModItemGroup.instance));
 
@@ -28,12 +33,19 @@ public class ItemsRegistrator {
             MBFoodToolsRegister.OBSIDIAN_KNIFE,
             new Item.Properties().group(ModItemGroup.instance));
 
+    static {
+        ITEMS.register("concept_result", () -> CONCEPT_RESULT_ITEM);
+        ITEMS.register("concept_preview_result", () -> CONCEPT_RESULT_PREVIEW_ITEM);
+    }
+
     public static void registerFoodTools() {
         MBFoodToolsRegister.TOOLS.forEach(ItemsRegistrator::registerFoodTool);
     }
 
     public static void registerIngredients() {
-        registerIngredient(MBIngredientPrototypesRegister.CABBAGE);
+        for (MBIngredientPrototype prototype: MBIngredientPrototypesRegister.ALL) {
+            registerIngredient(prototype);
+        }
     }
 
     public static void registerBlockItem(String name, Block block, int stackSize) {
@@ -44,7 +56,7 @@ public class ItemsRegistrator {
 
     private static void registerIngredient(MBIngredientPrototype type) {
         Item.Properties properties = new Item.Properties().maxStackSize(type.stackSize).group(ModItemGroup.instance);
-        ITEMS.register(type.itemId, () -> new FoodIngredientItem(type, properties));
+        ITEMS.register(type.prototypeId, () -> new PrototypedIngredientItem(type, properties));
     }
 
     private static void registerFoodTool(MBFoodTool tool) {

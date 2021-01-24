@@ -104,6 +104,10 @@ public class GUIView extends AbstractGui {
     }
 
     public void removeAllChilds() {
+        while(!childs.isEmpty()) {
+            GUIView child = childs.stream().findFirst().get();
+            removeChild(child);
+        }
         if (!childs.isEmpty())
             childs.forEach(c -> removeChild(c));
     }

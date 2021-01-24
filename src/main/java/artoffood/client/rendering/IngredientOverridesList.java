@@ -2,7 +2,6 @@ package artoffood.client.rendering;
 
 import artoffood.ArtOfFood;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.items.FoodIngredientItem;
 import artoffood.minebridge.models.MBItemRendering;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;

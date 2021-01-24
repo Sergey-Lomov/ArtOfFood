@@ -1,10 +1,12 @@
 package artoffood.common.capabilities.ingredient;
 
+import artoffood.common.utils.slots.SlotReference;
 import artoffood.core.models.FoodTag;
 import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBIngredientPrototype;
 import artoffood.minebridge.models.MBProcessing;
+import net.minecraft.util.NonNullList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;

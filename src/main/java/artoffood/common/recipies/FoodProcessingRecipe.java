@@ -1,7 +1,7 @@
 package artoffood.common.recipies;
 
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.items.FoodIngredientItem;
+import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.utils.ModInventoryHelper;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
@@ -30,7 +30,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     private final ResourceLocation id;
 
     private @Nullable ItemStack ingredient(IInventory inv) {
-        ItemStack ingredient = ModInventoryHelper.containsSoloStackOfType(inv, FoodIngredientItem.class);
+        ItemStack ingredient = ModInventoryHelper.containsSoloStackOfType(inv, PrototypedIngredientItem.class);
         if (ingredient != null)
             return verifyIngredient(ingredient) ? ingredient : null;
 

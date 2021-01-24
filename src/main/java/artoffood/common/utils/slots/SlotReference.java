@@ -1,26 +1,30 @@
 package artoffood.common.utils.slots;
 
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
+// TODO: Remove commented code
 public class SlotReference {
-    private final IInventory inventory;
-    private final int inventorySlotId;
-    public final int containerSlotId;
 
-    public SlotReference(IInventory inventory, int inventorySlotId, int containerSlotId) {
-        this.inventory = inventory;
-        this.inventorySlotId = inventorySlotId;
-        this.containerSlotId = containerSlotId;
+    private static final int NULL_ID = -1;
+
+    public final int containerFromSlotId;
+    public final int containerToSlotId;
+
+    public SlotReference(Integer containerToSlotId, /*IInventory fromInventory, int fromSlotId,*/ Integer containerFromSlotId) {
+        this.containerToSlotId = containerToSlotId;
+//        this.fromInventory = fromInventory;
+//        this.fromSlotId = fromSlotId;
+        this.containerFromSlotId = containerFromSlotId != null ? containerFromSlotId : NULL_ID;
     }
 
-    public ItemStack getStack() {
-        return inventory.getStackInSlot(inventorySlotId);
+    /*public ItemStack getStack() {
+        return fromInventory.getStackInSlot(fromSlotId);
     }
 
     public void setStack(ItemStack stack) {
-        inventory.setInventorySlotContents(inventorySlotId, stack);
-    }
+        fromInventory.setInventorySlotContents(fromSlotId, stack);
+    }*/
+
+    public boolean isEmptyFrom() { return containerFromSlotId == NULL_ID; }
 }

@@ -9,6 +9,8 @@ import java.util.List;
 
 public class ConceptSlotBuilder {
 
+    private static int currentGroupId = 1000;
+
     private TagsPredicate predicate = new TagsPredicate() {
         @Override
         public boolean test(List<FoodTag> foodTags) {
@@ -18,12 +20,15 @@ public class ConceptSlotBuilder {
 
     private boolean optional = false;
     private CookingGrade grade = CookingGrade.NONE;
+    private int groupId = currentGroupId;
 
-    public ConceptSlotBuilder() { }
+    public ConceptSlotBuilder() {
+        currentGroupId++;
+    }
 
     public ConceptSlot build()
     {
-        return new ConceptSlot(predicate, optional, grade);
+        return new ConceptSlot(predicate, optional, grade, groupId);
     }
 
     public ConceptSlotBuilder predicate(TagsPredicate predicate) {
@@ -36,8 +41,13 @@ public class ConceptSlotBuilder {
         return this;
     }
 
-    public ConceptSlotBuilder grade(CookingGrade sweetness) {
+    public ConceptSlotBuilder grade(CookingGrade grade) {
         this.grade = grade;
+        return this;
+    }
+
+    public ConceptSlotBuilder groupId(int groupId) {
+        this.groupId = groupId;
         return this;
     }
 }

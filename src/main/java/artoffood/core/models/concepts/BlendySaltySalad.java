@@ -3,33 +3,34 @@ package artoffood.core.models.concepts;
 import artoffood.core.factories.ConceptSlotBuilder;
 import artoffood.core.models.*;
 import artoffood.core.models.predicates.TagsPredicate;
+import net.minecraft.inventory.container.Slot;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class BlendySaltySalad extends Concept {
 
+    private static final int MINIMUM_UNIQUE = 2;
+    private static final int UNIQUE_CHECK_GROUP_ID = 0;
     private static final TagsPredicate ADVANCED_COMPONENT = Pred.SLICED_OR_GRATED_VEGETABLE.or(Pred.NOT_SOLID_MEAT_OR_SEAFOOD);
-    private static final TagsPredicate DRESSING = contains(Tags.OIL).or(contains(Tags.SOUCE));
+    private static final TagsPredicate DRESSING = contains(Tags.OIL).or(contains(Tags.SAUCE));
     private static final TagsPredicate SPICE = contains(Tags.SPICE);
 
     private static final List<Integer> MAIN_SLOTS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4));
 
     public BlendySaltySalad() {
-        super(getSlots(), true);
+        super(getSlots(), true, 2);
     }
 
     private static List<ConceptSlot> getSlots () {
         List<ConceptSlot> slots = new ArrayList<>();
-        slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).build());
-        slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).build());
-        slots.add(new ConceptSlotBuilder().predicate(ADVANCED_COMPONENT).grade(CookingGrade.COOK).optional(true).build());
-        slots.add(new ConceptSlotBuilder().predicate(ADVANCED_COMPONENT).grade(CookingGrade.SOUCE_CHEF).optional(true).build());
-        slots.add(new ConceptSlotBuilder().predicate(DRESSING).build());
-        slots.add(new ConceptSlotBuilder().predicate(SPICE).optional(true).build());
-        slots.add(new ConceptSlotBuilder().predicate(SPICE).grade(CookingGrade.COOK).optional(true).build());
+        slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).groupId(0).build());
+        slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).groupId(0).build());
+        slots.add(new ConceptSlotBuilder().predicate(ADVANCED_COMPONENT).groupId(0).grade(CookingGrade.COOK).optional(true).build());
+        slots.add(new ConceptSlotBuilder().predicate(ADVANCED_COMPONENT).groupId(0).grade(CookingGrade.SOUCE_CHEF).optional(true).build());
+        slots.add(new ConceptSlotBuilder().predicate(DRESSING).groupId(1).build());
+        slots.add(new ConceptSlotBuilder().predicate(SPICE).groupId(2).optional(true).build());
+        slots.add(new ConceptSlotBuilder().predicate(SPICE).groupId(2).grade(CookingGrade.COOK).optional(true).build());
         return slots;
     }
 
@@ -43,5 +44,20 @@ public class BlendySaltySalad extends Concept {
         List<FoodTag> result = tasteTags(taste);
         result.add(Tags.SALAD);
         return result;
+    }
+
+    @Override
+    public boolean matches(@NotNull List<Ingredient> ingredients) {
+        if (!super.matches(ingredients)) return false;
+
+        List<Ingredient> unique = new ArrayList<>();
+        for (int iterator = 0; iterator < ingredients.size(); iterator++) {
+            if (slots.get(iterator).groupId != UNIQUE_CHECK_GROUP_ID) continue;
+            Ingredient ingredient = ingredients.get(iterator);
+            if (ingredient.isEmpty()) continue;
+            long equalsCount = unique.stream().filter(i -> i.equals(ingredient)).count();
+            if (equalsCount == 0) unique.add(ingredient);
+        }
+        return unique.size() >= MINIMUM_UNIQUE;
     }
 }

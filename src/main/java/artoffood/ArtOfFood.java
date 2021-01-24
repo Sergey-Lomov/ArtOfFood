@@ -9,8 +9,10 @@ import artoffood.client.screens.slot_prompt.ReferenceSlotPrompt;
 import artoffood.client.screens.slot_prompt.StubSlotPrompt;
 import artoffood.client.screens.slot_prompt.TextSlotPrompt;
 import artoffood.client.screens.slot_prompt.rendering.*;
+import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.items.FoodIngredientItem;
+import artoffood.common.capabilities.slots_refs.SlotsRefsProviderCapability;
+import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.utils.resgistrators.BlocksRegistrator;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
@@ -89,6 +91,8 @@ public class ArtOfFood
     private void setup(final FMLCommonSetupEvent event)
     {
         IngredientEntityCapability.register();
+        SlotsRefsProviderCapability.register();
+        ConceptResultPreviewCapability.register();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -156,7 +160,7 @@ public class ArtOfFood
         public static void onModelBakeEvent(final ModelBakeEvent event) {
 
             Stream<RegistryObject<Item>> objects = ItemsRegistrator.ITEMS.getEntries().stream();
-            Stream<FoodIngredientItem> foodItems = objects.filter( ro -> ro.get() instanceof FoodIngredientItem).map( ro -> (FoodIngredientItem)ro.get());
+            Stream<PrototypedIngredientItem> foodItems = objects.filter(ro -> ro.get() instanceof PrototypedIngredientItem).map(ro -> (PrototypedIngredientItem)ro.get());
             foodItems.forEach( item -> {
                 ModelResourceLocation location = new ModelResourceLocation(item.getRegistryName(), "inventory");
                 IBakedModel existingModel = event.getModelRegistry().get(location);
@@ -171,7 +175,7 @@ public class ArtOfFood
         {
             ItemColors colors = event.getItemColors();
             Stream<Item> items = ItemsRegistrator.ITEMS.getEntries().stream().map(ro -> ro.get());
-            Stream<Item> ingredients = items.filter( i -> i instanceof FoodIngredientItem);
+            Stream<Item> ingredients = items.filter( i -> i instanceof PrototypedIngredientItem);
             ingredients.forEach( i -> colors.register(IngredientColors.INSTANCE, i));
         }
     }

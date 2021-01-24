@@ -1,6 +1,10 @@
 package artoffood.minebridge.models;
 
+import artoffood.core.models.ByPrototypeOrigin;
 import artoffood.core.models.Ingredient;
+import artoffood.core.models.IngredientPrototype;
+import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

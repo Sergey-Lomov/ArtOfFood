@@ -6,6 +6,7 @@ import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.registries.MBFoodTagsRegister;
+import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import javafx.util.Pair;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -21,12 +22,17 @@ import java.util.function.Function;
 
 public class IngredientNBTConverter {
 
-    private static final String CONCEPT_KEY = "concept";
-    private static final String SUBINGREDIENTS_KEY = "subingredients";
+    public static final String INGREDIENT_KEY = "ingredient";
+
     private static final String HEDONISM_KEY = "hedonism";
     private static final String EDIBLE_KEY = "edible";
     private static final String TAGS_KEY = "tags";
     private static final String STACK_SIZE_KEY = "stack_size";
+
+    private static final String ORIGIN_KEY = "origin";
+    private static final String PROTOTYPE_KEY = "prototype";
+    private static final String CONCEPT_KEY = "concept";
+    private static final String SUBINGREDIENTS_KEY = "subingredients";
 
     private static final String TASTE_KEY = "taste";
     private static final String SWEETNESS_KEY = "sweetness";
@@ -52,6 +58,21 @@ public class IngredientNBTConverter {
     private static final String VALUE_KEY = "value";
 
     public static CompoundNBT write(MBIngredient ingredient) {
+        CompoundNBT result = new CompoundNBT();
+        result.put(INGREDIENT_KEY, writeIngredient(ingredient));
+        return result;
+    }
+
+    public static MBIngredient read(CompoundNBT nbt){
+        if (nbt.contains(INGREDIENT_KEY))
+            return readIngredient(nbt.getCompound(INGREDIENT_KEY));
+        else
+            return MBIngredient.EMPTY;
+    }
+
+    // Writing methods
+
+    private static CompoundNBT writeIngredient(MBIngredient ingredient) {
         CompoundNBT result = writeCoreIngredient(ingredient.core);
         result.put(RENDERING_KEY, writeRendering(ingredient.rendering));
         result.putInt(STACK_SIZE_KEY, ingredient.stackSize);
@@ -59,31 +80,34 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    public static MBIngredient read(CompoundNBT nbt){
-        return new MBIngredient(readCoreIngredient(nbt),
-                nbt.getInt(STACK_SIZE_KEY),
-                readRendering(nbt.getCompound(RENDERING_KEY)));
-    }
-
-    // Writing methods
-
     private static CompoundNBT writeCoreIngredient(Ingredient ingredient) {
         CompoundNBT result = new CompoundNBT();
 
-        if (ingredient.concept != null) {
-            String conceptId = MBConceptsRegister.CONCEPT_BY_CORE.get(ingredient.concept).conceptId;
-            result.putString(CONCEPT_KEY, conceptId);
-        }
-
-        if (ingredient.subingredients != null) {
-            result.put(SUBINGREDIENTS_KEY, writeSubingredients(ingredient.subingredients));
-        }
-
+        result.put(ORIGIN_KEY, writeOrigin(ingredient.origin));
         result.put(NUTRITIONAL_KEY, writeNutritional(ingredient.nutritional));
         result.put(TASTE_KEY, writeTaste(ingredient.taste));
         result.put(TAGS_KEY, writeTags(ingredient.tags));
         result.putFloat(HEDONISM_KEY, ingredient.hedonismScore);
         result.putBoolean(EDIBLE_KEY, ingredient.edible);
+
+        return result;
+    }
+
+    private static CompoundNBT writeOrigin(IngredientOrigin origin) {
+        CompoundNBT result = new CompoundNBT();
+
+        if (origin instanceof ByConceptOrigin) {
+            ByConceptOrigin byConcept = (ByConceptOrigin) origin;
+            String conceptId = MBConceptsRegister.CONCEPT_BY_CORE.get(byConcept.concept).conceptId;
+            result.putString(CONCEPT_KEY, conceptId);
+            result.put(SUBINGREDIENTS_KEY, writeSubingredients(byConcept.subingredients));
+        } else if (origin instanceof ByPrototypeOrigin) {
+            ByPrototypeOrigin byPrototype = (ByPrototypeOrigin) origin;
+            String prototypeId = MBIngredientPrototypesRegister.PROTOTYPE_BY_CORE.get(byPrototype.prototype).prototypeId;
+            result.putString(PROTOTYPE_KEY, prototypeId);
+        } else {
+            throw new IllegalStateException("Try to encode into NBT ingredient origin of unsupported type");
+        }
 
         return result;
     }
@@ -176,25 +200,35 @@ public class IngredientNBTConverter {
 
     // Reading methods
 
+    private static MBIngredient readIngredient(CompoundNBT nbt) {
+        return new MBIngredient(readCoreIngredient(nbt),
+                nbt.getInt(STACK_SIZE_KEY),
+                readRendering(nbt.getCompound(RENDERING_KEY)));
+    }
+
     private static Ingredient readCoreIngredient(CompoundNBT nbt) {
-        @Nullable Concept concept = null;
-        if (nbt.contains(CONCEPT_KEY)) {
-            String conceptId = nbt.getString(CONCEPT_KEY);
-            concept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId).core;
-        }
-
-        @Nullable List<Ingredient> subingredients = null;
-        if (nbt.contains(SUBINGREDIENTS_KEY)) {
-            subingredients = readSubingredients(nbt.getList(SUBINGREDIENTS_KEY, Constants.NBT.TAG_COMPOUND));
-        }
-
-        return new Ingredient(concept,
-                subingredients,
+        return new Ingredient(
+                readOrigin(nbt.getCompound(ORIGIN_KEY)),
                 readNutritional(nbt.getCompound(NUTRITIONAL_KEY)),
                 readTaste(nbt.getCompound(TASTE_KEY)),
                 nbt.getFloat(HEDONISM_KEY),
                 nbt.getBoolean(EDIBLE_KEY),
                 readTags(nbt.getList(TAGS_KEY, Constants.NBT.TAG_STRING)));
+    }
+
+    private static IngredientOrigin readOrigin(CompoundNBT nbt) {
+        if (nbt.contains(CONCEPT_KEY)) {
+            String conceptId = nbt.getString(CONCEPT_KEY);
+            Concept concept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId).core;
+            List<Ingredient> subingredients = readSubingredients(nbt.getList(SUBINGREDIENTS_KEY, Constants.NBT.TAG_COMPOUND));
+            return new ByConceptOrigin(concept, subingredients);
+        } else if (nbt.contains(PROTOTYPE_KEY)) {
+            String prototypeId = nbt.getString(PROTOTYPE_KEY);
+            IngredientPrototype prototype = MBIngredientPrototypesRegister.PROTOTYPE_BY_ID.get(prototypeId).core;
+            return new ByPrototypeOrigin(prototype);
+        }
+
+        throw new IllegalStateException("Try to decode NBT with invalid ingredient origin type");
     }
 
     private static Taste readTaste(CompoundNBT nbt) {

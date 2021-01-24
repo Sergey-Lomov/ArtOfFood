@@ -61,7 +61,7 @@ public class FoodProcessingResultSlot extends Slot {
         amountCrafted += numItemsCrafted;
     }
 
-    @Override
+/*    @Override
     protected void onCrafting(@NotNull ItemStack stack) {
         if (this.amountCrafted > 0) {
             stack.onCrafting(player.world, player, amountCrafted);
@@ -109,5 +109,5 @@ public class FoodProcessingResultSlot extends Slot {
         if (tool != null)
             stub.setInventorySlotContents(TOOL_STUB_INDEX, tool.getStack());
         return stub;
-    }
+    }*/
 }

@@ -4,13 +4,13 @@ import artoffood.core.models.IngredientPrototype;
 
 public class MBIngredientPrototype {
 
-    public String itemId;
+    public String prototypeId;
     public IngredientPrototype core;
     public int stackSize;
     public MBItemRendering rendering;
 
-    public MBIngredientPrototype(String itemId, IngredientPrototype core, int stackSize, MBItemRendering rendering) {
-        this.itemId = itemId;
+    public MBIngredientPrototype(String prototypeId, IngredientPrototype core, int stackSize, MBItemRendering rendering) {
+        this.prototypeId = prototypeId;
         this.stackSize = stackSize;
         this.core = core;
         this.rendering = rendering;

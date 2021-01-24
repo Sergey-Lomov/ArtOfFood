@@ -30,7 +30,7 @@ public class IngredientPrototypesRegister {
             new Nutritional(0, 0),
             new TasteBuilder().salinity(4).build(),
             false,
-            Tags.VEGETABLE, Tags.SOLID);
+            Tags.SPICE);
 
     public static IngredientPrototype SUNFLOWER_OIL = new IngredientPrototype(
             new Nutritional(100, 2),

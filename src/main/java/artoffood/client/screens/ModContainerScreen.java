@@ -26,8 +26,6 @@ public abstract class ModContainerScreen <T extends Container> extends Container
 
     @Override
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-
         if (promptProvider == null) return;
         NonNullList<SlotPrompt> prompts = NonNullList.create();
         for (Slot slot : container.inventorySlots) {
@@ -35,5 +33,7 @@ public abstract class ModContainerScreen <T extends Container> extends Container
         }
 
         SlotPromptRenderingManager.renderPrompts(prompts, this, hoveredSlot, playerInventory.getItemStack(), matrixStack, mouseX, mouseY);
+
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 }

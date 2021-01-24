@@ -1,12 +1,9 @@
 package artoffood.minebridge.models;
 
-import artoffood.client.utils.Texture;
 import artoffood.core.models.Concept;
 import artoffood.core.models.Ingredient;
 import artoffood.minebridge.registries.MBVisualSlotsTypesRegister;
-import artoffood.minebridge.utils.LocalisationManager;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.TransportationHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,6 +20,8 @@ public abstract class MBConcept {
     public MBConcept(Concept core, NonNullList<MBVisualSlot> slots, String conceptId, int resultStackSize, float resultX, float resultY) {
         if (slots.size() != core.slots.size())
             throw new IllegalStateException("Try to create bridge concept with different amount of core slots and visualisation slots");
+        if (core.resultsCount > resultStackSize)
+            throw new IllegalStateException("Try to create MBConcept with core, which results count more, than max stack count");
 
         this.slots = slots;
         this.conceptId = conceptId;

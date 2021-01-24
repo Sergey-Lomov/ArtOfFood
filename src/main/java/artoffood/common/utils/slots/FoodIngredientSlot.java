@@ -22,7 +22,7 @@ public class FoodIngredientSlot extends Slot {
         AtomicBoolean isValid = new AtomicBoolean(false);
 
         stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(cap -> {
-            isValid.set(core.predicate.test(cap.getTags()));
+            isValid.set(core.validate(cap.getIngredient().core));
         });
 
         return isValid.get();

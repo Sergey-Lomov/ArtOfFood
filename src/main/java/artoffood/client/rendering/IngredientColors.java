@@ -1,7 +1,6 @@
 package artoffood.client.rendering;
 
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.items.FoodIngredientItem;
 import artoffood.minebridge.models.MBItemRendering;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.ItemStack;

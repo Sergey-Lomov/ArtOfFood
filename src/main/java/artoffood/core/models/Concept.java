@@ -5,10 +5,7 @@ import artoffood.core.registries.FoodTagsRegister;
 import artoffood.core.registries.TagsPredicates;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -22,10 +19,12 @@ public abstract class Concept {
 
     public final List<ConceptSlot> slots;
     public final boolean eadibleResult;
+    public final int resultsCount;
 
-    public Concept(List<ConceptSlot> slots, boolean eadibleResult) {
+    public Concept(List<ConceptSlot> slots, boolean eadibleResult, int resultsCount) {
         this.slots = slots;
         this.eadibleResult = eadibleResult;
+        this.resultsCount = resultsCount;
     }
 
     public List<Integer> mainSlotsIndexes() { return allIndexes(); }
@@ -62,7 +61,48 @@ public abstract class Concept {
             result.add(Tags.INSIPID);
 
         return result;
-    };
+    }
+
+    public boolean matches(@NotNull List<Ingredient> ingredients) {
+        if (ingredients.size() != slots.size()) return false;
+
+        for (int i = 0; i < slots.size(); i++) {
+            if (!slots.get(i).validate(ingredients.get(i)))
+                return false;
+        }
+
+        return true;
+    }
+
+    public boolean isSimilarIngredients(@NotNull List<Ingredient> i1, @NotNull List<Ingredient> i2) {
+        if (i1.size() != i2.size() || i1.size() != slots.size()) return false;
+
+        List<Ingredient> i1Copy = new ArrayList<>(i1);
+        List<Ingredient> i2Copy = new ArrayList<>(i2);
+        List<Integer> i2SlotsIndexes = IntStream.rangeClosed(0, i2.size() - 1).boxed().collect(Collectors.toList());
+        while (!i1Copy.isEmpty()) { // Check i2Copy to isEmpty is logical, but i1 and i2 sizes already checked to be equal and elements removed from i1Copy and i2Copy at same case. So i2Copy will be empty only at same time with i1Copy.
+            Ingredient i1First = i1Copy.stream().findFirst().get();
+            int i1SlotIndex = slots.size() - i1Copy.size();
+            boolean foundSame = false;
+
+            for (int iterator = 0; iterator < i2Copy.size(); iterator++) {
+                Ingredient i2Current = i2Copy.get(iterator);
+                int i2SlotIndex = i2SlotsIndexes.get(iterator);
+                if (i1First.equals(i2Current)
+                        && slots.get(i1SlotIndex).groupId == slots.get(i2SlotIndex).groupId) {
+                    i1Copy.remove(0);
+                    i2Copy.remove(iterator);
+                    i2SlotsIndexes.remove(iterator);
+                    foundSame = true;
+                    break;
+                }
+            }
+
+            if (!foundSame) return false;
+        }
+
+        return true;
+    }
 
     // Utils for derived classes
     protected static class Tags extends FoodTagsRegister {}

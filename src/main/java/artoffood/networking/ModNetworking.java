@@ -5,16 +5,22 @@ import artoffood.networking.packets.CUpdateConceptPacket;
 import artoffood.networking.packets.SSetConceptResultSlotPacket;
 import artoffood.networking.packets.SSetProcessingResultSlotPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+import java.lang.ref.WeakReference;
+import java.util.stream.Stream;
 
 public class ModNetworking {
 
     private static final String PROTOCOL_VERSION = "1.0";
     private static SimpleChannel INSTANCE;
     private static int ID = 0;
+
+    private static final NonNullList<WeakReference<Object>> serverListeners = NonNullList.create();
 
     public static int nextId () { return ID++; }
 
@@ -49,5 +55,20 @@ public class ModNetworking {
 
     public static void sendToServer(Object packet) {
         INSTANCE.sendToServer(packet);
+    }
+
+    public static void addServerListener(Object obj) {
+        serverListeners.add(new WeakReference(obj));
+    }
+
+    public static void removeServerListener(Object obj) {
+        serverListeners.remove(obj);
+    }
+
+    public static <T> Stream<T> listeners(Class<T> listenerClass) {
+        serverListeners.removeIf(r -> r.get() == null);
+        return serverListeners.stream()
+                .filter(r -> listenerClass.isAssignableFrom(r.get().getClass()))
+                .map(r -> ((T) r.get()));
     }
 }

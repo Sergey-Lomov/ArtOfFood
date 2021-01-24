@@ -32,4 +32,12 @@ public class Taste implements Cloneable{
     public float totalPower() {
         return salinity + sweetness + acidity + bitterness + umami;
     }
+
+    public boolean equals(Taste t) {
+        return salinity == t.salinity
+                && sweetness == t.sweetness
+                && acidity == t.acidity
+                && bitterness == t.bitterness
+                && umami == t.umami;
+    }
 }
