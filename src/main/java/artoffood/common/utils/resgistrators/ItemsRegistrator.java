@@ -6,8 +6,11 @@ import artoffood.common.items.ConceptResultItem;
 import artoffood.common.items.ConceptResultPreviewItem;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
+import artoffood.core.models.Concept;
+import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredientPrototype;
+import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.registries.MBFoodToolsRegister;
 import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import net.minecraft.block.Block;
@@ -16,14 +19,18 @@ import net.minecraft.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ItemsRegistrator {
 
     private static final String BLOCK_ITEMS_PREFIX = "blocks/";
+    private static final String CONCEPT_RESULT_PREFIX = "concepts/";
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
 
-    public static final ConceptResultItem CONCEPT_RESULT_ITEM = new ConceptResultItem(new Item.Properties().maxStackSize(64));
-    public static final ConceptResultPreviewItem CONCEPT_RESULT_PREVIEW_ITEM = new ConceptResultPreviewItem(new Item.Properties().maxStackSize(1));
+    public static final ConceptResultPreviewItem CONCEPT_RESULT_PREVIEW_ITEM = new ConceptResultPreviewItem(new Item.Properties().maxStackSize(64));
+    public static final Map<MBConcept, ConceptResultItem> CONCEPT_RESULT_ITEM = new HashMap<>();
 
     public static final Item ITEM_GROUP_AMBASADOR = new PrototypedIngredientItem(
             MBIngredientPrototypesRegister.CABBAGE,
@@ -34,18 +41,7 @@ public class ItemsRegistrator {
             new Item.Properties().group(ModItemGroup.instance));
 
     static {
-        ITEMS.register("concept_result", () -> CONCEPT_RESULT_ITEM);
         ITEMS.register("concept_preview_result", () -> CONCEPT_RESULT_PREVIEW_ITEM);
-    }
-
-    public static void registerFoodTools() {
-        MBFoodToolsRegister.TOOLS.forEach(ItemsRegistrator::registerFoodTool);
-    }
-
-    public static void registerIngredients() {
-        for (MBIngredientPrototype prototype: MBIngredientPrototypesRegister.ALL) {
-            registerIngredient(prototype);
-        }
     }
 
     public static void registerBlockItem(String name, Block block, int stackSize) {
@@ -54,13 +50,26 @@ public class ItemsRegistrator {
         ITEMS.register(BLOCK_ITEMS_PREFIX + name, () -> blockItem);
     }
 
-    private static void registerIngredient(MBIngredientPrototype type) {
-        Item.Properties properties = new Item.Properties().maxStackSize(type.stackSize).group(ModItemGroup.instance);
-        ITEMS.register(type.prototypeId, () -> new PrototypedIngredientItem(type, properties));
+    public static void registerConceptResultIngredients() {
+        for (MBConcept concept: MBConceptsRegister.ALL) {
+            Item.Properties properties = new Item.Properties().maxStackSize(concept.resultStackSize);
+            ConceptResultItem item = new ConceptResultItem(properties);
+            ITEMS.register(CONCEPT_RESULT_PREFIX + concept.conceptId, () -> item);
+            CONCEPT_RESULT_ITEM.put(concept, item);
+        }
     }
 
-    private static void registerFoodTool(MBFoodTool tool) {
-        Item.Properties properties  = new Item.Properties().maxDamage(tool.durability).group(ModItemGroup.instance);
-        ITEMS.register(tool.id, () -> new FoodToolItem(tool, properties));
+    public static void registerPrototypedIngredients() {
+        for (MBIngredientPrototype prototype: MBIngredientPrototypesRegister.ALL) {
+            Item.Properties properties = new Item.Properties().maxStackSize(prototype.stackSize).group(ModItemGroup.instance);
+            ITEMS.register(prototype.prototypeId, () -> new PrototypedIngredientItem(prototype, properties));
+        }
+    }
+
+    public static void registerFoodTools() {
+        for (MBFoodTool tool: MBFoodToolsRegister.TOOLS) {
+            Item.Properties properties  = new Item.Properties().maxDamage(tool.durability).group(ModItemGroup.instance);
+            ITEMS.register(tool.id, () -> new FoodToolItem(tool, properties));
+        }
     }
 }

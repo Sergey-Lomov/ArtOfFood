@@ -12,10 +12,11 @@ import java.util.HashMap;
 
 public class MBProcessingsRegister {
 
+    private static final String PROCESSING_PREFIX = "processing/";
     public static HashMap<String, MBProcessing> processings = new HashMap();
 
-    public static MBProcessing SLICING = registerWithInnerToMain("slicing", ProcessingsRegister.SLICING, "ingredients/sliced");
-    public static MBProcessing GRATE = registerWithInnerToMain("grate", ProcessingsRegister.GRATE, "ingredients/grated");
+    public static MBProcessing SLICING = registerWithInnerToMain("slicing", ProcessingsRegister.SLICING, PROCESSING_PREFIX + "sliced");
+    public static MBProcessing GRATE = registerWithInnerToMain("grate", ProcessingsRegister.GRATE, PROCESSING_PREFIX + "grated");
 
     private static MBProcessing registerWithInnerToMain(String id, Processing core, String newModel){
         MBItemRenderingTransform transform = new MBItemRenderingTransformBuilder()

@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class MBIngredientPrototypesRegister {
 
-    private static final String INGREDIENTS_PREFIX = "ingredients/";
+    private static final String INGREDIENTS_PREFIX = "prototypes/";
     public static final NonNullList<MBIngredientPrototype> ALL = NonNullList.create();
     public static final Map<IngredientPrototype, MBIngredientPrototype> PROTOTYPE_BY_CORE = new HashMap<>();
     public static final Map<String, MBIngredientPrototype> PROTOTYPE_BY_ID = new HashMap<>();

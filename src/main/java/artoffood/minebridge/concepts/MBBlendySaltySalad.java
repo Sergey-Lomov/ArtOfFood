@@ -25,7 +25,7 @@ public class MBBlendySaltySalad extends MBConcept {
     protected static final String MODEL_KEY_4 = "blendy_salty_salad_4";
 
     public MBBlendySaltySalad() {
-        super(ConceptsRegister.BLENDY_SALTY_SALAD, getSlots(), "blendy_salty_salad", 1,0.5f, 0.5f);
+        super(ConceptsRegister.BLENDY_SALTY_SALAD, getSlots(), "blendy_salty_salad", 4, 0.5f, 0.5f);
     }
 
     private static NonNullList<MBVisualSlot> getSlots () {

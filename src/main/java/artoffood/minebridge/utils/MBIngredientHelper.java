@@ -41,11 +41,11 @@ public class MBIngredientHelper {
         Taste taste = ingredient.core.taste;
 
         return new ArrayList<String>() {{
-            add(LocalisationManager.Taste.sweetness() + TASTE_SEPARATOR + taste.sweetness);
-            add(LocalisationManager.Taste.salinity() + TASTE_SEPARATOR + taste.salinity);
-            add(LocalisationManager.Taste.acidity() + TASTE_SEPARATOR + taste.acidity);
-            add(LocalisationManager.Taste.bitterness() + TASTE_SEPARATOR + taste.bitterness);
-            add(LocalisationManager.Taste.umami() + TASTE_SEPARATOR + taste.umami);
+            add(LocalisationManager.Taste.sweetness() + TASTE_SEPARATOR + String.format("%.2f", taste.sweetness));
+            add(LocalisationManager.Taste.salinity() + TASTE_SEPARATOR + String.format("%.2f", taste.salinity));
+            add(LocalisationManager.Taste.acidity() + TASTE_SEPARATOR + String.format("%.2f", taste.acidity));
+            add(LocalisationManager.Taste.bitterness() + TASTE_SEPARATOR + String.format("%.2f", taste.bitterness));
+            add(LocalisationManager.Taste.umami() + TASTE_SEPARATOR + String.format("%.2f", taste.umami));
         }};
     }
 

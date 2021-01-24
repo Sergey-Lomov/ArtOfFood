@@ -79,7 +79,8 @@ public class ArtOfFood
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         BlocksRegistrator.BLOCKS.register(modEventBus);
-        ItemsRegistrator.registerIngredients();
+        ItemsRegistrator.registerPrototypedIngredients();
+        ItemsRegistrator.registerConceptResultIngredients();
         ItemsRegistrator.registerFoodTools();
         ItemsRegistrator.ITEMS.register(modEventBus);
 
@@ -96,8 +97,8 @@ public class ArtOfFood
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/sliced"));
-        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/ingredients/grated"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/sliced"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/grated"));
 
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.KITCHEN_DRAWER.get(), RenderType.getSolid());
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.COUNTERTOP.get(), RenderType.getSolid());

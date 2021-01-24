@@ -51,8 +51,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     protected void init() {
         super.init();
 
-        final List<ConceptCellViewModel>  models = new ArrayList<>(MBConceptsRegister.CONCEPTS.size());
-        for (MBConcept concept: MBConceptsRegister.CONCEPTS) {
+        final List<ConceptCellViewModel>  models = new ArrayList<>(MBConceptsRegister.ALL.size());
+        for (MBConcept concept: MBConceptsRegister.ALL) {
             models.add(new ConceptCellViewModel(concept, font, itemRenderer));
         }
 

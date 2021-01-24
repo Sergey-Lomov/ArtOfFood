@@ -16,6 +16,8 @@
   "tags.grated": "Grated",
   "tags.vegetable": "Vegetable",
   "tags.solid": "Solid",
+  "tags.insipid": "Insipid",
+  "tags.dish.salad": "Salad",
 
   "taste.salinity": "Salinity",
   "taste.sweetness": "Sweetness",
@@ -23,10 +25,10 @@
   "taste.bitterness": "Bitterness",
   "taste.umami": "Umami",
 
-  "ingredients/cabbage": "Cabbage",
-  "ingredients/tomato": "Tomato",
-  "ingredients/sunflower_oil": "Sunflower Oil",
-  "ingredients/rock_salt": "Rock salt",
+  "prototypes/cabbage": "Cabbage",
+  "prototypes/tomato": "Tomato",
+  "prototypes/sunflower_oil": "Sunflower Oil",
+  "prototypes/rock_salt": "Rock salt",
 
   "concepts.title.processing": "Processing",
   "concepts.title.blendy_salty_salad": "Common salad",

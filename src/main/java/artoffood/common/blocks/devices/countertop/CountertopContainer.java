@@ -108,7 +108,8 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
                         playerInventory.player,
                         index -> inventorySlots.get(index),
                         resultInventory,
-                        0, x, y);
+                        0, x, y,
+                        () -> playerInventory);
                 this.addSlot(resultSlot);
             }
         }

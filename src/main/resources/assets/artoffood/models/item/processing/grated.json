@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "artoffood:item/ingredients/cabbage"
+    "layer0": "artoffood:item/processing/grated"
   }
 }

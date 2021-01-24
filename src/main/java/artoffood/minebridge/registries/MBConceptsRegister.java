@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class MBConceptsRegister {
 
-    public static final List<MBConcept> CONCEPTS = new ArrayList<>();
+    public static final List<MBConcept> ALL = new ArrayList<>();
     public static final Map<Concept, MBConcept> CONCEPT_BY_CORE = new HashMap<>();
     public static final Map<String, MBConcept> CONCEPT_BY_ID = new HashMap<>();
 
@@ -20,7 +20,7 @@ public class MBConceptsRegister {
     public static final MBConcept TEST = register(new MBTestConcept());
 
     private static MBConcept register(MBConcept concept) {
-        CONCEPTS.add(concept);
+        ALL.add(concept);
         CONCEPT_BY_CORE.put(concept.core, concept);
         CONCEPT_BY_ID.put(concept.conceptId, concept);
         return concept;

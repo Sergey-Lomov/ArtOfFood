@@ -3,25 +3,21 @@ package artoffood.common.utils.slots;
 import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
 import artoffood.common.capabilities.ingredient.IIngredientEntity;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.recipies.FoodProcessingRecipe;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
 import artoffood.core.models.Ingredient;
+import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBIngredient;
-import jdk.nashorn.internal.runtime.options.Option;
+import artoffood.minebridge.registries.MBConceptsRegister;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IRecipeHolder;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,20 +27,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ConceptResultPreviewSlot extends Slot {
 
     private final PlayerEntity player;
     private int amountCrafted = 1;
     private final Function<Integer, @Nullable Slot> slotForContainerId;
+    private final Supplier<PlayerInventory> playerInventory;
 
     public ConceptResultPreviewSlot(PlayerEntity player,
                                     Function<Integer, @Nullable Slot> slotForContainerId,
                                     IInventory inventoryIn, int index,
-                                    int xPosition, int yPosition) {
+                                    int xPosition, int yPosition, Supplier<PlayerInventory> playerInventory) {
         super(inventoryIn, index, xPosition, yPosition);
         this.player = player;
         this.slotForContainerId = slotForContainerId;
+        this.playerInventory = playerInventory;
     }
 
     public void configure(ConceptResultPreviewSlotConfig config) {
@@ -93,6 +92,7 @@ public class ConceptResultPreviewSlot extends Slot {
         this.amountCrafted = 0;
     }
 
+    @Override
     public @NotNull ItemStack onTake(@NotNull PlayerEntity thePlayer, @NotNull ItemStack stack) {
 
         AtomicReference<NonNullList<SlotReference>> atomicReferences = new AtomicReference<>(null);
@@ -145,10 +145,16 @@ public class ConceptResultPreviewSlot extends Slot {
         }
 
         // Create result - concept result item stack, without preview info (slots refs)
-        ItemStack result = new ItemStack(ItemsRegistrator.CONCEPT_RESULT_ITEM, 1);
+        MBConcept bridgeConcept = MBConceptsRegister.CONCEPT_BY_CORE.get(origin.concept);
+        Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(bridgeConcept);
+        ItemStack result = new ItemStack(item, origin.concept.resultsCount);
         result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                 cap -> cap.setIngredient(atomicResult.get())
         );
+
+        super.onTake(player, stack);
+
+        playerInventory.get().setItemStack(result);
         return result;
     }
 /*
