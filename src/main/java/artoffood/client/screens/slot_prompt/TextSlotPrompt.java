@@ -12,7 +12,7 @@ public class TextSlotPrompt extends SlotPrompt {
     public final NonNullList<ITextComponent> textComponents;
 
     public TextSlotPrompt(Slot slot, IPromptValidator validator, int renderOrder, FontRenderer font, NonNullList<ITextComponent> textComponents) {
-        super(slot, validator, renderOrder);
+        super(slot, validator, renderOrder, true);
         this.textComponents = textComponents;
         this.font = font;
     }

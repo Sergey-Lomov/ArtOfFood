@@ -10,7 +10,7 @@ public class ReferenceSlotPrompt extends SlotPrompt {
     public final Texture sourceTexture;
 
     public ReferenceSlotPrompt(Slot slot, IPromptValidator validator, int renderOrder, Slot source, Slot destination, Texture sourceTexture) {
-        super(slot, validator, renderOrder);
+        super(slot, validator, renderOrder, false);
         this.source = source;
         this.destination = destination;
         this.sourceTexture = sourceTexture;

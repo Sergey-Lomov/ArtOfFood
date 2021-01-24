@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SlotPromptRenderingManager {
 
@@ -23,13 +24,33 @@ public class SlotPromptRenderingManager {
 
     private SlotPromptRenderingManager() {};
 
-    public static void renderPrompts(NonNullList<SlotPrompt> prompts,
+    public static void renderPreVanillaPrompts(NonNullList<SlotPrompt> prompts,
                                      @NotNull ContainerScreen<?> screen,
                                      @Nullable Slot hoveredSlot,
                                      @Nullable ItemStack cursorStack,
                                      @NotNull MatrixStack matrixStack,
                                      int mouseX, int mouseY) {
-        List<SlotPrompt> ordered = prompts.stream().sorted(Comparator.comparingInt(SlotPrompt::getRenderOrder)).collect(Collectors.toList());
+        renderPrompts(prompts, screen, hoveredSlot, cursorStack, matrixStack, false, mouseX, mouseY);
+    }
+
+    public static void renderPostVanillaPrompts(NonNullList<SlotPrompt> prompts,
+                                                @NotNull ContainerScreen<?> screen,
+                                                @Nullable Slot hoveredSlot,
+                                                @Nullable ItemStack cursorStack,
+                                                @NotNull MatrixStack matrixStack,
+                                                int mouseX, int mouseY) {
+        renderPrompts(prompts, screen, hoveredSlot, cursorStack, matrixStack, true, mouseX, mouseY);
+    }
+
+    public static void renderPrompts(NonNullList<SlotPrompt> prompts,
+                                     @NotNull ContainerScreen<?> screen,
+                                     @Nullable Slot hoveredSlot,
+                                     @Nullable ItemStack cursorStack,
+                                     @NotNull MatrixStack matrixStack,
+                                     boolean postVanilla,
+                                     int mouseX, int mouseY) {
+        Stream<SlotPrompt> filtered = prompts.stream().filter(sp -> sp.postVanillaRenderer == postVanilla);
+        List<SlotPrompt> ordered = filtered.sorted(Comparator.comparingInt(SlotPrompt::getRenderOrder)).collect(Collectors.toList());
         NonNullList<SlotPrompt> rendered = NonNullList.create();
         for (SlotPrompt prompt: ordered ) {
             if (prompt.isValid(screen, hoveredSlot, cursorStack, rendered)) {

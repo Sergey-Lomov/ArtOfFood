@@ -8,7 +8,7 @@ public class StubSlotPrompt extends SlotPrompt {
     public final Texture texture;
 
     public StubSlotPrompt(Slot slot, IPromptValidator validator, int renderOrder, Texture texture) {
-        super(slot, validator, renderOrder);
+        super(slot, validator, renderOrder, false);
         this.texture = texture;
     }
 }

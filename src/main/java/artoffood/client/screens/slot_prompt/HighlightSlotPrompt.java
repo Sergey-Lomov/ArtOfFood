@@ -20,7 +20,7 @@ public class HighlightSlotPrompt extends SlotPrompt {
                                List<Slot> validationSlots,
                                Predicate<? super Slot> predicate,
                                Texture texture) {
-        super(slot, validator, renderOrder);
+        super(slot, validator, renderOrder, false);
         this.validationSlots = validationSlots;
         this.predicate = predicate;
         this.texture = texture;

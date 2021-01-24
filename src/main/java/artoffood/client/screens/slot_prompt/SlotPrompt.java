@@ -17,13 +17,15 @@ public abstract class SlotPrompt {
     }
 
     public final Slot slot;
+    public final boolean postVanillaRenderer;
     private final IPromptValidator validator;
     private final int renderOrder;
 
-    protected SlotPrompt(Slot slot, IPromptValidator validator, int renderOrder) {
+    protected SlotPrompt(Slot slot, IPromptValidator validator, int renderOrder, boolean postVanillaRenderer) {
         this.slot = slot;
         this.validator = validator;
         this.renderOrder = renderOrder;
+        this.postVanillaRenderer = postVanillaRenderer;
     }
 
     public boolean isValid(ContainerScreen<?> screen, Slot hoveredSlot, ItemStack cursorStack, NonNullList<SlotPrompt> renderedPrompts) {

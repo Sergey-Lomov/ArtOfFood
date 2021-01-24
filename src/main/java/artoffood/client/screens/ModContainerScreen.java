@@ -32,8 +32,8 @@ public abstract class ModContainerScreen <T extends Container> extends Container
             prompts.addAll(promptProvider.getPrompts(slot));
         }
 
-        SlotPromptRenderingManager.renderPrompts(prompts, this, hoveredSlot, playerInventory.getItemStack(), matrixStack, mouseX, mouseY);
-
+        SlotPromptRenderingManager.renderPreVanillaPrompts(prompts, this, hoveredSlot, playerInventory.getItemStack(), matrixStack, mouseX, mouseY);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
+        SlotPromptRenderingManager.renderPostVanillaPrompts(prompts, this, hoveredSlot, playerInventory.getItemStack(), matrixStack, mouseX, mouseY);
     }
 }
