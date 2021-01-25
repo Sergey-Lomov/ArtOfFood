@@ -12,6 +12,7 @@ import artoffood.client.screens.slot_prompt.rendering.*;
 import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.capabilities.slots_refs.SlotsRefsProviderCapability;
+import artoffood.common.items.FoodIngredientItem;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.utils.resgistrators.BlocksRegistrator;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
@@ -97,8 +98,12 @@ public class ArtOfFood
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
+        // TODO: Remve manually adding and implement cyclic adding of all necessary textures. Or use texture + variants instead different textures, and remove this specials adding at all.
         ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/sliced"));
         ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/grated"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_2"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_3"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_4"));
 
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.KITCHEN_DRAWER.get(), RenderType.getSolid());
         RenderTypeLookup.setRenderLayer(BlocksRegistrator.COUNTERTOP.get(), RenderType.getSolid());
@@ -161,7 +166,7 @@ public class ArtOfFood
         public static void onModelBakeEvent(final ModelBakeEvent event) {
 
             Stream<RegistryObject<Item>> objects = ItemsRegistrator.ITEMS.getEntries().stream();
-            Stream<PrototypedIngredientItem> foodItems = objects.filter(ro -> ro.get() instanceof PrototypedIngredientItem).map(ro -> (PrototypedIngredientItem)ro.get());
+            Stream<FoodIngredientItem> foodItems = objects.filter(ro -> ro.get() instanceof FoodIngredientItem).map(ro -> (FoodIngredientItem)ro.get());
             foodItems.forEach( item -> {
                 ModelResourceLocation location = new ModelResourceLocation(item.getRegistryName(), "inventory");
                 IBakedModel existingModel = event.getModelRegistry().get(location);
@@ -176,7 +181,7 @@ public class ArtOfFood
         {
             ItemColors colors = event.getItemColors();
             Stream<Item> items = ItemsRegistrator.ITEMS.getEntries().stream().map(ro -> ro.get());
-            Stream<Item> ingredients = items.filter( i -> i instanceof PrototypedIngredientItem);
+            Stream<Item> ingredients = items.filter( i -> i instanceof FoodIngredientItem);
             ingredients.forEach( i -> colors.register(IngredientColors.INSTANCE, i));
         }
     }

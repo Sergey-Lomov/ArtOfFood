@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "artoffood:item/concepts/vanilla_plate",
+    "layer1": "artoffood:item/concepts/blendy_salty_salad_2_1",
+    "layer2": "artoffood:item/concepts/blendy_salty_salad_2_2"
+  }
+}

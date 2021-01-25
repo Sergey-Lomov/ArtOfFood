@@ -14,7 +14,6 @@ import java.util.Map;
 
 public class MBIngredientPrototypesRegister {
 
-    private static final String INGREDIENTS_PREFIX = "prototypes/";
     public static final NonNullList<MBIngredientPrototype> ALL = NonNullList.create();
     public static final Map<IngredientPrototype, MBIngredientPrototype> PROTOTYPE_BY_CORE = new HashMap<>();
     public static final Map<String, MBIngredientPrototype> PROTOTYPE_BY_ID = new HashMap<>();
@@ -26,7 +25,7 @@ public class MBIngredientPrototypesRegister {
 
     public static MBIngredientPrototype CABBAGE = prototype(IngredientPrototypesRegister.CABBAGE,
             "cabbage",
-            new Color(234,237,180));
+            new Color(170,219,116));
 
     public static MBIngredientPrototype TOMATO = prototype(IngredientPrototypesRegister.TOMATO,
             "tomato",
@@ -45,15 +44,14 @@ public class MBIngredientPrototypesRegister {
     }
 
     private static MBIngredientPrototype prototype(IngredientPrototype core, String id, Color mainColor, boolean addToAll) {
-        final String fullId = INGREDIENTS_PREFIX + id;
-        MBIngredientPrototype prototype =  new MBIngredientTypeBuilder(fullId, core)
-                .rendering(new MBItemRenderingBuilder(fullId)
+        MBIngredientPrototype prototype =  new MBIngredientTypeBuilder(id, core)
+                .rendering(new MBItemRenderingBuilder(id)
                         .colors(new ColorsSchema(mainColor))
                         .build())
                 .build();
         if (addToAll) ALL.add(prototype);
         PROTOTYPE_BY_CORE.put(core, prototype);
-        PROTOTYPE_BY_ID.put(fullId, prototype);
+        PROTOTYPE_BY_ID.put(id, prototype);
         return prototype;
     }
 }

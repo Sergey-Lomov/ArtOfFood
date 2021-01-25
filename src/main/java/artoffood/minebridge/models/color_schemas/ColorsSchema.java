@@ -6,6 +6,7 @@ import java.util.HashMap;
 public class ColorsSchema extends HashMap<String, Color> {
 
     public static String MAIN_KEY = "main";
+    public static Color ORIGINAL_COLOR = new Color(1f, 1f, 1f);
     public static Color EMPTY_COLOR = new Color(0, 0, 0, 0);
 
     public ColorsSchema(Color mainColor) {

@@ -26,6 +26,7 @@ public class ItemsRegistrator {
 
     private static final String BLOCK_ITEMS_PREFIX = "blocks/";
     private static final String CONCEPT_RESULT_PREFIX = "concepts/";
+    private static final String PROTOTYPED_PREFIX = "prototypes/";
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
 
@@ -62,7 +63,7 @@ public class ItemsRegistrator {
     public static void registerPrototypedIngredients() {
         for (MBIngredientPrototype prototype: MBIngredientPrototypesRegister.ALL) {
             Item.Properties properties = new Item.Properties().maxStackSize(prototype.stackSize).group(ModItemGroup.instance);
-            ITEMS.register(prototype.prototypeId, () -> new PrototypedIngredientItem(prototype, properties));
+            ITEMS.register(PROTOTYPED_PREFIX + prototype.prototypeId, () -> new PrototypedIngredientItem(prototype, properties));
         }
     }
 
