@@ -2,7 +2,7 @@ package artoffood.minebridge.models;
 
 import artoffood.core.models.FoodTag;
 
-// TODO: MBFoodTag seems unnecessary. It may be changed to dictionaries TAG_BY_ID and ID_BY_TAG similat to current MBFoodTagRegister
+// TODO: MBFoodTag seems unnecessary. It may be changed to dictionaries TAG_BY_ID and ID_BY_TAG similar to current MBFoodTagRegister
 public class MBFoodTag {
 
     public String tagId;

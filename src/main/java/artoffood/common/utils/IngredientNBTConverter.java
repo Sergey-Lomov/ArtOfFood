@@ -1,11 +1,13 @@
 package artoffood.common.utils;
 
 import artoffood.core.models.*;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.registries.MBFoodTagsRegister;
+import artoffood.minebridge.registries.MBFoodToolsRegister;
 import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import javafx.util.Pair;
 import net.minecraft.nbt.CompoundNBT;
@@ -13,7 +15,6 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraftforge.common.util.Constants;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,7 +23,14 @@ import java.util.function.Function;
 
 public class IngredientNBTConverter {
 
-    public static final String INGREDIENT_KEY = "ingredient";
+    public static final String ITEMS_KEY = "items";
+    public static final String ITEM_TYPE_KEY = "type";
+    public static final String ITEM_DATA_KEY = "data";
+    public static final String INGREDIENT_ITEM_TYPE = "ingredient";
+    public static final String TOOL_ITEM_TYPE = "tool";
+    public static final String EMPTY_ITEM_TYPE = "empty";
+
+    public static final String TOOL_ID_KEY = "tool_id";
 
     private static final String HEDONISM_KEY = "hedonism";
     private static final String EDIBLE_KEY = "edible";
@@ -32,7 +40,6 @@ public class IngredientNBTConverter {
     private static final String ORIGIN_KEY = "origin";
     private static final String PROTOTYPE_KEY = "prototype";
     private static final String CONCEPT_KEY = "concept";
-    private static final String SUBINGREDIENTS_KEY = "subingredients";
 
     private static final String TASTE_KEY = "taste";
     private static final String SWEETNESS_KEY = "sweetness";
@@ -59,13 +66,13 @@ public class IngredientNBTConverter {
 
     public static CompoundNBT write(MBIngredient ingredient) {
         CompoundNBT result = new CompoundNBT();
-        result.put(INGREDIENT_KEY, writeIngredient(ingredient));
+        result.put(INGREDIENT_ITEM_TYPE, writeIngredient(ingredient));
         return result;
     }
 
     public static MBIngredient read(CompoundNBT nbt){
-        if (nbt.contains(INGREDIENT_KEY))
-            return readIngredient(nbt.getCompound(INGREDIENT_KEY));
+        if (nbt.contains(INGREDIENT_ITEM_TYPE))
+            return readIngredient(nbt.getCompound(INGREDIENT_ITEM_TYPE));
         else
             return MBIngredient.EMPTY;
     }
@@ -86,7 +93,7 @@ public class IngredientNBTConverter {
         result.put(ORIGIN_KEY, writeOrigin(ingredient.origin));
         result.put(NUTRITIONAL_KEY, writeNutritional(ingredient.nutritional));
         result.put(TASTE_KEY, writeTaste(ingredient.taste));
-        result.put(TAGS_KEY, writeTags(ingredient.tags));
+        result.put(TAGS_KEY, writeTags(ingredient.tags()));
         result.putFloat(HEDONISM_KEY, ingredient.hedonismScore);
         result.putBoolean(EDIBLE_KEY, ingredient.edible);
 
@@ -100,7 +107,7 @@ public class IngredientNBTConverter {
             ByConceptOrigin byConcept = (ByConceptOrigin) origin;
             String conceptId = MBConceptsRegister.CONCEPT_BY_CORE.get(byConcept.concept).conceptId;
             result.putString(CONCEPT_KEY, conceptId);
-            result.put(SUBINGREDIENTS_KEY, writeSubingredients(byConcept.subingredients));
+            result.put(ITEMS_KEY, writeItems(byConcept.items));
         } else if (origin instanceof ByPrototypeOrigin) {
             ByPrototypeOrigin byPrototype = (ByPrototypeOrigin) origin;
             String prototypeId = MBIngredientPrototypesRegister.PROTOTYPE_BY_CORE.get(byPrototype.prototype).prototypeId;
@@ -144,13 +151,49 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    private static ListNBT writeSubingredients(List<Ingredient> subs) {
+    private static ListNBT writeItems(List<FoodItem> items) {
         ListNBT result = new ListNBT();
 
-        for (Ingredient sub: subs) {
-            result.add(writeCoreIngredient(sub));
+        for (FoodItem item: items) {
+            if (item instanceof Ingredient) {
+                Ingredient ingredient = (Ingredient) item;
+                result.add(writeIngredientItem(ingredient));
+            } else if (item instanceof FoodTool) {
+                FoodTool tool = (FoodTool) item;
+                result.add(writeToolItem(tool));
+            } else if (item == FoodItem.EMPTY) {
+                result.add(writeEmptyItem());
+            } else
+                throw new IllegalStateException("Try to encode FoodIte, of unsupported type");
         }
 
+        return result;
+    }
+
+    private static CompoundNBT writeIngredientItem(Ingredient ingredient) {
+        CompoundNBT result = new CompoundNBT();
+        result.putString(ITEM_TYPE_KEY, INGREDIENT_ITEM_TYPE);
+        result.put(ITEM_DATA_KEY, writeCoreIngredient(ingredient));
+        return result;
+    }
+
+    private static CompoundNBT writeToolItem(FoodTool tool) {
+        CompoundNBT result = new CompoundNBT();
+        result.putString(ITEM_TYPE_KEY, TOOL_ITEM_TYPE);
+        result.put(ITEM_DATA_KEY, writeTool(tool));
+        return result;
+    }
+
+    private static CompoundNBT writeEmptyItem() {
+        CompoundNBT result = new CompoundNBT();
+        result.putString(ITEM_TYPE_KEY, EMPTY_ITEM_TYPE);
+        return result;
+    }
+
+    private static CompoundNBT writeTool(FoodTool tool) {
+        CompoundNBT result = new CompoundNBT();
+        String id = MBFoodToolsRegister.TOOL_BY_CORE.get(tool).id;
+        result.putString(TOOL_ID_KEY, id);
         return result;
     }
 
@@ -220,8 +263,8 @@ public class IngredientNBTConverter {
         if (nbt.contains(CONCEPT_KEY)) {
             String conceptId = nbt.getString(CONCEPT_KEY);
             Concept concept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId).core;
-            List<Ingredient> subingredients = readSubingredients(nbt.getList(SUBINGREDIENTS_KEY, Constants.NBT.TAG_COMPOUND));
-            return new ByConceptOrigin(concept, subingredients);
+            List<FoodItem> items = readItems(nbt.getList(ITEMS_KEY, Constants.NBT.TAG_COMPOUND));
+            return new ByConceptOrigin(concept, items);
         } else if (nbt.contains(PROTOTYPE_KEY)) {
             String prototypeId = nbt.getString(PROTOTYPE_KEY);
             IngredientPrototype prototype = MBIngredientPrototypesRegister.PROTOTYPE_BY_ID.get(prototypeId).core;
@@ -254,13 +297,30 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    private static List<Ingredient> readSubingredients(ListNBT list) {
-        List<Ingredient> result = new ArrayList<>();
+    private static List<FoodItem> readItems(ListNBT list) {
+        List<FoodItem> result = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++)
-            result.add(readCoreIngredient(list.getCompound(i)));
+            result.add(readItem(list.getCompound(i)));
 
         return result;
+    }
+
+    private static FoodItem readItem(CompoundNBT nbt) {
+        String type = nbt.getString(ITEM_TYPE_KEY);
+        if (type.equals(INGREDIENT_ITEM_TYPE)) {
+            return readCoreIngredient(nbt.getCompound(ITEM_DATA_KEY));
+        } else if (type.equals(TOOL_ITEM_TYPE)) {
+            return readTool(nbt.getCompound(ITEM_DATA_KEY));
+        } else if (type.equals(EMPTY_ITEM_TYPE)) {
+            return FoodItem.EMPTY;
+        } else
+            throw new IllegalStateException("Read from NBT item of unsupported type");
+    }
+
+    private static FoodTool readTool(CompoundNBT nbt) {
+        String id = nbt.getString(TOOL_ID_KEY);
+        return MBFoodToolsRegister.TOOL_BY_ID.get(id).core;
     }
 
     private static MBItemRendering readRendering(CompoundNBT nbt) {

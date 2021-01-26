@@ -1,5 +1,5 @@
 package artoffood.core.models;
 
 public enum FoodTagCategory {
-    SPECIAL, FILTER, TASTE, PROCESSING, HEDONISM/*, CONTENT*/
+    ITEM_TYPES, SPECIAL, FILTER, TASTE, PROCESSING, HEDONISM/*, CONTENT*/
 }

@@ -1,11 +1,14 @@
 package artoffood.minebridge.models;
 
 import artoffood.core.models.Concept;
+import artoffood.core.models.FoodItem;
 import artoffood.core.models.Ingredient;
+import artoffood.minebridge.models.color_schemas.ColorsSchema;
 import artoffood.minebridge.registries.MBVisualSlotsTypesRegister;
 import net.minecraft.util.NonNullList;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,15 +34,23 @@ public abstract class MBConcept {
         this.resultStackSize = resultStackSize;
     }
 
-    public abstract @NotNull MBItemRendering rendering(List<MBIngredient> subingredients);
+    public abstract @NotNull MBItemRendering rendering(List<MBFoodItem> items);
 
     // TODO: Check, it is really necessary to send subingredients into this method
-    public int getStackSize(List<MBIngredient> subingredients) { return 64; };
+    public int getStackSize(List<MBFoodItem> items) { return 64; };
 
-    public @NotNull Ingredient coreIngredient(List<MBIngredient> subingredients) {
-        List<Ingredient> coresubs = subingredients.stream().map(mbi -> mbi.core).collect(Collectors.toList());
-        return new Ingredient(core, coresubs);
+    public @NotNull Ingredient coreIngredient(List<MBFoodItem> items) {
+        List<FoodItem> coreItems = items.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
+        return new Ingredient(core, coreItems);
     }
 
     protected class Slots extends MBVisualSlotsTypesRegister {};
+
+    protected Color ingredientMainColor(List<MBFoodItem> items, int index) {
+        if (items.get(index).itemCore().isEmpty()) return ColorsSchema.EMPTY_COLOR;
+        if (!(items.get(index) instanceof MBIngredient))
+            throw new IllegalStateException("Try to get main color from not ingredient item");
+
+        return ((MBIngredient)items.get(index)).rendering.colors.getMain();
+    }
 }

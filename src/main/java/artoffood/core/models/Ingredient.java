@@ -1,15 +1,16 @@
 package artoffood.core.models;
 
+import artoffood.core.registries.FoodTagsRegister;
 import artoffood.core.registries.IngredientPrototypesRegister;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class Ingredient {
+public class Ingredient extends FoodItem {
 
+    private static final List<FoodTag> typeTags = new ArrayList<FoodTag>() {{ add(FoodTagsRegister.INGREDIENT); }};
     public static final Ingredient EMPTY = new Ingredient(IngredientPrototypesRegister.EMPTY);
 
     public final @NotNull IngredientOrigin origin;
@@ -19,7 +20,6 @@ public class Ingredient {
     public float hedonismScore;
     // TODO: Implement eating of edible ingredients
     public boolean edible;
-    public @NotNull List<FoodTag> tags;
 
     public Ingredient(IngredientOrigin origin,
                       Nutritional nutritional,
@@ -27,35 +27,46 @@ public class Ingredient {
                       float hedonismScore,
                       boolean edible,
                       List<FoodTag> tags) {
+        super();
+
         this.origin = origin;
         this.nutritional = nutritional;
         this.taste = taste;
         this.hedonismScore = hedonismScore;
         this.edible = edible;
-        this.tags = tags;
+        this.setTags(tags);
     }
 
     public Ingredient(IngredientOrigin origin) {
+        super();
+
         this.origin = origin;
         if (origin instanceof ByPrototypeOrigin) {
             setupByPrototype(((ByPrototypeOrigin) origin).prototype);
         } else if (origin instanceof ByConceptOrigin) {
             Concept concept = ((ByConceptOrigin) origin).concept;
-            List<Ingredient> subingredients = ((ByConceptOrigin) origin).subingredients;
-            setupByConcept(concept, subingredients);
+            List<FoodItem> items = ((ByConceptOrigin) origin).items;
+            setupByConcept(concept, items);
         } else {
             throw new IllegalStateException("Try to create ingredient uses unsupported origin type");
         }
     }
 
-    public Ingredient(Concept concept, List<Ingredient> subingredients) {
-        origin = new ByConceptOrigin(concept, subingredients);
-        setupByConcept(concept, subingredients);
+    public Ingredient(Concept concept, List<FoodItem> items) {
+        super();
+        origin = new ByConceptOrigin(concept, items);
+        setupByConcept(concept, items);
     }
 
     public Ingredient(IngredientPrototype prototype) {
+        super();
         origin = new ByPrototypeOrigin(prototype);
         setupByPrototype(prototype);
+    }
+
+    @Override
+    protected List<FoodTag> typeTags() {
+        return typeTags;
     }
 
     @Override
@@ -63,12 +74,12 @@ public class Ingredient {
         if (!(o instanceof Ingredient)) return false;
         Ingredient i = (Ingredient)o;
 
-        if (!origin.isEqualTo(i.origin)) return false;
-        if (tags.size() != i.tags.size()) return false;
+        if (!origin.equals(i.origin)) return false;
+        if (tags().size() != i.tags().size()) return false;
         if (!nutritional.equals(i.nutritional) || !taste.equals(i.taste) || hedonismScore != i.hedonismScore) return false;
 
-        List<FoodTag> tagsCopy = new ArrayList<>(tags);
-        List<FoodTag> iTagsCopy = new ArrayList<>(i.tags);
+        List<FoodTag> tagsCopy = new ArrayList<>(tags());
+        List<FoodTag> iTagsCopy = new ArrayList<>(i.tags());
         Collections.sort(tagsCopy);
         Collections.sort(iTagsCopy);
 
@@ -79,12 +90,12 @@ public class Ingredient {
         return this == Ingredient.EMPTY || origin.isEmpty();
     }
 
-    private void setupByConcept(Concept concept, List<Ingredient> subingredients) {
+    private void setupByConcept(Concept concept, List<FoodItem> items) {
         edible = concept.eadibleResult;
-        nutritional = concept.getNutritional(subingredients);
-        taste = concept.getTaste(subingredients);
-        hedonismScore = concept.getHedonismScore(subingredients);
-        tags = concept.getTags(subingredients, taste);
+        nutritional = concept.getNutritional(items);
+        taste = concept.getTaste(items);
+        hedonismScore = concept.getHedonismScore(items);
+        setTags(concept.getTags(items, taste));
     }
 
     private void setupByPrototype(IngredientPrototype prototype) {
@@ -92,6 +103,6 @@ public class Ingredient {
         taste = prototype.taste.clone();
         hedonismScore = prototype.hedonismScore;
         edible = prototype.edible;
-        tags = new ArrayList<>(prototype.tags);
+        setTags(new ArrayList<>(prototype.tags));
     }
 }

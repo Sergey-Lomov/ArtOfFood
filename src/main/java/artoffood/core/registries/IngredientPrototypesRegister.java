@@ -1,6 +1,5 @@
 package artoffood.core.registries;
 
-import artoffood.core.models.FoodTag;
 import artoffood.core.models.IngredientPrototype;
 import artoffood.core.models.Nutritional;
 import artoffood.core.factories.TasteBuilder;

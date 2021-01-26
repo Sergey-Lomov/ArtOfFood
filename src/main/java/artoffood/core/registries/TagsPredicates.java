@@ -11,9 +11,9 @@ public class TagsPredicates {
 
     static class Tags extends FoodTagsRegister {};
 
-    public static final HashMap<FoodTag, TagsPredicate> CONTAINS = new HashMap<>(FoodTagsRegister.TAGS.size());
+    public static final HashMap<FoodTag, TagsPredicate> CONTAINS = new HashMap<>(FoodTagsRegister.ALL.size());
     static {
-        for (FoodTag tag : FoodTagsRegister.TAGS)
+        for (FoodTag tag : FoodTagsRegister.ALL)
             CONTAINS.put(tag, new ContainsTagPredicate(tag));
     }
 

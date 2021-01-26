@@ -1,6 +1,8 @@
 package artoffood.common.capabilities.ingredient;
 
+import artoffood.core.models.FoodItem;
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBIngredientPrototype;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +33,7 @@ public class DefaultIngredientEntity implements IIngredientEntity {
     }
 
     @Override
-    public void setupByConcept(MBConcept concept, List<MBIngredient> subingredients) {
-        ingredient = new MBIngredient(concept, subingredients);
+    public void setupByConcept(MBConcept concept, List<MBFoodItem> items) {
+        ingredient = new MBIngredient(concept, items);
     }
 }

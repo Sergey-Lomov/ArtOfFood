@@ -40,23 +40,23 @@ public class BlendySaltySalad extends Concept {
     }
 
     @Override
-    public @NotNull List<FoodTag> getTags(List<Ingredient> ingredients, Taste taste) {
+    public @NotNull List<FoodTag> getTags(List<FoodItem> ingredients, Taste taste) {
         List<FoodTag> result = tasteTags(taste);
         result.add(Tags.SALAD);
         return result;
     }
 
     @Override
-    public boolean matches(@NotNull List<Ingredient> ingredients) {
-        if (!super.matches(ingredients)) return false;
+    public boolean matches(@NotNull List<FoodItem> items) {
+        if (!super.matches(items)) return false;
 
-        List<Ingredient> unique = new ArrayList<>();
-        for (int iterator = 0; iterator < ingredients.size(); iterator++) {
+        List<FoodItem> unique = new ArrayList<>();
+        for (int iterator = 0; iterator < items.size(); iterator++) {
             if (slots.get(iterator).groupId != UNIQUE_CHECK_GROUP_ID) continue;
-            Ingredient ingredient = ingredients.get(iterator);
-            if (ingredient.isEmpty()) continue;
-            long equalsCount = unique.stream().filter(i -> i.equals(ingredient)).count();
-            if (equalsCount == 0) unique.add(ingredient);
+            FoodItem item = items.get(iterator);
+            if (item.isEmpty()) continue;
+            long equalsCount = unique.stream().filter(i -> i.equals(item)).count();
+            if (equalsCount == 0) unique.add(item);
         }
         return unique.size() >= MINIMUM_UNIQUE;
     }

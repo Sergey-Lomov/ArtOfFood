@@ -1,13 +1,14 @@
 package artoffood.common.utils;
 
-import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.utils.slots.ConceptResultPreviewSlotConfig;
 import artoffood.common.utils.slots.SlotReference;
 import artoffood.core.models.ByConceptOrigin;
 import artoffood.core.models.Concept;
 import artoffood.core.models.ConceptSlot;
-import artoffood.core.models.Ingredient;
+import artoffood.core.models.FoodItem;
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -65,8 +66,8 @@ public class ConceptResultsCombinator {
             }
 
             for (Slot candidate: candidatesSlots) {
-                candidate.getStack().getCapability(IngredientEntityCapability.INSTANCE).ifPresent(cap -> {
-                    if (slot.validate(cap.getIngredient().core)) {
+                candidate.getStack().getCapability(FoodItemEntityCapability.INSTANCE).ifPresent(cap -> {
+                    if (slot.validate(cap.getFoodItem().itemCore())) {
                         Stream<Slot> sameSlots =  candidates.stream().filter(s -> compareStacks(s.getStack(), candidate.getStack()));
                         if (sameSlots.count() == 0)
                             candidates.add(candidate);
@@ -117,20 +118,20 @@ public class ConceptResultsCombinator {
                                                                                  Function<Slot, Integer> containerIdForSlot,
                                                                                  Function<Integer, Integer> containerIdForConceptInId) {
         NonNullList<ConceptResultPreviewSlotConfig> results = NonNullList.create();
-        Map<ConceptResultPreviewSlotConfig, List<Ingredient>> resultsIngredients = new HashMap<>();
+        Map<ConceptResultPreviewSlotConfig, List<FoodItem>> resultsFoodItems = new HashMap<>();
 
         for (NonNullList<Optional<Slot>> combination: combinations) {
-            List<MBIngredient> mbIngredients = combinationIngredients(combination);
-            List<Ingredient> ingredients = mbIngredients.stream().map(mbi -> mbi.core).collect(Collectors.toList());
+            List<MBFoodItem> mbFoodItems = combinationFoodItems(combination);
+            List<FoodItem> items = mbFoodItems.stream().map(mbfi -> mbfi.itemCore()).collect(Collectors.toList());
 
-            if (!concept.core.matches(ingredients)) continue;
+            if (!concept.core.matches(items)) continue;
 
-            List<ConceptResultPreviewSlotConfig> sameResults = results.stream().filter(r -> concept.core.isSimilarIngredients(ingredients, resultsIngredients.get(r))).collect(Collectors.toList());
+            List<ConceptResultPreviewSlotConfig> sameResults = results.stream().filter(r -> concept.core.isSimilarFoodItems(items, resultsFoodItems.get(r))).collect(Collectors.toList());
             boolean existSimilar = false;
 
             for (ConceptResultPreviewSlotConfig sameResult : sameResults) {
-                List<Ingredient> resultIngredients = ((ByConceptOrigin) sameResult.result.core.origin).subingredients;
-                if (concept.core.isSimilarIngredients(ingredients, resultIngredients)) {
+                List<FoodItem> resultFoodItems = ((ByConceptOrigin) sameResult.result.core.origin).items;
+                if (concept.core.isSimilarFoodItems(items, resultFoodItems)) {
                     existSimilar = true;
                     break;
                 }
@@ -155,12 +156,12 @@ public class ConceptResultsCombinator {
                 references.add(ref);
             }
 
-            MBIngredient resultIngredient = new MBIngredient(concept, mbIngredients);
+            MBIngredient resultIngredient = new MBIngredient(concept, mbFoodItems);
             ConceptResultPreviewSlotConfig result = new ConceptResultPreviewSlotConfig(
                     resultIngredient,
                     concept.core.resultsCount,
                     references);
-            resultsIngredients.put(result, ingredients);
+            resultsFoodItems.put(result, items);
             results.add(result);
         }
 
@@ -191,38 +192,38 @@ public class ConceptResultsCombinator {
                     .collect(Collectors.toList());
             int providerIndex = 0;
             int providerCredit = 0;
-            boolean providersGone = false;
+            boolean notEnoughProviders = false;
             for (int i = 0; i < combination.size(); i++) {
-                if (providersGone) continue;
                 if (!combination.get(i).isPresent()) continue;
                 if (combination.get(i).get() != lessSlot) continue;
+
+                if (providerIndex == providers.size()) {
+                    notEnoughProviders = true;
+                    break;
+                }
 
                 Slot provider = providers.get(providerIndex);
                 combination.set(i, Optional.of(provider));
                 providerCredit++;
                 if (providerCredit == provider.getStack().getCount()) {
-                    if (providerIndex == providers.size() -1)
-                        providersGone = true;
-                    else {
-                        providerIndex++;
-                        providerCredit = 0;
-                    }
+                    providerIndex++;
+                    providerCredit = 0;
                 }
             }
 
-            if (providersGone) return false;
+            if (notEnoughProviders) return false;
         }
 
         return true;
     }
 
-    protected static List<MBIngredient> combinationIngredients(NonNullList<Optional<Slot>> combination) {
+    protected static List<MBFoodItem> combinationFoodItems(NonNullList<Optional<Slot>> combination) {
         return combination.stream().map( os -> {
-            if (!os.isPresent()) return MBIngredient.EMPTY;
+            if (!os.isPresent()) return MBFoodItem.EMPTY;
 
-            AtomicReference<MBIngredient> ingredient = new AtomicReference<>(MBIngredient.EMPTY);
-            os.get().getStack().getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                    cap -> ingredient.set(cap.getIngredient())
+            AtomicReference<MBFoodItem> ingredient = new AtomicReference<>(MBFoodItem.EMPTY);
+            os.get().getStack().getCapability(FoodItemEntityCapability.INSTANCE).ifPresent(
+                    cap -> ingredient.set(cap.getFoodItem())
             );
             return ingredient.get();
         }).collect(Collectors.toList());

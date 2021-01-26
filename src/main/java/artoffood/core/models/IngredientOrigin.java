@@ -1,6 +1,6 @@
 package artoffood.core.models;
 
 public interface IngredientOrigin {
-    boolean isEqualTo(IngredientOrigin o);
+    boolean equals(Object o);
     boolean isEmpty();
 }

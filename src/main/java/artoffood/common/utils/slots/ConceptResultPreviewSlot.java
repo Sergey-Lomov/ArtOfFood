@@ -6,6 +6,7 @@ import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
+import artoffood.core.models.FoodItem;
 import artoffood.core.models.Ingredient;
 import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBIngredient;
@@ -109,14 +110,14 @@ public class ConceptResultPreviewSlot extends Slot {
         Map<Slot, ItemStack> futureStacks = new HashMap<>();
 
         // Check items stacks in slots is necessary ingredients. Prepare decreased stacks.
-        if (references.size() != origin.subingredients.size()) return ItemStack.EMPTY;
+        if (references.size() != origin.items.size()) return ItemStack.EMPTY;
         for (int i = 0; i < references.size(); i++) {
             SlotReference reference = references.get(i);
-            Ingredient subingredient = origin.subingredients.get(i);
+            FoodItem item = origin.items.get(i);
 
-            // Handle empty refs for empty (optional) subingredients
+            // Handle empty refs for empty (optional) items
             if (reference.isEmptyFrom()) {
-                if (subingredient.isEmpty())
+                if (item.isEmpty())
                     continue;
                 else
                     return ItemStack.EMPTY;
@@ -129,7 +130,7 @@ public class ConceptResultPreviewSlot extends Slot {
             Optional<IIngredientEntity> ingredientEntity = fromStack.getCapability(IngredientEntityCapability.INSTANCE).resolve();
             if (!ingredientEntity.isPresent()) return ItemStack.EMPTY;
             MBIngredient ingredient = ingredientEntity.get().getIngredient();
-            if (!(ingredient.core.equals(subingredient))) return  ItemStack.EMPTY;
+            if (!(ingredient.core.equals(item))) return  ItemStack.EMPTY;
 
             ItemStack futureStack = ItemStack.EMPTY;
             if (fromStack.getCount() > 1) {

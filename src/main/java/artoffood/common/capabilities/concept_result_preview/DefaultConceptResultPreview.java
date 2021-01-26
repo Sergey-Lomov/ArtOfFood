@@ -6,6 +6,7 @@ import artoffood.common.capabilities.slots_refs.DefaultSlotRefsProvider;
 import artoffood.common.capabilities.slots_refs.ISlotsRefsProvider;
 import artoffood.common.utils.slots.SlotReference;
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBIngredientPrototype;
 import net.minecraft.util.NonNullList;
@@ -45,8 +46,8 @@ public class DefaultConceptResultPreview implements IConceptResultPreview {
     }
 
     @Override
-    public void setupByConcept(MBConcept concept, List<MBIngredient> subingredients) {
-        ingredientEntity.setupByConcept(concept, subingredients);
+    public void setupByConcept(MBConcept concept, List<MBFoodItem> items) {
+        ingredientEntity.setupByConcept(concept, items);
     }
 
     @Override

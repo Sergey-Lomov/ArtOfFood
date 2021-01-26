@@ -12,7 +12,7 @@ public class ByPrototypeOrigin implements IngredientOrigin {
     }
 
     @Override
-    public boolean isEqualTo(IngredientOrigin o) {
+    public boolean equals(Object o) {
         if (!(o instanceof ByPrototypeOrigin)) return false;
         return prototype == ((ByPrototypeOrigin) o).prototype;
     }

@@ -29,19 +29,31 @@ public abstract class Concept {
 
     public List<Integer> mainSlotsIndexes() { return allIndexes(); }
 
-    public @NotNull Nutritional getNutritional(List<Ingredient> ingredients) {
+    public @NotNull Nutritional getNutritional(List<FoodItem> items) {
+        List<Ingredient> ingredients = items.stream()
+                .filter(i -> i instanceof Ingredient)
+                .map(i -> (Ingredient)i)
+                .collect(Collectors.toList());
         return sumCalorieAverageDigestibility(ingredients, mainSlotsIndexes());
     }
 
-    public @NotNull Taste getTaste(List<Ingredient> ingredients) {
+    public @NotNull Taste getTaste(List<FoodItem> items) {
+        List<Ingredient> ingredients = items.stream()
+                .filter(i -> i instanceof Ingredient)
+                .map(i -> (Ingredient)i)
+                .collect(Collectors.toList());
         return averageTasty(ingredients);
     }
 
-    public float getHedonismScore(List<Ingredient> ingredients) {
+    public float getHedonismScore(List<FoodItem> items) {
+        List<Ingredient> ingredients = items.stream()
+                .filter(i -> i instanceof Ingredient)
+                .map(i -> (Ingredient)i)
+                .collect(Collectors.toList());
         return sumHedonism(ingredients);
     };
 
-    public abstract @NotNull List<FoodTag> getTags(List<Ingredient> ingredients, Taste taste);
+    public abstract @NotNull List<FoodTag> getTags(List<FoodItem> items, Taste taste);
 
     protected @NotNull List<FoodTag> tasteTags(Taste taste) {
         List<FoodTag> result = new ArrayList<>();
@@ -63,30 +75,30 @@ public abstract class Concept {
         return result;
     }
 
-    public boolean matches(@NotNull List<Ingredient> ingredients) {
-        if (ingredients.size() != slots.size()) return false;
+    public boolean matches(@NotNull List<FoodItem> items) {
+        if (items.size() != slots.size()) return false;
 
         for (int i = 0; i < slots.size(); i++) {
-            if (!slots.get(i).validate(ingredients.get(i)))
+            if (!slots.get(i).validate(items.get(i)))
                 return false;
         }
 
         return true;
     }
 
-    public boolean isSimilarIngredients(@NotNull List<Ingredient> i1, @NotNull List<Ingredient> i2) {
+    public boolean isSimilarFoodItems(@NotNull List<FoodItem> i1, @NotNull List<FoodItem> i2) {
         if (i1.size() != i2.size() || i1.size() != slots.size()) return false;
 
-        List<Ingredient> i1Copy = new ArrayList<>(i1);
-        List<Ingredient> i2Copy = new ArrayList<>(i2);
+        List<FoodItem> i1Copy = new ArrayList<>(i1);
+        List<FoodItem> i2Copy = new ArrayList<>(i2);
         List<Integer> i2SlotsIndexes = IntStream.rangeClosed(0, i2.size() - 1).boxed().collect(Collectors.toList());
         while (!i1Copy.isEmpty()) { // Check i2Copy to isEmpty is logical, but i1 and i2 sizes already checked to be equal and elements removed from i1Copy and i2Copy at same case. So i2Copy will be empty only at same time with i1Copy.
-            Ingredient i1First = i1Copy.stream().findFirst().get();
+            FoodItem i1First = i1Copy.stream().findFirst().get();
             int i1SlotIndex = slots.size() - i1Copy.size();
             boolean foundSame = false;
 
             for (int iterator = 0; iterator < i2Copy.size(); iterator++) {
-                Ingredient i2Current = i2Copy.get(iterator);
+                FoodItem i2Current = i2Copy.get(iterator);
                 int i2SlotIndex = i2SlotsIndexes.get(iterator);
                 if (i1First.equals(i2Current)
                         && slots.get(i1SlotIndex).groupId == slots.get(i2SlotIndex).groupId) {

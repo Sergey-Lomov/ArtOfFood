@@ -51,7 +51,7 @@ public class MBIngredientHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static List<String> tagsDescription(MBIngredient ingredient) {
-        List<FoodTag> tags = ingredient.core.tags;
+        List<FoodTag> tags = ingredient.core.tags();
         Function<FoodTag, String> toString = t -> tagDesctiprtion(t);
         List<String> stream = tags.stream().map(toString).collect(Collectors.toList());
         String descrpition = String.join(TAGS_SEPARATOR, stream);

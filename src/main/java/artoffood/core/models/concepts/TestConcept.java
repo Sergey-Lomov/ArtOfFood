@@ -27,16 +27,16 @@ public class TestConcept extends Concept {
     }
 
     @Override
-    public @NotNull List<FoodTag> getTags(List<Ingredient> ingredients, Taste taste) {
+    public @NotNull List<FoodTag> getTags(List<FoodItem> items, Taste taste) {
         List<FoodTag> result = tasteTags(taste);
         result.add(Tags.SALAD);
         return result;
     }
 
     @Override
-    public boolean matches(@NotNull List<Ingredient> ingredients) {
-        if (!super.matches(ingredients)) return false;
+    public boolean matches(@NotNull List<FoodItem> items) {
+        if (!super.matches(items)) return false;
 
-        return !(ingredients.get(0).equals(ingredients.get(1)));
+        return !(items.get(0).equals(items.get(1)));
     }
 }

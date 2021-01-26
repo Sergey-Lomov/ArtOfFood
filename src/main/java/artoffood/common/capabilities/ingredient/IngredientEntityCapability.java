@@ -1,5 +1,6 @@
 package artoffood.common.capabilities.ingredient;
 
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.utils.IngredientNBTConverter;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -9,7 +10,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import org.jetbrains.annotations.Nullable;
 
-public class IngredientEntityCapability {
+public class IngredientEntityCapability extends FoodItemEntityCapability {
 
     @CapabilityInject(IIngredientEntity.class)
     public static Capability<IIngredientEntity> INSTANCE = null;

@@ -1,8 +1,9 @@
 package artoffood.minebridge.models;
 
+import artoffood.core.models.FoodItem;
 import artoffood.core.models.FoodTool;
 
-public class MBFoodTool {
+public class MBFoodTool extends MBFoodItem {
 
     public static final int UNBREAKABLE_DURABILITY = 0;
 
@@ -18,5 +19,10 @@ public class MBFoodTool {
         this.id = id;
         this.durability = durability;
         this.core = core;
+    }
+
+    @Override
+    public FoodItem itemCore() {
+        return core;
     }
 }

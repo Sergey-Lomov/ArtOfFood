@@ -13,6 +13,10 @@ public class MBFoodTagsRegister {
     public static HashMap<String, MBFoodTag> TAG_BY_ID = new HashMap();
     public static HashMap<FoodTag, MBFoodTag> TAG_BY_CORE = new HashMap();
 
+    public static final MBFoodTag EMPTY = register("empty", Core.EMPTY);
+    public static final MBFoodTag INGREDIENT = register("ingredient", Core.INGREDIENT);
+    public static final MBFoodTag TOOL = register("tool", Core.TOOL);
+
     public static final MBFoodTag SALTY = register("salty", Core.SALTY);
     public static final MBFoodTag SWEET = register("sweet", Core.SWEET);
     public static final MBFoodTag ACIDIC = register("acidic",Core.ACIDIC);
@@ -38,5 +42,10 @@ public class MBFoodTagsRegister {
             TAG_BY_ID.put(tagId, this);
             TAG_BY_CORE.put(core, this);
         }};
+    }
+
+    static {
+        if (TAG_BY_CORE.size() < FoodTagsRegister.ALL.size())
+            throw new IllegalStateException("For some core tags missed minebridge tags");
     }
 }

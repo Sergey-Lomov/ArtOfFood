@@ -28,7 +28,7 @@ public class Processing {
     public void updateIngredient(Ingredient ingredient) {
         nutritionalTransform.update(ingredient.nutritional);
         tasteTransform.update(ingredient.taste);
-        tagsTransform.update(ingredient.tags);
+        tagsTransform.update(ingredient.tags());
     }
 
     public boolean availableForIngredient(List<FoodTag> tags) { return ingredientPredicate.test(tags); }

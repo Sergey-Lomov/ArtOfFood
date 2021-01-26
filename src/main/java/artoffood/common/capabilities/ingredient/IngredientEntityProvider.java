@@ -1,6 +1,7 @@
 package artoffood.common.capabilities.ingredient;
 
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBIngredientPrototype;
 import net.minecraft.nbt.CompoundNBT;
@@ -23,8 +24,8 @@ public class IngredientEntityProvider implements ICapabilitySerializable<Compoun
             entity.setIngredient(new MBIngredient(prototype));
     }
 
-    public IngredientEntityProvider(@NotNull MBConcept concept, @NotNull List<MBIngredient> subingredients) {
-        entity.setIngredient(new MBIngredient(concept, subingredients));
+    public IngredientEntityProvider(@NotNull MBConcept concept, @NotNull List<MBFoodItem> items) {
+        entity.setIngredient(new MBIngredient(concept, items));
     }
 
     public IngredientEntityProvider(@NotNull MBIngredient ingredient) {

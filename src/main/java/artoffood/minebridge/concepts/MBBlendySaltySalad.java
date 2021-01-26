@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MBBlendySaltySalad extends MBConcept {
 
@@ -39,16 +40,16 @@ public class MBBlendySaltySalad extends MBConcept {
     }
 
     @Override
-    public @NotNull MBItemRendering rendering(List<MBIngredient> subingredients) {
-        if (subingredients.size() != slots.size())
+    public @NotNull MBItemRendering rendering(List<MBFoodItem> items) {
+        if (items.size() != slots.size())
             throw new IllegalStateException("Different number of slots and subingredients at rendering calculation");
 
-        final Color mainVegetable = subingredients.get(0).rendering.colors.getMain();
-        final Color secondaryVegetable = subingredients.get(1).rendering.colors.getMain();
-        final Color advanced1 = subingredients.get(2).rendering.colors.getMain();
-        final Color advanced2 = subingredients.get(3).rendering.colors.getMain();
-        final boolean hasAdvanced1 = subingredients.get(2) != null && !subingredients.get(2).core.isEmpty();
-        final boolean hasAdvanced2 = subingredients.get(3) != null && !subingredients.get(3).core.isEmpty();
+        final Color mainVegetable = ingredientMainColor(items, 0);
+        final Color secondaryVegetable = ingredientMainColor(items, 1);
+        final Color advanced1 = ingredientMainColor(items, 2);
+        final Color advanced2 = ingredientMainColor(items, 3);
+        final boolean hasAdvanced1 = !items.get(2).itemCore().isEmpty();
+        final boolean hasAdvanced2 = !items.get(3).itemCore().isEmpty();
 
         ColorsSchema colors = new ColorsSchema(mainVegetable);
         colors.put(PLATE_COLOR, ColorsSchema.ORIGINAL_COLOR);

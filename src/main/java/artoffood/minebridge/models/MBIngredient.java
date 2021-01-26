@@ -1,14 +1,11 @@
 package artoffood.minebridge.models;
 
-import artoffood.core.models.ByPrototypeOrigin;
+import artoffood.core.models.FoodItem;
 import artoffood.core.models.Ingredient;
-import artoffood.core.models.IngredientPrototype;
-import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class MBIngredient {
+public class MBIngredient extends MBFoodItem {
 
     public static final MBIngredient EMPTY = new MBIngredient(Ingredient.EMPTY, 0, MBItemRendering.EMPTY);
 
@@ -28,9 +25,14 @@ public class MBIngredient {
         this.rendering = new MBItemRendering(prototype.rendering);
     }
 
-    public MBIngredient(MBConcept concept, List<MBIngredient> subingredients) {
-        this.core = concept.coreIngredient(subingredients);
-        this.stackSize = concept.getStackSize(subingredients);
-        this.rendering = concept.rendering(subingredients);
+    public MBIngredient(MBConcept concept, List<MBFoodItem> items) {
+        this.core = concept.coreIngredient(items);
+        this.stackSize = concept.getStackSize(items);
+        this.rendering = concept.rendering(items);
+    }
+
+    @Override
+    public FoodItem itemCore() {
+        return core;
     }
 }

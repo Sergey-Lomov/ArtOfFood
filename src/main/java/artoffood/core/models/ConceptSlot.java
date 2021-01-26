@@ -16,7 +16,7 @@ public class ConceptSlot {
         this.groupId = groupId;
     }
 
-    public boolean validate(Ingredient ingredient) {
-        return predicate.test(ingredient.tags) || (optional && ingredient.isEmpty());
+    public boolean validate(FoodItem item) {
+        return predicate.test(item.tags()) || (optional && item.isEmpty());
     }
 }
