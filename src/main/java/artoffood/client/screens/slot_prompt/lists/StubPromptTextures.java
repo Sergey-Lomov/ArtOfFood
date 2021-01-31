@@ -20,6 +20,7 @@ public class StubPromptTextures {
 
     static {
         TEXTURES.put(Types.SPICE.stubKey, new Texture(DEFAULT_ATLAS, 16,48,16,16));
+        TEXTURES.put(Types.ANY_TOOL.stubKey, new Texture(DEFAULT_ATLAS, 0,48,16,16));
     }
 
     public static @Nullable Texture stub(String key) {

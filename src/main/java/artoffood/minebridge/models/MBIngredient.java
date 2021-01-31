@@ -25,10 +25,8 @@ public class MBIngredient extends MBFoodItem {
         this.rendering = new MBItemRendering(prototype.rendering);
     }
 
-    public MBIngredient(MBConcept concept, List<MBFoodItem> items) {
-        this.core = concept.coreIngredient(items);
-        this.stackSize = concept.getStackSize(items);
-        this.rendering = concept.rendering(items);
+    public MBIngredient clone() {
+        return new MBIngredient(core.clone(), stackSize, rendering.clone());
     }
 
     @Override

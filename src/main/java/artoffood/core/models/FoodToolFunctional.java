@@ -1,5 +1,5 @@
 package artoffood.core.models;
 
 public enum FoodToolFunctional {
-    KNIFE, GRATER
+    EMPTY, KNIFE, GRATER
 }

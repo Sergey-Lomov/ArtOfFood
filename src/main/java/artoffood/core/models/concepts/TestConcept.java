@@ -11,7 +11,7 @@ public class TestConcept extends Concept {
     private static final List<Integer> MAIN_SLOTS = new ArrayList<>(Arrays.asList(0, 1));
 
     public TestConcept() {
-        super(getSlots(), true, 1);
+        super(getSlots());
     }
 
     private static List<ConceptSlot> getSlots () {
@@ -19,6 +19,11 @@ public class TestConcept extends Concept {
         slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).groupId(1).build());
         slots.add(new ConceptSlotBuilder().predicate(Pred.SLICED_OR_GRATED_VEGETABLE).groupId(1).optional(true).build());
         return slots;
+    }
+
+    @Override
+    public int resultsCount(List<FoodItem> items) {
+        return 2;
     }
 
     @Override

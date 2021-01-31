@@ -156,10 +156,10 @@ public class ConceptResultsCombinator {
                 references.add(ref);
             }
 
-            MBIngredient resultIngredient = new MBIngredient(concept, mbFoodItems);
+            MBIngredient resultIngredient = concept.getIngredient(mbFoodItems);
             ConceptResultPreviewSlotConfig result = new ConceptResultPreviewSlotConfig(
                     resultIngredient,
-                    concept.core.resultsCount,
+                    concept.core.resultsCount(items),
                     references);
             resultsFoodItems.put(result, items);
             results.add(result);

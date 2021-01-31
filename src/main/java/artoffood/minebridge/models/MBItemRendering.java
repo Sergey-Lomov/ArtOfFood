@@ -2,6 +2,7 @@ package artoffood.minebridge.models;
 
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,5 +24,11 @@ public class MBItemRendering {
         this.modelKey = in.modelKey;
         this.layers = new ArrayList<>(in.layers);
         this.colors = new ColorsSchema() {{ putAll(in.colors); }};
+    }
+
+    @Override
+    public MBItemRendering clone() {
+        List<String> layersCopy = new ArrayList<>(layers);
+        return new MBItemRendering(modelKey, layersCopy, colors.clone());
     }
 }

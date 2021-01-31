@@ -1,16 +1,22 @@
 package artoffood.common.utils.slots;
 
 import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
+import artoffood.common.capabilities.food_item.IFoodItemEntity;
+import artoffood.common.capabilities.food_tool.IFoodToolEntity;
 import artoffood.common.capabilities.ingredient.IIngredientEntity;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
+import artoffood.common.utils.FoodToolHelper;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
 import artoffood.core.models.FoodItem;
 import artoffood.core.models.Ingredient;
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.registries.MBConceptsRegister;
+import javafx.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -102,15 +108,15 @@ public class ConceptResultPreviewSlot extends Slot {
             atomicReferences.set(cap.getReferences());
             atomicResult.set(cap.getIngredient());
         });
-        if (atomicReferences.get() == null || atomicResult.get() == null) return ItemStack.EMPTY;
-        if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) return ItemStack.EMPTY;
+        if (atomicReferences.get() == null || atomicResult.get() == null) { setEmptyStack(); return ItemStack.EMPTY; }
+        if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) { setEmptyStack(); return ItemStack.EMPTY; }
 
         ByConceptOrigin origin = (ByConceptOrigin) atomicResult.get().core.origin;
         NonNullList<SlotReference> references = atomicReferences.get();
         Map<Slot, ItemStack> futureStacks = new HashMap<>();
 
         // Check items stacks in slots is necessary ingredients. Prepare decreased stacks.
-        if (references.size() != origin.items.size()) return ItemStack.EMPTY;
+        if (references.size() != origin.items.size()) { setEmptyStack(); return ItemStack.EMPTY; }
         for (int i = 0; i < references.size(); i++) {
             SlotReference reference = references.get(i);
             FoodItem item = origin.items.get(i);
@@ -120,24 +126,16 @@ public class ConceptResultPreviewSlot extends Slot {
                 if (item.isEmpty())
                     continue;
                 else
-                    return ItemStack.EMPTY;
+                    { setEmptyStack(); return ItemStack.EMPTY; }
             }
 
             Slot fromSlot = slotForContainerId.apply(reference.containerFromSlotId);
-            if (fromSlot == null) return ItemStack.EMPTY;
+            if (fromSlot == null) { setEmptyStack(); return ItemStack.EMPTY; }
 
-            ItemStack fromStack = futureStacks.containsKey(fromSlot) ? futureStacks.get(fromSlot) : fromSlot.getStack();
-            Optional<IIngredientEntity> ingredientEntity = fromStack.getCapability(IngredientEntityCapability.INSTANCE).resolve();
-            if (!ingredientEntity.isPresent()) return ItemStack.EMPTY;
-            MBIngredient ingredient = ingredientEntity.get().getIngredient();
-            if (!(ingredient.core.equals(item))) return  ItemStack.EMPTY;
-
-            ItemStack futureStack = ItemStack.EMPTY;
-            if (fromStack.getCount() > 1) {
-                futureStack = fromStack.copy();
-                futureStack.shrink(1);
-            }
-            futureStacks.put(fromSlot, futureStack);
+            ItemStack sourceStack = futureStacks.containsKey(fromSlot) ? futureStacks.get(fromSlot) : fromSlot.getStack();
+            Pair<Boolean, ItemStack> futureStack = handledStack(sourceStack, item);
+            if (!futureStack.getKey()) { setEmptyStack(); return ItemStack.EMPTY; }
+            futureStacks.put(fromSlot, futureStack.getValue());
         }
 
         // Apply calculated stacks into slots
@@ -148,7 +146,8 @@ public class ConceptResultPreviewSlot extends Slot {
         // Create result - concept result item stack, without preview info (slots refs)
         MBConcept bridgeConcept = MBConceptsRegister.CONCEPT_BY_CORE.get(origin.concept);
         Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(bridgeConcept);
-        ItemStack result = new ItemStack(item, origin.concept.resultsCount);
+        int count = origin.concept.resultsCount(origin.items);
+        ItemStack result = new ItemStack(item, count);
         result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                 cap -> cap.setIngredient(atomicResult.get())
         );
@@ -157,6 +156,41 @@ public class ConceptResultPreviewSlot extends Slot {
 
         playerInventory.get().setItemStack(result);
         return result;
+    }
+
+    private void setEmptyStack() {
+        playerInventory.get().setItemStack(ItemStack.EMPTY);
+    }
+
+    private Pair<Boolean, ItemStack> handledStack(ItemStack source, FoodItem item) {
+
+        Optional<IFoodItemEntity> foodItemEntity = source.getCapability(FoodItemEntityCapability.INSTANCE).resolve();
+        if (!foodItemEntity.isPresent()) return  new Pair<>(false, null);
+
+        if (foodItemEntity.get() instanceof IIngredientEntity) {
+            IIngredientEntity entity = (IIngredientEntity) foodItemEntity.get();
+            return handleIngredientStack(source, entity, item);
+        } else if (foodItemEntity.get() instanceof IFoodToolEntity) {
+            return handleToolStack(source);
+        } else
+            throw new IllegalStateException("Try to handle stack of unsupported food item type");
+    }
+
+    private Pair<Boolean, ItemStack> handleIngredientStack(ItemStack source, IIngredientEntity entity, FoodItem item) {
+        MBIngredient ingredient = entity.getIngredient();
+        if (!(ingredient.core.equals(item))) return new Pair<>(false, null);
+
+        ItemStack futureStack = ItemStack.EMPTY;
+        if (source.getCount() > 1) {
+            futureStack = source.copy();
+            futureStack.shrink(1);
+        }
+
+        return new Pair<>(true, futureStack);
+    }
+
+    private Pair<Boolean, ItemStack> handleToolStack(ItemStack source) {
+        return new Pair<>(true, FoodToolHelper.damage(source, 1));
     }
 /*
     private CraftingInventory craftMatrixStub(ItemStack stack) {

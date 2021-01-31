@@ -25,7 +25,7 @@ public class IngredientEntityProvider implements ICapabilitySerializable<Compoun
     }
 
     public IngredientEntityProvider(@NotNull MBConcept concept, @NotNull List<MBFoodItem> items) {
-        entity.setIngredient(new MBIngredient(concept, items));
+        entity.setIngredient(concept.getIngredient(items));
     }
 
     public IngredientEntityProvider(@NotNull MBIngredient ingredient) {

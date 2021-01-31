@@ -40,7 +40,8 @@ public class Textures {
         }
 
         static {
-            register(MBConceptsRegister.BLENDY_SALTY_SALAD.conceptId, 0, 0);
+            register(MBConceptsRegister.PROCESSINGS.conceptId, 0, 0);
+            register(MBConceptsRegister.BLENDY_SALTY_SALAD.conceptId, 1, 0);
         }
 
         private static void register(String id, int x, int y) {

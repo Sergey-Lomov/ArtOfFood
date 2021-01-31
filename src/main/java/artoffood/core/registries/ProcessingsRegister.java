@@ -8,10 +8,15 @@ import artoffood.core.models.predicates.TagsPredicate;
 import artoffood.core.models.transforms.nutritional.MultiplyNutritionTransform;
 import artoffood.core.models.transforms.tags.ChangeTagsTransform;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProcessingsRegister {
 
     class Tags extends FoodTagsRegister {};
     private static TagsPredicate contains(FoodTag tag) { return TagsPredicates.CONTAINS.get(tag); }
+
+    public static List<Processing> ALL = new ArrayList<>();
 
     public static Processing SLICING = new ProcessingBuilder(contains(Tags.SOLID))
             .addRequirement(FoodToolFunctional.KNIFE)

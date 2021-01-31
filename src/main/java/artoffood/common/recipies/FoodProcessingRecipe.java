@@ -3,6 +3,7 @@ package artoffood.common.recipies;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
+import artoffood.common.utils.FoodToolHelper;
 import artoffood.common.utils.ModInventoryHelper;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.minebridge.models.MBProcessing;
@@ -120,15 +121,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     }
 
     public @NotNull ItemStack damage(ItemStack tool) {
-        if (!(tool.getItem() instanceof FoodToolItem))
-            return ItemStack.EMPTY;
-
-        ItemStack damaged = tool.copy();
-        if ( ((FoodToolItem)tool.getItem()).isUnbreakable() )
-            return damaged;
-
-        damaged.setDamage(tool.getDamage() + 1);
-        return damaged.getDamage() < tool.getMaxDamage() ? damaged : ItemStack.EMPTY;
+        return FoodToolHelper.damage(tool, 1);
     }
 
     @Override
@@ -186,7 +179,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         public @NotNull FoodProcessingRecipe read (@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
 
             final String processingId = JSONUtils.getString(json, processingIdKey);
-            final MBProcessing processing = MBProcessingsRegister.processings.get(processingId);
+            final MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_ID.get(processingId);
 
             final int outputCount = json.has(outputCountKey) ? JSONUtils.getInt(json, outputCountKey) : 1;
 
@@ -202,7 +195,7 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
 
             final String processingId = buffer.readString();
             final int outputCount = buffer.readInt();
-            final MBProcessing processing = MBProcessingsRegister.processings.get(processingId);
+            final MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_ID.get(processingId);
 
             if (processing == null) {
                 throw new IllegalStateException("Try to read processing recipe with unknown processing id");

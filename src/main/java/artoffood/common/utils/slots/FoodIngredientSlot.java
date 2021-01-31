@@ -1,7 +1,9 @@
 package artoffood.common.utils.slots;
 
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.core.models.ConceptSlot;
+import artoffood.core.models.FoodItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -21,8 +23,8 @@ public class FoodIngredientSlot extends Slot {
     public boolean isItemValid(ItemStack stack) {
         AtomicBoolean isValid = new AtomicBoolean(false);
 
-        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(cap -> {
-            isValid.set(core.validate(cap.getIngredient().core));
+        stack.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent(cap -> {
+            isValid.set(core.validate(cap.getFoodItem().itemCore()));
         });
 
         return isValid.get();

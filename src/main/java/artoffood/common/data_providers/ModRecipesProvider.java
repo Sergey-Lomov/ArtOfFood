@@ -15,7 +15,7 @@ public class ModRecipesProvider extends RecipeProvider {
 
     @Override
     protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
-        MBProcessingsRegister.processings.values().forEach( p -> registerProcessingRecipe(p, consumer));
+        MBProcessingsRegister.PROCESSING_BY_ID.values().forEach(p -> registerProcessingRecipe(p, consumer));
     }
 
     protected void registerProcessingRecipe(MBProcessing processing, Consumer<IFinishedRecipe> consumer) {

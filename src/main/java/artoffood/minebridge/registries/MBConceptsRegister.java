@@ -2,6 +2,7 @@ package artoffood.minebridge.registries;
 
 import artoffood.core.models.Concept;
 import artoffood.minebridge.concepts.MBBlendySaltySalad;
+import artoffood.minebridge.concepts.MBCountertopProcessings;
 import artoffood.minebridge.concepts.MBTestConcept;
 import artoffood.minebridge.models.MBConcept;
 
@@ -16,6 +17,7 @@ public class MBConceptsRegister {
     public static final Map<Concept, MBConcept> CONCEPT_BY_CORE = new HashMap<>();
     public static final Map<String, MBConcept> CONCEPT_BY_ID = new HashMap<>();
 
+    public static final MBConcept PROCESSINGS = register(new MBCountertopProcessings());
     public static final MBConcept BLENDY_SALTY_SALAD = register(new MBBlendySaltySalad());
     public static final MBConcept TEST = register(new MBTestConcept());
 

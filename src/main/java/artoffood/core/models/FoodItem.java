@@ -15,6 +15,11 @@ public abstract class FoodItem {
         }
 
         @Override
+        public FoodItem clone() {
+            return FoodItem.EMPTY;
+        }
+
+        @Override
         protected List<FoodTag> typeTags() {
             return new ArrayList<FoodTag>() {{ add(FoodTagsRegister.EMPTY); }};
         }
@@ -38,5 +43,6 @@ public abstract class FoodItem {
     }
 
     public abstract boolean isEmpty();
+    public abstract FoodItem clone();
     protected abstract List<FoodTag> typeTags();
 }

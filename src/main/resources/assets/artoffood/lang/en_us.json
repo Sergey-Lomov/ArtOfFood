@@ -30,10 +30,12 @@
   "prototypes/sunflower_oil": "Sunflower Oil",
   "prototypes/rock_salt": "Rock salt",
 
-  "concepts.title.processing": "Processing",
+  "concepts.title.processings_concept": "Processings",
   "concepts.title.blendy_salty_salad": "Common salad",
   "concepts.title.test": "Test",
 
+  "slot_hint.any_ingredient": "Any cooking ingredient",
+  "slot_hint.any_tool": "Any cooking tool",
   "slot_hint.spice": "Any spice",
   "slot_hint.salad_dressing": "Dressing: sauce or oil",
   "slot_hint.not_solid_meat_or_seafood": "Not solid meat or seafood",

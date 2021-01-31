@@ -12,12 +12,12 @@ public class FoodTag implements Comparable<FoodTag> {
 
     public FoodTag(FoodTagCategory[] categories) {
         this.categories = categories;
+        currentId++;
     }
 
     public FoodTag(Boolean isVisible, FoodTagCategory[] categories) {
         this.isVisible = isVisible;
         this.categories = categories;
-
         currentId++;
     }
 

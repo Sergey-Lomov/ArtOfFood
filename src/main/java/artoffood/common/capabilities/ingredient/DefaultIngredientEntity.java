@@ -34,6 +34,6 @@ public class DefaultIngredientEntity implements IIngredientEntity {
 
     @Override
     public void setupByConcept(MBConcept concept, List<MBFoodItem> items) {
-        ingredient = new MBIngredient(concept, items);
+        ingredient = concept.getIngredient(items);
     }
 }

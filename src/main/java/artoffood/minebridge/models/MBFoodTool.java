@@ -5,6 +5,7 @@ import artoffood.core.models.FoodTool;
 
 public class MBFoodTool extends MBFoodItem {
 
+    public static final MBFoodTool EMPTY = new MBFoodTool("empty", FoodTool.EMPTY,0);
     public static final int UNBREAKABLE_DURABILITY = 0;
 
     public String id;

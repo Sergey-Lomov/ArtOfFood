@@ -11,7 +11,7 @@ public class Nutritional implements Cloneable {
     }
 
     @Override
-    protected Nutritional clone() {
+    public Nutritional clone() {
         return new Nutritional(calorie, digestibility);
     }
 

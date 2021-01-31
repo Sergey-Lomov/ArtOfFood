@@ -22,4 +22,12 @@ public class ColorsSchema extends HashMap<String, Color> {
 
         return get(MAIN_KEY);
     }
+
+    @Override
+    public ColorsSchema clone() {
+        ColorsSchema result = new ColorsSchema();
+        for (String key: this.keySet())
+            result.put(key, this.get(key));
+        return result;
+    }
 }

@@ -98,9 +98,9 @@ public class ArtOfFood
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        // TODO: Remve manually adding and implement cyclic adding of all necessary textures. Or use texture + variants instead different textures, and remove this specials adding at all.
-        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/sliced"));
-        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/processing/grated"));
+        // TODO: Remove manually adding and implement cyclic adding of all necessary textures. Or use texture + variants instead different textures, and remove this specials adding at all.
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/processings/sliced"));
+        ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/processings/grated"));
         ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_2"));
         ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_3"));
         ModelLoader.addSpecialModel(new ResourceLocation(ArtOfFood.MOD_ID, "item/concepts/blendy_salty_salad_4"));

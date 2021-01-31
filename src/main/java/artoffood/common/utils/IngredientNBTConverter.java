@@ -1,7 +1,6 @@
 package artoffood.common.utils;
 
 import artoffood.core.models.*;
-import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;

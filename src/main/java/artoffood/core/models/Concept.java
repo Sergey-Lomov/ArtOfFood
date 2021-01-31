@@ -5,6 +5,7 @@ import artoffood.core.registries.FoodTagsRegister;
 import artoffood.core.registries.TagsPredicates;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,18 +19,32 @@ public abstract class Concept {
     private static final float INSIPID_LIMIT = 14.5f;
 
     public final List<ConceptSlot> slots;
-    public final boolean eadibleResult;
-    public final int resultsCount;
 
-    public Concept(List<ConceptSlot> slots, boolean eadibleResult, int resultsCount) {
+    public Concept(List<ConceptSlot> slots) {
         this.slots = slots;
-        this.eadibleResult = eadibleResult;
-        this.resultsCount = resultsCount;
     }
 
     public List<Integer> mainSlotsIndexes() { return allIndexes(); }
 
-    public @NotNull Nutritional getNutritional(List<FoodItem> items) {
+    public boolean isResultEadible(List<FoodItem> items) {
+        return true;
+    }
+
+    public int resultsCount(List<FoodItem> items) {
+        return 1;
+    }
+
+    public @NotNull Ingredient getIngredient(List<FoodItem> items) {
+        IngredientOrigin origin = new ByConceptOrigin(this, items);
+        Nutritional nutritional = getNutritional(items);
+        Taste taste = getTaste(items);
+        float hedonism = getHedonismScore(items);
+        boolean eadible = isResultEadible(items);
+        List<FoodTag> tags = getTags(items, taste);
+        return new Ingredient(origin, nutritional, taste, hedonism, eadible, tags);
+    }
+
+    protected @NotNull Nutritional getNutritional(List<FoodItem> items) {
         List<Ingredient> ingredients = items.stream()
                 .filter(i -> i instanceof Ingredient)
                 .map(i -> (Ingredient)i)
@@ -37,7 +52,7 @@ public abstract class Concept {
         return sumCalorieAverageDigestibility(ingredients, mainSlotsIndexes());
     }
 
-    public @NotNull Taste getTaste(List<FoodItem> items) {
+    protected @NotNull Taste getTaste(List<FoodItem> items) {
         List<Ingredient> ingredients = items.stream()
                 .filter(i -> i instanceof Ingredient)
                 .map(i -> (Ingredient)i)
@@ -45,7 +60,7 @@ public abstract class Concept {
         return averageTasty(ingredients);
     }
 
-    public float getHedonismScore(List<FoodItem> items) {
+    protected float getHedonismScore(List<FoodItem> items) {
         List<Ingredient> ingredients = items.stream()
                 .filter(i -> i instanceof Ingredient)
                 .map(i -> (Ingredient)i)
@@ -53,7 +68,7 @@ public abstract class Concept {
         return sumHedonism(ingredients);
     };
 
-    public abstract @NotNull List<FoodTag> getTags(List<FoodItem> items, Taste taste);
+    protected abstract @NotNull List<FoodTag> getTags(List<FoodItem> items, Taste taste);
 
     protected @NotNull List<FoodTag> tasteTags(Taste taste) {
         List<FoodTag> result = new ArrayList<>();

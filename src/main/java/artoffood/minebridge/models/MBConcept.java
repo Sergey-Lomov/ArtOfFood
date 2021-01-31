@@ -8,6 +8,7 @@ import artoffood.minebridge.registries.MBVisualSlotsTypesRegister;
 import net.minecraft.util.NonNullList;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,13 +19,11 @@ public abstract class MBConcept {
     public final NonNullList<MBVisualSlot> slots;
     public final String conceptId;
     public final int resultStackSize;
-    public final float resultX, resultY;
+    public final float resultX, resultY; // TODO: Remove this unused values, if result still be presented in available results slots
 
     public MBConcept(Concept core, NonNullList<MBVisualSlot> slots, String conceptId, int resultStackSize, float resultX, float resultY) {
         if (slots.size() != core.slots.size())
             throw new IllegalStateException("Try to create bridge concept with different amount of core slots and visualisation slots");
-        if (core.resultsCount > resultStackSize)
-            throw new IllegalStateException("Try to create MBConcept with core, which results count more, than max stack count");
 
         this.slots = slots;
         this.conceptId = conceptId;
@@ -36,12 +35,19 @@ public abstract class MBConcept {
 
     public abstract @NotNull MBItemRendering rendering(List<MBFoodItem> items);
 
-    // TODO: Check, it is really necessary to send subingredients into this method
+    // TODO: Check, it is really necessary to send items into this method
     public int getStackSize(List<MBFoodItem> items) { return 64; };
 
-    public @NotNull Ingredient coreIngredient(List<MBFoodItem> items) {
+    public @Nullable MBIngredient getIngredient(List<MBFoodItem> items) {
+        Ingredient core = coreIngredient(items);
+        int stackSize = getStackSize(items);
+        MBItemRendering rendering = rendering(items);
+        return new MBIngredient(core, stackSize, rendering);
+    }
+
+    protected @NotNull Ingredient coreIngredient(List<MBFoodItem> items) {
         List<FoodItem> coreItems = items.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
-        return new Ingredient(core, coreItems);
+        return core.getIngredient(coreItems);
     }
 
     protected class Slots extends MBVisualSlotsTypesRegister {};

@@ -19,7 +19,7 @@ public class BlendySaltySalad extends Concept {
     private static final List<Integer> MAIN_SLOTS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3, 4));
 
     public BlendySaltySalad() {
-        super(getSlots(), true, 2);
+        super(getSlots());
     }
 
     private static List<ConceptSlot> getSlots () {
@@ -40,7 +40,7 @@ public class BlendySaltySalad extends Concept {
     }
 
     @Override
-    public @NotNull List<FoodTag> getTags(List<FoodItem> ingredients, Taste taste) {
+    public @NotNull List<FoodTag> getTags(List<FoodItem> items, Taste taste) {
         List<FoodTag> result = tasteTags(taste);
         result.add(Tags.SALAD);
         return result;

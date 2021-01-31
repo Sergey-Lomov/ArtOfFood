@@ -33,4 +33,8 @@ public class MBProcessing {
         core.updateIngredient(ingredient.core);
         renderingTransform.update(ingredient.rendering);
     }
+
+    public void updateRendering(@NotNull MBItemRendering rendering) {
+        renderingTransform.update(rendering);
+    }
 }

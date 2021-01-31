@@ -25,7 +25,7 @@ public class Taste implements Cloneable{
     }
 
     @Override
-    protected Taste clone() {
+    public Taste clone() {
         return new Taste(salinity, sweetness, acidity, bitterness, umami);
     }
 

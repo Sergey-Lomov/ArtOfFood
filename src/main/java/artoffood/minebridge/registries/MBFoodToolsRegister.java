@@ -41,7 +41,7 @@ public class MBFoodToolsRegister {
         String fullId = TOOLS_DIR + "/" + id;
         MBFoodTool tool = new MBFoodTool(fullId, core, durability);
         TOOLS.add(tool);
-        TOOL_BY_ID.put(id, tool);
+        TOOL_BY_ID.put(fullId, tool);
         if (coreAmbassador || !TOOL_BY_CORE.containsKey(core)) TOOL_BY_CORE.put(core, tool);
         return tool;
     }

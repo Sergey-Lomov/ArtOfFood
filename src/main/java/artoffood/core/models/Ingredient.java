@@ -52,12 +52,6 @@ public class Ingredient extends FoodItem {
         }
     }
 
-    public Ingredient(Concept concept, List<FoodItem> items) {
-        super();
-        origin = new ByConceptOrigin(concept, items);
-        setupByConcept(concept, items);
-    }
-
     public Ingredient(IngredientPrototype prototype) {
         super();
         origin = new ByPrototypeOrigin(prototype);
@@ -86,12 +80,17 @@ public class Ingredient extends FoodItem {
         return tagsCopy.equals(iTagsCopy);
     }
 
+    public Ingredient clone() {
+        List<FoodTag> tagsCopy = new ArrayList<>(tags());
+        return new Ingredient(origin.clone(), nutritional.clone(), taste.clone(), hedonismScore, edible, tagsCopy);
+    }
+
     public boolean isEmpty() {
         return this == Ingredient.EMPTY || origin.isEmpty();
     }
 
     private void setupByConcept(Concept concept, List<FoodItem> items) {
-        edible = concept.eadibleResult;
+        edible = concept.isResultEadible(items);
         nutritional = concept.getNutritional(items);
         taste = concept.getTaste(items);
         hedonismScore = concept.getHedonismScore(items);

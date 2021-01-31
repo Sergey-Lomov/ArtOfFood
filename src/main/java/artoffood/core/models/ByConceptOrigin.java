@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ByConceptOrigin implements IngredientOrigin {
 
@@ -46,5 +47,11 @@ public class ByConceptOrigin implements IngredientOrigin {
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public IngredientOrigin clone() {
+        List<FoodItem> itemsCopy = items.stream().map(i -> i.clone()).collect(Collectors.toList());
+        return new ByConceptOrigin(concept, itemsCopy);
     }
 }

@@ -21,4 +21,9 @@ public class ByPrototypeOrigin implements IngredientOrigin {
     public boolean isEmpty() {
         return prototype == IngredientPrototypesRegister.EMPTY;
     }
+
+    @Override
+    public IngredientOrigin clone() {
+        return new ByPrototypeOrigin(prototype);
+    }
 }

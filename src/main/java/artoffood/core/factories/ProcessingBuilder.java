@@ -1,20 +1,23 @@
 package artoffood.core.factories;
 
+import artoffood.core.models.FoodDeviceFunctional;
 import artoffood.core.models.Processing;
 import artoffood.core.models.FoodToolFunctional;
 import artoffood.core.models.predicates.TagsPredicate;
 import artoffood.core.models.transforms.nutritional.NutritionalTransform;
 import artoffood.core.models.transforms.tags.TagsTransform;
 import artoffood.core.models.transforms.taste.TasteTransform;
+import artoffood.core.registries.ProcessingsRegister;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ProcessingBuilder {
 
     private final TagsPredicate ingredientPredicate;
-    private final List<FoodToolFunctional> requiredFunctional = new ArrayList<>();
+    private final List<FoodToolFunctional> requiredToolsFunctional = new ArrayList<>();
+    private final List<FoodDeviceFunctional> requiredDevicesFunctional = new ArrayList<>();
+    private int resultCount = 1;
     private NutritionalTransform nutritionalTransform = NutritionalTransform.EMPTY;
     private TasteTransform tasteTransform = TasteTransform.EMPTY;
     private TagsTransform tagsTransform = TagsTransform.EMPTY;
@@ -25,11 +28,18 @@ public class ProcessingBuilder {
 
     public Processing build()
     {
-        return new Processing(ingredientPredicate, requiredFunctional, nutritionalTransform, tasteTransform, tagsTransform);
+        Processing processing = new Processing(ingredientPredicate, requiredToolsFunctional, requiredDevicesFunctional, resultCount, nutritionalTransform, tasteTransform, tagsTransform);
+        ProcessingsRegister.ALL.add(processing);
+        return processing;
     }
 
     public ProcessingBuilder addRequirement(FoodToolFunctional tool) {
-        this.requiredFunctional.add(tool);
+        this.requiredToolsFunctional.add(tool);
+        return this;
+    }
+
+    public ProcessingBuilder addRequirement(FoodDeviceFunctional device) {
+        this.requiredDevicesFunctional.add(device);
         return this;
     }
 
@@ -48,4 +58,8 @@ public class ProcessingBuilder {
         return this;
     }
 
+    public ProcessingBuilder resultCount(int resultCount) {
+        this.resultCount = resultCount;
+        return this;
+    }
 }

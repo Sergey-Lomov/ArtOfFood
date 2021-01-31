@@ -11,15 +11,19 @@ import java.util.List;
 public class Processing {
 
     private final TagsPredicate ingredientPredicate;
-    private final List<FoodToolFunctional> requiredFunctionals;
+    private final List<FoodToolFunctional> requiredToolFunctionals;
+    private final List<FoodDeviceFunctional> requiredDeviceFunctionals;
+    public final int resultCount;
 
     private final NutritionalTransform nutritionalTransform;
     private final TasteTransform tasteTransform;
     private final TagsTransform tagsTransform;
 
-    public Processing(TagsPredicate ingredientPredicate, List<FoodToolFunctional> requiredFunctionals, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
+    public Processing(TagsPredicate ingredientPredicate, List<FoodToolFunctional> requiredToolFunctionals, List<FoodDeviceFunctional> requiredDeviceFunctionals, int resultCount, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
         this.ingredientPredicate = ingredientPredicate;
-        this.requiredFunctionals = requiredFunctionals;
+        this.requiredToolFunctionals = requiredToolFunctionals;
+        this.requiredDeviceFunctionals = requiredDeviceFunctionals;
+        this.resultCount = resultCount;
         this.nutritionalTransform = nutritionalTransform;
         this.tasteTransform = tasteTransform;
         this.tagsTransform = tagsTransform;
@@ -32,6 +36,8 @@ public class Processing {
     }
 
     public boolean availableForIngredient(List<FoodTag> tags) { return ingredientPredicate.test(tags); }
-    public boolean availableWithTool(FoodTool foodTool) { return foodTool.containsAll(requiredFunctionals); }
-    public boolean availableWithoutTool() { return requiredFunctionals.isEmpty(); }
+    public boolean availableWithTool(FoodTool foodTool) { return foodTool.containsAll(requiredToolFunctionals); }
+    public boolean availableWithDevice(List<FoodDeviceFunctional> deviceFunctionals) {
+        return deviceFunctionals.containsAll(requiredDeviceFunctionals); }
+    public boolean availableWithoutTool() { return requiredToolFunctionals.isEmpty(); }
 }
