@@ -1,6 +1,5 @@
 package artoffood.networking.packets;
 
-import artoffood.networking.IConceptSlotPacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -16,6 +15,7 @@ public class SSetConceptResultSlotPacket {
     private int slot;
     private int[] ingredientsSlots;
 
+    // TODO: Check and remove packet if it is unused
     public SSetConceptResultSlotPacket(int windowIdIn, int slotId, int[] ingredientsSlots) {
         this.windowId = windowIdIn;
         this.slot = slotId;

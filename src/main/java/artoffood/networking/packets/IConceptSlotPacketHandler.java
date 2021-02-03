@@ -1,4 +1,4 @@
-package artoffood.networking;
+package artoffood.networking.packets;
 
 public interface IConceptSlotPacketHandler {
 

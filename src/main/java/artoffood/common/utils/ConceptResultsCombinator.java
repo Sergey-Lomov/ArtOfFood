@@ -1,6 +1,8 @@
 package artoffood.common.utils;
 
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
+import artoffood.common.utils.background_tasks.ConceptResultsCalculationInput;
+import artoffood.common.utils.background_tasks.ConceptResultsCalculationOutput;
 import artoffood.common.utils.slots.ConceptResultPreviewSlotConfig;
 import artoffood.common.utils.slots.SlotReference;
 import artoffood.core.models.ByConceptOrigin;
@@ -16,7 +18,6 @@ import net.minecraft.util.NonNullList;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,15 +35,15 @@ public class ConceptResultsCombinator {
         }
     }
 
-    public static NonNullList<ConceptResultPreviewSlotConfig> possbileResults(MBConcept concept,
-                                                                              NonNullList<Slot> conceptSlots,
-                                                                              NonNullList<Slot> availableSlots,
-                                                                              Function<Slot, Integer> containerIdForSlot,
-                                                                              Function<Integer, Integer> containerIdForConceptInId) {
+    public static ConceptResultsCalculationOutput possbileResults(ConceptResultsCalculationInput input) {
+        final NonNullList<SlotCandidates> candidates = candidatesMap(input.concept.core, input.conceptSlots, input.availableSlots);
+        int combinationAmountEstimate = candidates.stream().map(c -> c.candidates.size()).reduce(1, (c, r) -> c * r);
+        if (combinationAmountEstimate > input.complexityLimit)
+            return new ConceptResultsCalculationOutput(true, input.concept, NonNullList.create());
 
-        final NonNullList<SlotCandidates> candidates = candidatesMap(concept.core, conceptSlots, availableSlots);
         final NonNullList<NonNullList<Optional<Slot>>> combinations = combinations(candidates);
-        return generateResults(concept, combinations, availableSlots, containerIdForSlot, containerIdForConceptInId);
+        NonNullList<ConceptResultPreviewSlotConfig> results = generateResults(input, combinations);
+        return new ConceptResultsCalculationOutput(false, input.concept, results);
     }
 
     // Compare itemsStack at slot by item and tag, but ignores count
@@ -112,17 +113,19 @@ public class ConceptResultsCombinator {
         return results;
     }
 
-    protected static NonNullList<ConceptResultPreviewSlotConfig> generateResults(MBConcept concept,
-                                                                                 NonNullList<NonNullList<Optional<Slot>>> combinations,
-                                                                                 NonNullList<Slot> availableSlots,
-                                                                                 Function<Slot, Integer> containerIdForSlot,
-                                                                                 Function<Integer, Integer> containerIdForConceptInId) {
+    protected static NonNullList<ConceptResultPreviewSlotConfig> generateResults(ConceptResultsCalculationInput input,
+                                                                                 NonNullList<NonNullList<Optional<Slot>>> combinations) {
+        MBConcept concept = input.concept;
         NonNullList<ConceptResultPreviewSlotConfig> results = NonNullList.create();
         Map<ConceptResultPreviewSlotConfig, List<FoodItem>> resultsFoodItems = new HashMap<>();
 
         for (NonNullList<Optional<Slot>> combination: combinations) {
+            // TODO: Decomment optimisation after threading testing
+//            if (results.size() >= input.resultsLimit)
+//                return results;
+
             List<MBFoodItem> mbFoodItems = combinationFoodItems(combination);
-            List<FoodItem> items = mbFoodItems.stream().map(mbfi -> mbfi.itemCore()).collect(Collectors.toList());
+            List<FoodItem> items = mbFoodItems.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
 
             if (!concept.core.matches(items)) continue;
 
@@ -141,7 +144,7 @@ public class ConceptResultsCombinator {
 
             List<Slot> lessItemsSlots = slotsWithNotEnoughItems(combination);
             if (!lessItemsSlots.isEmpty()) {
-                boolean fixed = tryToFixCombination(combination, lessItemsSlots, availableSlots);
+                boolean fixed = tryToFixCombination(combination, lessItemsSlots, input.availableSlots);
                 if (!fixed) continue;
             }
 
@@ -150,9 +153,9 @@ public class ConceptResultsCombinator {
                 Integer fromId = null;
                 if (combination.get(i).isPresent()) {
                     Slot slot = combination.get(i).get();
-                    fromId = containerIdForSlot.apply(slot);
+                    fromId = input.containerIdForSlot.apply(slot);
                 }
-                SlotReference ref = new SlotReference(containerIdForConceptInId.apply(i), fromId);
+                SlotReference ref = new SlotReference(input.containerIdForConceptInId.apply(i), fromId);
                 references.add(ref);
             }
 

@@ -13,33 +13,35 @@ import artoffood.client.screens.slot_prompt.lists.StubPromptTextures;
 import artoffood.client.utils.Texture;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
-import artoffood.common.utils.ConceptResultsCombinator;
+import artoffood.common.utils.background_tasks.BackgroundTasksManager;
+import artoffood.common.utils.background_tasks.ConceptResultsCalculationInput;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.slots.*;
+import artoffood.core.models.ByConceptOrigin;
+import artoffood.core.models.FoodItem;
+import artoffood.core.models.Ingredient;
+import artoffood.core.models.IngredientOrigin;
 import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBVisualSlot;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.utils.LocalisationManager;
-import artoffood.networking.IConceptSlotPacketHandler;
-import artoffood.networking.IUpdateConceptPacketHandler;
+import artoffood.networking.packets.*;
 import artoffood.networking.ModNetworking;
-import artoffood.networking.packets.CUpdateConceptPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.*;
 import net.minecraft.inventory.container.*;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SSetSlotPacket;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.NonNullList;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +50,11 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class CountertopContainer extends PlayerInventoryContainer implements ISlotPromptProvider, IConceptSlotPacketHandler, IUpdateConceptPacketHandler {
+public class CountertopContainer extends PlayerInventoryContainer implements ISlotPromptProvider,
+        IConceptSlotPacketHandler,
+        IUpdateConceptPacketHandler,
+        IConceptResultsProposesHandler,
+        IConceptResultsProposesProvider {
 
     private static final int OUT_ROW_COUNT = 4;
     private static final int OUT_COLUMN_COUNT = 4;
@@ -92,12 +98,6 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         this.worldPosCallable = worldPosCallable;
         addPlayerInventorySlots(playerInventory, PLAYER_INVENTORY_X_POS, PLAYER_INVENTORY_Y_POS);
 
-//        Slot ingredientSlot = addSlot(new FoodIngredientSlot(inInventory, 0, IN_SLOTS_X_POS, INGREDIENT_SLOT_Y_POS));
-//        Slot toolSlot = addSlot(new FoodToolSlot(inInventory, 1, IN_SLOTS_X_POS, TOOL_SLOT_Y_POS));
-//        ingredientSlotPrompts = inSlotPrompts(ingredientSlot, LocalisationManager.Inventories.ingredient_slot_prompt());
-//        toolSlotPrompts = inSlotPrompts(toolSlot, LocalisationManager.Inventories.tool_slot_prompt());
-//        toolSlotPrompts.add(new StubPromptBuilder(StubSlotPromptTextures.TOOL_TEXTURE).build(toolSlot));
-
         for (int i = 0; i < OUT_ROW_COUNT; ++i) {
             for (int j = 0; j < OUT_COLUMN_COUNT; ++j) {
                 final int x = OUT_SLOTS_X_POS + j * Constants.SLOT_FULL_SIZE;
@@ -120,17 +120,23 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
             @Override
             public void sendSlotContents(@NotNull Container containerToSend, int slotInd, @NotNull ItemStack stack) {
-                if (slotInd < FIRST_OUT_SLOT_INDEX || slotInd > FIRST_OUT_SLOT_INDEX + NUMBER_OF_OUT_SLOTS)
-                    worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
+                if (slotInd >= 0 && slotInd < inventorySlots.size())
+                    if (!(inventorySlots.get(slotInd) instanceof ConceptResultPreviewSlot))
+                        if (playerInventory.player instanceof ServerPlayerEntity) {
+                            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) playerInventory.player;
+                            Object request = new SConceptResultsProposesRequest();
+                            ModNetworking.sendToClient(request, serverPlayer);
+                        }
             }
 
             @Override
             public void sendWindowProperty(@NotNull Container containerIn, int varToUpdate, int newValue) {}
         });
 
-        if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER) {
-            ModNetworking.addServerListener(this);
-        }
+        // TODO: Remove commented solution
+//        if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER) {
+//            ModNetworking.addServerListener(this);
+//        }
     }
 
     private NonNullList<SlotPrompt> inSlotPrompts(Slot slot, String message) {
@@ -172,6 +178,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         this.worldPosCallable.consume((world, p_217068_3_) -> clearContainer(playerIn, world, conceptInventory));
     }
 
+    /*
     protected void updateCraftingResult(World world) {
         if (!world.isRemote) {
             ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)playerInventory.player;
@@ -184,14 +191,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
                 return;
             }
 
-            List<Slot> sublist = this.inventorySlots.subList(VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT);
-            NonNullList<Slot> available = NonNullList.create();
-            available.addAll(sublist);
-            NonNullList<ConceptResultPreviewSlotConfig> results = ConceptResultsCombinator.possbileResults(concept,
-                    conceptSlots,
-                    available,
-                    slot -> inventorySlots.indexOf(slot),
-                    index -> index + FIRST_CONCEPT_SLOT_INDEX);
+
 
             for (int i = 0; i < results.size() && i < outInventories.size(); i++) {
                 Slot slot = inventorySlots.get(i + FIRST_OUT_SLOT_INDEX);
@@ -204,71 +204,6 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
             sendOutPackages(serverPlayerEntity);
         }
-    }
-
-    /*protected Map<ConceptSlot, NonNullList<Slot>> candidatesMap() {
-        final Map<ConceptSlot, NonNullList<Slot>> slotsCandidates = new HashMap<>();
-        for (int conceptSlotIndex = 0; conceptSlotIndex < concept.core.slots.size(); conceptSlotIndex++) {
-            final ConceptSlot slot = concept.core.slots.get(conceptSlotIndex);
-            NonNullList<Slot> candidates = NonNullList.create();
-
-            final Slot inSlot = conceptSlots.get(conceptSlotIndex);
-            if (!inSlot.getStack().isEmpty()) {
-                candidates.add(inSlot);
-                slotsCandidates.put(slot, candidates);
-                continue;
-            }
-
-            for (int candidateSlotIndex = VANILLA_FIRST_SLOT_INDEX;
-                 candidateSlotIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-                 candidateSlotIndex++) {
-                final Slot candidate = getSlot(candidateSlotIndex);
-                candidate.getStack().getCapability(IngredientEntityCapability.INSTANCE).ifPresent(cap -> {
-                    if (slot.predicate.test(cap.getIngredient().core.tags)) {
-                        Function<Slot, Boolean> comparator = s -> ItemStack.areItemStackTagsEqual(s.getStack(), candidate.getStack())
-                                && ItemStack.areItemsEqual(s.getStack(), candidate.getStack());
-                        Stream sameSlots =  candidates.stream().filter(s -> comparator.apply(s) );
-                        if (sameSlots.count() == 0)
-                            candidates.add(candidate);
-                    }
-                });
-            }
-
-            slotsCandidates.put(slot, candidates);
-        }
-
-        return slotsCandidates;
-    }
-
-    protected NonNullList<NonNullList<Optional<Slot>>> combinations(Map<ConceptSlot, NonNullList<Slot>> available) {
-        NonNullList<NonNullList<Optional<Slot>>> results = NonNullList.create();
-        Optional<NonNullList<Slot>> firstSlotValues =  available.values().stream().findFirst();
-        Optional<ConceptSlot> firstSlot =  available.keySet().stream().findFirst();
-        if (!firstSlotValues.isPresent() || !firstSlot.isPresent()) return results;
-
-        List<Optional<Slot>> candidates = firstSlotValues.get().stream().map(s -> Optional.of(s)).collect(Collectors.toList());
-        if (firstSlot.get().optional) candidates.add(Optional.empty());
-
-        if (available.size() == 1) {
-            for (Optional<Slot> candidate: candidates) {
-                results.add(NonNullList.withSize(1, candidate));
-            }
-
-            return results;
-        }
-
-        available.remove(firstSlot.get());
-        NonNullList<NonNullList<Optional<Slot>>> subcombinations = combinations(available);
-        for (Optional<Slot> slot: candidates) {
-            for (List<Optional<Slot>> subcombination: subcombinations) {
-                NonNullList<Optional<Slot>> combination = NonNullList.create();
-                combination.add(slot);
-                combination.addAll(subcombination);
-                results.add(combination);
-            }
-        }
-
-        return results;
     }*/
 
     protected void clearResultSlots () {
@@ -283,78 +218,9 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             ItemStack outStack = outInventories.get(i).getStackInSlot(0);
             IPacket<?> stackPacket = new SSetSlotPacket(windowId, index, outStack);
             serverPlayerEntity.connection.sendPacket(stackPacket);
-           /* if (inventorySlots.get(index) instanceof FoodProcessingResultSlot) {
-                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(index);
-                final int ingredientId = slot.ingredient.containerSlotId;
-                final int toolId = slot.tool != null ? slot.tool.containerSlotId : SSetProcessingResultSlotPacket.NULL_SLOT_CODE;
-                SSetProcessingResultSlotPacket refPacket = new SSetProcessingResultSlotPacket(windowId, index, ingredientId, toolId);
-                ModNetworking.sendToClient(refPacket, serverPlayerEntity);
-            }*/
             inventorySlots.get(FIRST_OUT_SLOT_INDEX + i).onSlotChanged();
         }
     }
-
-   /* protected void updateToConcreteResult (World world,
-                                           ServerPlayerEntity serverPlayerEntity) {
-        ItemStack itemStack = ItemStack.EMPTY;
-
-        MinecraftServer server = Objects.requireNonNull(world.getServer());
-        Optional<ICraftingRecipe> optional = server.getRecipeManager().getRecipe(IRecipeType.CRAFTING, inInventory, world);
-        if (optional.isPresent()) {
-            ICraftingRecipe craftingRecipe = optional.get();
-            if (outInventories.get(0).canUseRecipe(world, serverPlayerEntity, craftingRecipe)) {
-                itemStack = craftingRecipe.getCraftingResult(inInventory);
-                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(FIRST_OUT_SLOT_INDEX);
-                slot.tool = new SlotReference(inInventory, 1, TOOL_SLOT_INDEX);
-            }
-        }
-
-        outInventories.get(0).setInventorySlotContents(0, itemStack);
-    }
-
-    protected void updateToAvailableResults (World world,
-                                             ServerPlayerEntity serverPlayerEntity,
-                                             ItemStack ingredient) {
-        MinecraftServer server = Objects.requireNonNull(world.getServer());
-        RecipeManager recipeManager = server.getRecipeManager();
-        NonNullList<SlotReference> toolRefs = NonNullList.create();
-        for (int i = 0; i < playerInventory.getSizeInventory(); i++) {
-            ItemStack stack = playerInventory.getStackInSlot(i);
-            if (stack.getItem() instanceof FoodToolItem)
-                toolRefs.add(new SlotReference(playerInventory, i, VANILLA_FIRST_SLOT_INDEX + i));
-        }
-
-        NonNullList<FoodProcessingRecipe> recipes = NonNullList.create();
-        NonNullList<SlotReference> uniqueToolRefs = NonNullList.create();
-
-        for (SlotReference toolRef: toolRefs) {
-            CraftingInventory fakeInventory = new SilentCraftingInventory(1, 2);
-            fakeInventory.setInventorySlotContents(0, ingredient);
-            fakeInventory.setInventorySlotContents(1, toolRef.getStack());
-            Optional<ICraftingRecipe> optional = recipeManager.getRecipe(IRecipeType.CRAFTING, fakeInventory, world);
-            if (optional.isPresent() && optional.get() instanceof FoodProcessingRecipe) {
-                FoodProcessingRecipe recipe = (FoodProcessingRecipe)optional.get();
-                if (!recipes.contains(recipe)) {
-                    recipes.add(recipe);
-                    uniqueToolRefs.add(toolRef);
-                }
-            }
-        }
-
-        for (int i = 0; i < recipes.size() && i < NUMBER_OF_OUT_SLOTS; i++) {
-            ItemStack itemStack = ItemStack.EMPTY;
-            FoodProcessingRecipe recipe = recipes.get(i);
-            SlotReference toolRef = uniqueToolRefs.get(i);
-            CraftResultInventory inventory = outInventories.get(i);
-            if (inventory.canUseRecipe(world, serverPlayerEntity, recipe)) {
-                itemStack = recipe.getCraftingResult(ingredient, toolRef.getStack());
-                FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(FIRST_OUT_SLOT_INDEX + i);
-                slot.tool = toolRef;
-            }
-
-            outInventories.get(i).setInventorySlotContents(0, itemStack);
-        }
-    }*/
 
     @Override
     public @NotNull ItemStack slotClick(int slotId, int dragType, @NotNull ClickType clickTypeIn, @NotNull PlayerEntity player) {
@@ -378,10 +244,11 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         return result;
     }
 
-    @Override
-    public void onCraftMatrixChanged(@NotNull IInventory inventoryIn) {
-        worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
-    }
+//    @Override
+//    public void onCraftMatrixChanged(@NotNull IInventory inventoryIn) {
+//        //worldPosCallable.consume((world, p_217069_2_) -> updateCraftingResult(world));
+//        LogManager.getLogger(ArtOfFood.MOD_ID).warn("Crafting matrix changed");
+//    }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -408,29 +275,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         return prompts;
     }
 
- /*   @Override
-    public void handleProcessingSlotUpdate(int slotId, int ingredientId, int toolId) {
-        if (!isValidSlot(slotId, FoodProcessingResultSlot.class, Item.class))
-            throw new IllegalStateException("Try to handle food processing slot update with invalid slot id");
-        FoodProcessingResultSlot slot = (FoodProcessingResultSlot)inventorySlots.get(slotId);
-
-        if (!isValidSlot(ingredientId, Slot.class, FoodIngredientItem.class))
-            throw new IllegalStateException("Try to handle food processing slot update with invalid ingredient id");
-        Slot ingredient = inventorySlots.get(ingredientId);
-
-        Slot tool = null;
-        if (!isValidSlot(toolId, Slot.class, FoodToolItem.class)) {
-            if (toolId != SSetProcessingResultSlotPacket.NULL_SLOT_CODE)
-                throw new IllegalStateException("Try to handle food processing slot update with invalid tool id");
-        } else {
-            tool = inventorySlots.get(toolId);
-        }
-
-        slot.ingredient = new SlotReference(ingredient.inventory, ingredient.getSlotIndex(), ingredientId);
-        slot.tool = tool != null ? new SlotReference(tool.inventory, tool.getSlotIndex(), toolId) : null;
-    }*/
-
-    private boolean isValidSlot(int slotId, Class slotType, Class itemType) {
+    private boolean isValidSlot(int slotId, Class<Slot> slotType, Class<Item> itemType) {
         if (slotId < 0 || slotId >= inventorySlots.size()) return false;
         if (!(slotType.isAssignableFrom(inventorySlots.get(slotId).getClass()))) return false;
 
@@ -438,19 +283,39 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         return validItemType || inventorySlots.get(slotId).getStack().isEmpty();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setConcept(MBConcept concept) {
         this.concept = concept;
         unloadConceptSlots(playerInventory.player);
         updateConceptSlots();
-        updateConceptSlotsPrompts();
-        CUpdateConceptPacket packet = new CUpdateConceptPacket(concept.conceptId);
-        // TODO: Decoment when message really go to server instead client
-        ModNetworking.sendToServer(packet);
+        clearResultSlots();
+
+        if (playerInventory.player.world.isRemote) {
+            updateConceptSlotsPrompts();
+            if (concept != null)
+                prepareConceptResultsPropositions();
+            CUpdateConceptPacket packet = new CUpdateConceptPacket(concept.conceptId);
+            ModNetworking.sendToServer(packet);
+        }
+    }
+
+    public void prepareConceptResultsPropositions() {
+        List<Slot> sublist = this.inventorySlots.subList(VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT);
+        NonNullList<Slot> available = NonNullList.create();
+        available.addAll(sublist);
+        ConceptResultsCalculationInput calculationInput = new ConceptResultsCalculationInput(concept,
+                conceptSlots,
+                available,
+                slot -> inventorySlots.indexOf(slot),
+                index -> index + FIRST_CONCEPT_SLOT_INDEX,
+                16, 100);
+
+        BackgroundTasksManager.shared.startConceptResultsCalculation(calculationInput, output -> {
+            CProposeConceptResultsPacket packet = new CProposeConceptResultsPacket(output.concept.conceptId, output.slotsConfigs);
+            ModNetworking.sendToServer(packet);
+        });
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void handleResultSlotUpdate(int slotId, int[] ingredientsSlots) {
 
     }
@@ -458,9 +323,8 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
     @Override
     // Server side
     public void handleConceptUpdate(String conceptId) {
-        concept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId);
-        updateConceptSlots();
-        updateCraftingResult(playerInventory.player.world);
+        MBConcept newConcept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId);
+        setConcept(newConcept);
     }
 
     private void updateConceptSlots() {
@@ -483,7 +347,6 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void updateConceptSlotsPrompts() {
         for (int index = 0; index < concept.slots.size(); index++) {
             MBVisualSlot visual = concept.slots.get(index);
@@ -512,9 +375,43 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         }
     }
 
+    // TODO: remove commented solution
+//    @Override
+//    protected void finalize() throws Throwable {
+//        ModNetworking.removeServerListener(this);
+//        super.finalize();
+//    }
+
     @Override
-    protected void finalize() throws Throwable {
-        ModNetworking.removeServerListener(this);
-        super.finalize();
+    // Server only
+    public void handleResultsProposes(String conceptId, NonNullList<ConceptResultPreviewSlotConfig> propositions) {
+        if (!(playerInventory.player instanceof ServerPlayerEntity)) return;
+        if (concept == null || !concept.conceptId.equals(conceptId)) return;
+
+        ServerPlayerEntity serverPlayer = (ServerPlayerEntity)playerInventory.player;
+
+        int fillingIndex = 0;
+        for (int i = 0; i < propositions.size() && i < outInventories.size(); i++) {
+            ConceptResultPreviewSlotConfig proposition = propositions.get(i);
+            IngredientOrigin origin = proposition.result.core.origin;
+            if (!(origin instanceof ByConceptOrigin))
+                throw new IllegalStateException("Invalid proposition result origin type.");
+
+            List<FoodItem> items = ((ByConceptOrigin) origin).items;
+            Ingredient realResult = concept.core.getIngredient(items);
+            if (realResult.equals(proposition.result.core)) {
+                Slot slot = inventorySlots.get(fillingIndex + FIRST_OUT_SLOT_INDEX);
+                if (slot instanceof ConceptResultPreviewSlot) {
+                    ((ConceptResultPreviewSlot) slot).configure(proposition);
+                    fillingIndex++;
+                }
+            }
+        }
+
+        for (int i = fillingIndex; i < outInventories.size(); i++) {
+            outInventories.get(i).setInventorySlotContents(0,ItemStack.EMPTY);
+        }
+
+        sendOutPackages(serverPlayer);
     }
 }
