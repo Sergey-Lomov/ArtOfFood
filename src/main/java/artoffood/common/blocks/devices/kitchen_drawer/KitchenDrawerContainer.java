@@ -51,11 +51,6 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
     }
 
     @Override
-    protected int getTESlotsCount() {
-        return TE_INVENTORY_SLOT_COUNT;
-    }
-
-    @Override
     public boolean canInteractWith(@NotNull PlayerEntity playerIn) {
         return drawerInventory.isUsableByPlayer(playerIn);
     }
@@ -64,5 +59,25 @@ public class KitchenDrawerContainer extends PlayerInventoryContainer {
     public void onContainerClosed(@NotNull PlayerEntity playerIn)
     {
         super.onContainerClosed(playerIn);
+    }
+
+    @Override
+    protected int getMergeInMinSlotIndex() {
+        return VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    }
+
+    @Override
+    protected int getMergeInMaxSlotIndex() {
+        return getMergeInMinSlotIndex() + TE_INVENTORY_SLOT_COUNT;
+    }
+
+    @Override
+    protected int getMergeOutMinSlotIndex() {
+        return getMergeInMinSlotIndex();
+    }
+
+    @Override
+    protected int getMergeOutMaxSlotIndex() {
+        return getMergeInMaxSlotIndex();
     }
 }

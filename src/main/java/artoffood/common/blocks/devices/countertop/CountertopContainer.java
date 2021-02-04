@@ -12,7 +12,6 @@ import artoffood.client.screens.slot_prompt.factories.TextPromptBuilder;
 import artoffood.client.screens.slot_prompt.lists.StubPromptTextures;
 import artoffood.client.utils.Texture;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
-import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
 import artoffood.common.utils.background_tasks.BackgroundTasksManager;
 import artoffood.common.utils.background_tasks.ConceptResultsCalculationInput;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
@@ -54,7 +53,8 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         IConceptSlotPacketHandler,
         IUpdateConceptPacketHandler,
         IConceptResultsProposesHandler,
-        IConceptResultsProposesProvider {
+        IConceptResultsProposesProvider,
+        IConceptResultsApproveHandler {
 
     private static final int OUT_ROW_COUNT = 4;
     private static final int OUT_COLUMN_COUNT = 4;
@@ -120,13 +120,15 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
             @Override
             public void sendSlotContents(@NotNull Container containerToSend, int slotInd, @NotNull ItemStack stack) {
-                if (slotInd >= 0 && slotInd < inventorySlots.size())
-                    if (!(inventorySlots.get(slotInd) instanceof ConceptResultPreviewSlot))
-                        if (playerInventory.player instanceof ServerPlayerEntity) {
-                            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) playerInventory.player;
-                            Object request = new SConceptResultsProposesRequest();
-                            ModNetworking.sendToClient(request, serverPlayer);
-                        }
+                if (concept == null) return;
+                if (slotInd < 0 || slotInd > inventorySlots.size()) return;
+//                if (inventorySlots.get(slotInd) instanceof ConceptResultPreviewSlot) return;
+
+                if (playerInventory.player instanceof ServerPlayerEntity) {
+                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) playerInventory.player;
+                    Object request = new SConceptResultsProposesRequest();
+                    ModNetworking.sendToClient(request, serverPlayer);
+                }
             }
 
             @Override
@@ -154,11 +156,6 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
     }
 
     @Override
-    protected int getTESlotsCount() {
-        return NUMBER_OF_OUT_SLOTS + conceptSlots.size();
-    }
-
-    @Override
     public boolean canInteractWith(@NotNull PlayerEntity playerIn) {
         return true;
     }
@@ -178,47 +175,9 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
         this.worldPosCallable.consume((world, p_217068_3_) -> clearContainer(playerIn, world, conceptInventory));
     }
 
-    /*
-    protected void updateCraftingResult(World world) {
-        if (!world.isRemote) {
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)playerInventory.player;
-
-            long timestamp = System.currentTimeMillis();
-            clearResultSlots();
-
-            if (concept == null) {
-                sendOutPackages(serverPlayerEntity);
-                return;
-            }
-
-
-
-            for (int i = 0; i < results.size() && i < outInventories.size(); i++) {
-                Slot slot = inventorySlots.get(i + FIRST_OUT_SLOT_INDEX);
-                if (slot instanceof ConceptResultPreviewSlot) {
-                    ((ConceptResultPreviewSlot) slot).configure(results.get(i));
-                }
-            }
-
-            LogManager.getLogger(ArtOfFood.MOD_ID).warn("Combinations : " + results.size() + "calculation: " + (System.currentTimeMillis() - timestamp));
-
-            sendOutPackages(serverPlayerEntity);
-        }
-    }*/
-
     protected void clearResultSlots () {
         for (CraftResultInventory inventory: outInventories) {
             inventory.setInventorySlotContents(0,ItemStack.EMPTY);
-        }
-    }
-
-    protected void sendOutPackages (ServerPlayerEntity serverPlayerEntity) {
-        for (int i = 0; i < outInventories.size(); i++) {
-            final int index = FIRST_OUT_SLOT_INDEX + i;
-            ItemStack outStack = outInventories.get(i).getStackInSlot(0);
-            IPacket<?> stackPacket = new SSetSlotPacket(windowId, index, outStack);
-            serverPlayerEntity.connection.sendPacket(stackPacket);
-            inventorySlots.get(FIRST_OUT_SLOT_INDEX + i).onSlotChanged();
         }
     }
 
@@ -258,18 +217,17 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
         NonNullList<SlotPrompt> prompts = NonNullList.create();
         if (slot instanceof ConceptResultPreviewSlot) {
-            slot.getStack().getCapability(ConceptResultPreviewCapability.INSTANCE).ifPresent(cap -> {
-                for (SlotReference ref: cap.getReferences()) {
-                    if (ref.isEmptyFrom()) continue;
+            ConceptResultPreviewSlot resultSlot = (ConceptResultPreviewSlot)slot;
+            for (SlotReference ref: resultSlot.references) {
+                if (ref.isEmptyFrom()) continue;
 
-                    if (inventorySlots.size() > ref.containerToSlotId && inventorySlots.size() > ref.containerFromSlotId) {
-                        Slot from = inventorySlots.get(ref.containerFromSlotId);
-                        Slot to = inventorySlots.get(ref.containerToSlotId);
-                        ReferenceSlotPrompt prompt = new ReferenceSlotPromptBuilder(from, to).build(slot);
-                        prompts.add(prompt);
-                    }
+                if (inventorySlots.size() > ref.containerToSlotId && inventorySlots.size() > ref.containerFromSlotId) {
+                    Slot from = inventorySlots.get(ref.containerFromSlotId);
+                    Slot to = inventorySlots.get(ref.containerToSlotId);
+                    ReferenceSlotPrompt prompt = new ReferenceSlotPromptBuilder(from, to).build(slot);
+                    prompts.add(prompt);
                 }
-            });
+            }
         }
 
         return prompts;
@@ -390,7 +348,7 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
 
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)playerInventory.player;
 
-        int fillingIndex = 0;
+        NonNullList<ConceptResultPreviewSlotConfig> approved = NonNullList.create();
         for (int i = 0; i < propositions.size() && i < outInventories.size(); i++) {
             ConceptResultPreviewSlotConfig proposition = propositions.get(i);
             IngredientOrigin origin = proposition.result.core.origin;
@@ -400,18 +358,53 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             List<FoodItem> items = ((ByConceptOrigin) origin).items;
             Ingredient realResult = concept.core.getIngredient(items);
             if (realResult.equals(proposition.result.core)) {
-                Slot slot = inventorySlots.get(fillingIndex + FIRST_OUT_SLOT_INDEX);
+                Slot slot = inventorySlots.get(approved.size() + FIRST_OUT_SLOT_INDEX);
                 if (slot instanceof ConceptResultPreviewSlot) {
                     ((ConceptResultPreviewSlot) slot).configure(proposition);
-                    fillingIndex++;
+                    approved.add(proposition);
                 }
             }
         }
 
-        for (int i = fillingIndex; i < outInventories.size(); i++) {
+        for (int i = approved.size(); i < outInventories.size(); i++) {
             outInventories.get(i).setInventorySlotContents(0,ItemStack.EMPTY);
         }
 
-        sendOutPackages(serverPlayer);
+//        sendOutPackages(serverPlayer);
+        SConceptResultsApprovedPacket packet = new SConceptResultsApprovedPacket(windowId, conceptId, approved);
+        ModNetworking.sendToClient(packet, serverPlayer);
+    }
+
+    @Override
+    public void handleResultsApprove(String conceptId, NonNullList<ConceptResultPreviewSlotConfig> results) {
+        for (int i = 0; i < outInventories.size(); i++) {
+            Slot slot = inventorySlots.get(FIRST_OUT_SLOT_INDEX + i);
+            if (!(slot instanceof ConceptResultPreviewSlot))
+                throw new IllegalStateException("Try to use ConceptResultPreviewSlotConfig to configure not ConceptResultPreviewSlot");
+            if (i < results.size())
+                ((ConceptResultPreviewSlot) slot).configure(results.get(i));
+            else
+                ((ConceptResultPreviewSlot) slot).clear();
+        }
+    }
+
+    @Override
+    protected int getMergeInMinSlotIndex() {
+        return FIRST_CONCEPT_SLOT_INDEX;
+    }
+
+    @Override
+    protected int getMergeInMaxSlotIndex() {
+        return FIRST_CONCEPT_SLOT_INDEX + conceptSlots.size();
+    }
+
+    @Override
+    protected int getMergeOutMinSlotIndex() {
+        return FIRST_OUT_SLOT_INDEX;
+    }
+
+    @Override
+    protected int getMergeOutMaxSlotIndex() {
+        return getMergeInMaxSlotIndex();
     }
 }

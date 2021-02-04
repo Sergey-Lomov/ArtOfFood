@@ -1,6 +1,5 @@
 package artoffood.common.utils.slots;
 
-import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.capabilities.food_item.IFoodItemEntity;
 import artoffood.common.capabilities.food_tool.IFoodToolEntity;
@@ -10,10 +9,10 @@ import artoffood.common.utils.FoodToolHelper;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
+import artoffood.core.models.Concept;
+import artoffood.core.models.ConceptSlot;
 import artoffood.core.models.FoodItem;
-import artoffood.core.models.Ingredient;
 import artoffood.minebridge.models.MBConcept;
-import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import javafx.util.Pair;
@@ -30,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,6 +42,7 @@ public class ConceptResultPreviewSlot extends Slot {
     private int amountCrafted = 1;
     private final Function<Integer, @Nullable Slot> slotForContainerId;
     private final Supplier<PlayerInventory> playerInventory;
+    public NonNullList<SlotReference> references = NonNullList.create();
 
     public ConceptResultPreviewSlot(PlayerEntity player,
                                     Function<Integer, @Nullable Slot> slotForContainerId,
@@ -53,15 +54,34 @@ public class ConceptResultPreviewSlot extends Slot {
         this.playerInventory = playerInventory;
     }
 
+    public void clear() {
+        putStack(ItemStack.EMPTY);
+        references = NonNullList.create();
+    }
+
+    public void tryToRestorePreview(ItemStack result) {
+        ItemStack preview = tryToGetResult(result, false);
+        putStack(preview);
+    }
+
+    @Override
+    public void putStack(ItemStack stack) {
+        super.putStack(stack);
+    }
+
     public void configure(ConceptResultPreviewSlotConfig config) {
-        ItemStack stack = new ItemStack(ItemsRegistrator.CONCEPT_RESULT_PREVIEW_ITEM, config.resultCount);
-        stack.getCapability(ConceptResultPreviewCapability.INSTANCE).ifPresent( cap -> {
+        if (!(config.result.core.origin instanceof ByConceptOrigin)) return;
+
+        references = config.references;
+
+        ByConceptOrigin origin = (ByConceptOrigin) config.result.core.origin;
+        Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(origin.concept);
+        ItemStack stack = new ItemStack(item, config.resultCount);
+        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent( cap -> {
             cap.setIngredient(config.result);
-            cap.setReferences(config.references);
         });
         putStack(stack);
     }
-
 
     public boolean isItemValid(@NotNull ItemStack stack) {
         return false;
@@ -101,22 +121,25 @@ public class ConceptResultPreviewSlot extends Slot {
 
     @Override
     public @NotNull ItemStack onTake(@NotNull PlayerEntity thePlayer, @NotNull ItemStack stack) {
+        ItemStack result = tryToGetResult(stack, true);
+        super.onTake(player, stack);
+        return result;
+    }
 
-        AtomicReference<NonNullList<SlotReference>> atomicReferences = new AtomicReference<>(null);
+    protected @NotNull ItemStack tryToGetResult(ItemStack target, boolean decreaseStacks) {
+
         AtomicReference<MBIngredient> atomicResult = new AtomicReference<>(null);
-        stack.getCapability(ConceptResultPreviewCapability.INSTANCE).ifPresent( cap -> {
-            atomicReferences.set(cap.getReferences());
+        target.getCapability(IngredientEntityCapability.INSTANCE).ifPresent( cap -> {
             atomicResult.set(cap.getIngredient());
         });
-        if (atomicReferences.get() == null || atomicResult.get() == null) { setEmptyStack(); return ItemStack.EMPTY; }
-        if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) { setEmptyStack(); return ItemStack.EMPTY; }
+        if (atomicResult.get() == null) return ItemStack.EMPTY;
+        if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) return ItemStack.EMPTY;
 
         ByConceptOrigin origin = (ByConceptOrigin) atomicResult.get().core.origin;
-        NonNullList<SlotReference> references = atomicReferences.get();
         Map<Slot, ItemStack> futureStacks = new HashMap<>();
 
         // Check items stacks in slots is necessary ingredients. Prepare decreased stacks.
-        if (references.size() != origin.items.size()) { setEmptyStack(); return ItemStack.EMPTY; }
+        if (references.size() != origin.items.size()) return ItemStack.EMPTY;
         for (int i = 0; i < references.size(); i++) {
             SlotReference reference = references.get(i);
             FoodItem item = origin.items.get(i);
@@ -126,40 +149,34 @@ public class ConceptResultPreviewSlot extends Slot {
                 if (item.isEmpty())
                     continue;
                 else
-                    { setEmptyStack(); return ItemStack.EMPTY; }
+                    return ItemStack.EMPTY;
             }
 
             Slot fromSlot = slotForContainerId.apply(reference.containerFromSlotId);
-            if (fromSlot == null) { setEmptyStack(); return ItemStack.EMPTY; }
+            if (fromSlot == null) return ItemStack.EMPTY;
 
             ItemStack sourceStack = futureStacks.containsKey(fromSlot) ? futureStacks.get(fromSlot) : fromSlot.getStack();
             Pair<Boolean, ItemStack> futureStack = handledStack(sourceStack, item);
-            if (!futureStack.getKey()) { setEmptyStack(); return ItemStack.EMPTY; }
+            if (!futureStack.getKey()) return ItemStack.EMPTY;
             futureStacks.put(fromSlot, futureStack.getValue());
         }
 
-        // Apply calculated stacks into slots
-        for (Slot slot: futureStacks.keySet()) {
-            slot.inventory.setInventorySlotContents(slot.getSlotIndex(), futureStacks.get(slot));
+        if (decreaseStacks) {
+            // Apply calculated stacks into slots
+            for (Slot slot : futureStacks.keySet()) {
+                slot.inventory.setInventorySlotContents(slot.getSlotIndex(), futureStacks.get(slot));
+            }
         }
 
         // Create result - concept result item stack, without preview info (slots refs)
-        MBConcept bridgeConcept = MBConceptsRegister.CONCEPT_BY_CORE.get(origin.concept);
-        Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(bridgeConcept);
+        Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(origin.concept);
         int count = origin.concept.resultsCount(origin.items);
         ItemStack result = new ItemStack(item, count);
         result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                 cap -> cap.setIngredient(atomicResult.get())
         );
 
-        super.onTake(player, stack);
-
-        playerInventory.get().setItemStack(result);
         return result;
-    }
-
-    private void setEmptyStack() {
-        playerInventory.get().setItemStack(ItemStack.EMPTY);
     }
 
     private Pair<Boolean, ItemStack> handledStack(ItemStack source, FoodItem item) {

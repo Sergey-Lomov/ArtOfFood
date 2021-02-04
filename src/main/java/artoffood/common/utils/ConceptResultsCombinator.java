@@ -120,9 +120,8 @@ public class ConceptResultsCombinator {
         Map<ConceptResultPreviewSlotConfig, List<FoodItem>> resultsFoodItems = new HashMap<>();
 
         for (NonNullList<Optional<Slot>> combination: combinations) {
-            // TODO: Decomment optimisation after threading testing
-//            if (results.size() >= input.resultsLimit)
-//                return results;
+            if (results.size() >= input.resultsLimit)
+                return results;
 
             List<MBFoodItem> mbFoodItems = combinationFoodItems(combination);
             List<FoodItem> items = mbFoodItems.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());

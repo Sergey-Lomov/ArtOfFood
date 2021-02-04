@@ -9,11 +9,10 @@ import artoffood.client.screens.slot_prompt.ReferenceSlotPrompt;
 import artoffood.client.screens.slot_prompt.StubSlotPrompt;
 import artoffood.client.screens.slot_prompt.TextSlotPrompt;
 import artoffood.client.screens.slot_prompt.rendering.*;
-import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewCapability;
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
+import artoffood.common.capabilities.food_tool.FoodToolEntityCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.capabilities.slots_refs.SlotsRefsProviderCapability;
 import artoffood.common.items.FoodIngredientItem;
-import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.utils.resgistrators.BlocksRegistrator;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
@@ -92,9 +91,8 @@ public class ArtOfFood
 
     private void setup(final FMLCommonSetupEvent event)
     {
+        FoodToolEntityCapability.register();
         IngredientEntityCapability.register();
-        SlotsRefsProviderCapability.register();
-        ConceptResultPreviewCapability.register();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {

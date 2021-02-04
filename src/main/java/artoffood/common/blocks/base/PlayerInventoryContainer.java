@@ -1,6 +1,7 @@
 package artoffood.common.blocks.base;
 
 import artoffood.client.screens.Constants;
+import artoffood.common.utils.slots.ConceptResultPreviewSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -18,7 +19,6 @@ public abstract class PlayerInventoryContainer extends Container  {
 
     protected static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
     protected static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    protected static final int TE_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     public static final int HOTBAR_Y_DISPLACEMENT = 58;
 
@@ -46,7 +46,12 @@ public abstract class PlayerInventoryContainer extends Container  {
         }
     }
 
-    protected abstract int getTESlotsCount();
+    protected int getPlayerMinSlotIndex() { return VANILLA_FIRST_SLOT_INDEX; };
+    protected int getPlayerMaxSlotIndex() { return VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT; };
+    protected abstract int getMergeInMinSlotIndex();
+    protected abstract int getMergeInMaxSlotIndex();
+    protected abstract int getMergeOutMinSlotIndex();
+    protected abstract int getMergeOutMaxSlotIndex();
 
     @Override
     public @NotNull ItemStack transferStackInSlot(@NotNull PlayerEntity playerEntity, int sourceSlotIndex)
@@ -56,25 +61,30 @@ public abstract class PlayerInventoryContainer extends Container  {
         ItemStack sourceStack = sourceSlot.getStack();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
-        if (sourceSlotIndex >= VANILLA_FIRST_SLOT_INDEX && sourceSlotIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (!mergeItemStack(sourceStack, TE_FIRST_SLOT_INDEX, TE_FIRST_SLOT_INDEX + getTESlotsCount(), false)){
-                return ItemStack.EMPTY;  // EMPTY_ITEM
+        if (sourceSlotIndex >= getPlayerMinSlotIndex() && sourceSlotIndex < getPlayerMaxSlotIndex()) {
+            if (!mergeItemStack(sourceStack, getMergeInMinSlotIndex(), getMergeInMaxSlotIndex(), false)){
+                return ItemStack.EMPTY;
             }
-        } else if (sourceSlotIndex >= TE_FIRST_SLOT_INDEX && sourceSlotIndex < TE_FIRST_SLOT_INDEX + getTESlotsCount()) {
-            if (!mergeItemStack(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+        } else if (sourceSlotIndex >= getMergeOutMinSlotIndex() && sourceSlotIndex < getMergeOutMaxSlotIndex()) {
+            if (!mergeItemStack(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, true)) {
                 return ItemStack.EMPTY;
             }
         } else {
             return ItemStack.EMPTY;
         }
 
-        if (sourceStack.getCount() == 0) {
-            sourceSlot.putStack(ItemStack.EMPTY);
+        boolean takeFailed = sourceSlot.onTake(playerEntity, copyOfSourceStack).isEmpty();
+
+        if (sourceSlot instanceof ConceptResultPreviewSlot) {
+            ((ConceptResultPreviewSlot) sourceSlot).tryToRestorePreview(copyOfSourceStack);
         } else {
-            sourceSlot.onSlotChanged();
+            if (sourceStack.getCount() == 0) {
+                sourceSlot.putStack(ItemStack.EMPTY);
+            } else {
+                sourceSlot.onSlotChanged();
+            }
         }
 
-        boolean takeFailed = sourceSlot.onTake(playerEntity, copyOfSourceStack).isEmpty();
         return takeFailed ? ItemStack.EMPTY : copyOfSourceStack;
     }
 }

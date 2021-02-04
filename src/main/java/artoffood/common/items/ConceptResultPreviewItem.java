@@ -1,6 +1,5 @@
 package artoffood.common.items;
 
-import artoffood.common.capabilities.concept_result_preview.ConceptResultPreviewProvider;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
-
+/*
 public class ConceptResultPreviewItem extends ConceptResultItem {
 
     public ConceptResultPreviewItem(Properties properties) {
@@ -34,3 +33,4 @@ public class ConceptResultPreviewItem extends ConceptResultItem {
         // TODO: This stub prevent result preview details showing. Should be removed, when problem related to craft slots and inventory overlapping will be resolved.
     }
 }
+*/

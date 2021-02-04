@@ -3,7 +3,6 @@ package artoffood.client.screens;
 import artoffood.ArtOfFood;
 import artoffood.client.utils.Texture;
 import artoffood.minebridge.registries.MBConceptsRegister;
-import artoffood.minebridge.registries.MBProcessingsRegister;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -40,7 +39,7 @@ public class Textures {
         }
 
         static {
-            register(MBConceptsRegister.PROCESSINGS.conceptId, 0, 0);
+            register(MBConceptsRegister.COUNTERTOP_PROCESSINGS.conceptId, 0, 0);
             register(MBConceptsRegister.BLENDY_SALTY_SALAD.conceptId, 1, 0);
         }
 

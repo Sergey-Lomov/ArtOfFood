@@ -1,10 +1,7 @@
 package artoffood.networking;
 
 import artoffood.ArtOfFood;
-import artoffood.networking.packets.CProposeConceptResultsPacket;
-import artoffood.networking.packets.CUpdateConceptPacket;
-import artoffood.networking.packets.SConceptResultsProposesRequest;
-import artoffood.networking.packets.SSetConceptResultSlotPacket;
+import artoffood.networking.packets.*;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -54,6 +51,12 @@ public class ModNetworking {
                 .encoder(CProposeConceptResultsPacket::writePacketData)
                 .decoder(CProposeConceptResultsPacket::new)
                 .consumer(CProposeConceptResultsPacket::processPacket)
+                .add();
+
+        INSTANCE.messageBuilder(SConceptResultsApprovedPacket.class, nextId())
+                .encoder(SConceptResultsApprovedPacket::writePacketData)
+                .decoder(SConceptResultsApprovedPacket::new)
+                .consumer(SConceptResultsApprovedPacket::processPacket)
                 .add();
     }
 

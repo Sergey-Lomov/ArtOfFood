@@ -3,7 +3,6 @@ package artoffood.common.utils.resgistrators;
 import artoffood.ArtOfFood;
 import artoffood.client.utils.ModItemGroup;
 import artoffood.common.items.ConceptResultItem;
-import artoffood.common.items.ConceptResultPreviewItem;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.core.models.Concept;
@@ -30,8 +29,7 @@ public class ItemsRegistrator {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ArtOfFood.MOD_ID);
 
-    public static final ConceptResultPreviewItem CONCEPT_RESULT_PREVIEW_ITEM = new ConceptResultPreviewItem(new Item.Properties().maxStackSize(64));
-    public static final Map<MBConcept, ConceptResultItem> CONCEPT_RESULT_ITEM = new HashMap<>();
+    public static final Map<Concept, ConceptResultItem> CONCEPT_RESULT_ITEM = new HashMap<>();
 
     public static final Item ITEM_GROUP_AMBASADOR = new PrototypedIngredientItem(
             MBIngredientPrototypesRegister.CABBAGE,
@@ -40,10 +38,6 @@ public class ItemsRegistrator {
     public static final Item PROCESSINGS_AMBASADOR = new FoodToolItem(
             MBFoodToolsRegister.OBSIDIAN_KNIFE,
             new Item.Properties().group(ModItemGroup.instance));
-
-    static {
-        ITEMS.register("concept_preview_result", () -> CONCEPT_RESULT_PREVIEW_ITEM);
-    }
 
     public static void registerBlockItem(String name, Block block, int stackSize) {
         Item.Properties properties = new Item.Properties().maxStackSize(stackSize).group(ModItemGroup.instance);
@@ -56,7 +50,7 @@ public class ItemsRegistrator {
             Item.Properties properties = new Item.Properties().maxStackSize(concept.resultStackSize);
             ConceptResultItem item = new ConceptResultItem(properties);
             ITEMS.register(CONCEPT_RESULT_PREFIX + concept.conceptId, () -> item);
-            CONCEPT_RESULT_ITEM.put(concept, item);
+            CONCEPT_RESULT_ITEM.put(concept.core, item);
         }
     }
 

@@ -25,10 +25,10 @@
   "taste.bitterness": "Bitterness",
   "taste.umami": "Umami",
 
-  "prototypes/cabbage": "Cabbage",
-  "prototypes/tomato": "Tomato",
-  "prototypes/sunflower_oil": "Sunflower Oil",
-  "prototypes/rock_salt": "Rock salt",
+  "prototypes.cabbage": "Cabbage",
+  "prototypes.tomato": "Tomato",
+  "prototypes.sunflower_oil": "Sunflower Oil",
+  "prototypes.rock_salt": "Rock salt",
 
   "concepts.title.processings_concept": "Processings",
   "concepts.title.blendy_salty_salad": "Common salad",

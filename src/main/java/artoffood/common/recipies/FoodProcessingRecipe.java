@@ -1,12 +1,17 @@
 package artoffood.common.recipies;
 
+import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.utils.FoodToolHelper;
 import artoffood.common.utils.ModInventoryHelper;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
+import artoffood.core.models.FoodItem;
+import artoffood.minebridge.models.MBFoodItem;
+import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBProcessing;
+import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.registries.MBProcessingsRegister;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.CraftingInventory;
@@ -22,7 +27,10 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FoodProcessingRecipe implements ICraftingRecipe {
 
@@ -96,14 +104,9 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     @Override
     public @NotNull ItemStack getCraftingResult (@NotNull CraftingInventory inv) {
         ItemStack ingredient = ingredient(inv);
+        ItemStack tool = tool(inv);
         if (ingredient != null)
-            return processedStack(ingredient);
-        return ItemStack.EMPTY;
-    }
-
-    public @NotNull ItemStack getCraftingResult (@NotNull ItemStack ingredient, @Nullable ItemStack tool) {
-        if (verifyTool(tool) && verifyIngredient(ingredient))
-            return processedStack(ingredient);
+            return processedStack(ingredient, tool);
         return ItemStack.EMPTY;
     }
 
@@ -161,11 +164,19 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         return new ItemStack(ItemsRegistrator.PROCESSINGS_AMBASADOR);
     }
 
-    private ItemStack processedStack(ItemStack source) {
-        ItemStack result = source.copy();
-        result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                c -> c.applyProcessing(processing)
-        );
+    private ItemStack processedStack(ItemStack ingredient, ItemStack tool) {
+        AtomicReference<MBFoodItem> toolItem = new AtomicReference<>(null);
+        tool.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent( c -> toolItem.set(c.getFoodItem()));
+        //AtomicReference<MBFoodItem> ingredientItem = new AtomicReference<>(null);
+
+        ItemStack result = ingredient.copy();
+        result.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent( c -> {
+            List<MBFoodItem> items = new ArrayList<MBFoodItem>() {{ add(c.getFoodItem()); }};
+            if (toolItem.get() != null) items.add(toolItem.get());
+            MBIngredient resultIngredient = MBConceptsRegister.COUNTERTOP_PROCESSINGS.getIngredient(items);
+            c.setFoodItem(resultIngredient);
+        });
+
         result.setCount(outputCount);
         return result;
     }

@@ -15,6 +15,9 @@ public class DefaultFoodToolEntity implements IFoodToolEntity {
 
     @Override
     public void setTool(@Nullable MBFoodTool tool) {
-        this.tool = tool;
+        if (tool != null)
+            this.tool = tool;
+        else
+            this.tool = MBFoodTool.EMPTY;
     }
 }
