@@ -7,11 +7,12 @@ public class FoodTag implements Comparable<FoodTag> {
     private static Integer currentId = 0;
 
     private final Integer id = currentId;
-    Boolean isVisible = true;
-    FoodTagCategory[] categories;
+    public final Boolean isVisible;
+    final FoodTagCategory[] categories;
 
     public FoodTag(FoodTagCategory[] categories) {
         this.categories = categories;
+        this.isVisible = true;
         currentId++;
     }
 

@@ -10,9 +10,9 @@ public class FoodTagsRegister {
 
     public static List<FoodTag> ALL = new ArrayList<>();
 
-    public static final FoodTag EMPTY = register(FoodTagCategory.ITEM_TYPES);
-    public static final FoodTag INGREDIENT = register(FoodTagCategory.ITEM_TYPES);
-    public static final FoodTag TOOL = register(FoodTagCategory.ITEM_TYPES);
+    public static final FoodTag EMPTY = register(false, FoodTagCategory.ITEM_TYPES);
+    public static final FoodTag INGREDIENT = register(false, FoodTagCategory.ITEM_TYPES);
+    public static final FoodTag TOOL = register(false, FoodTagCategory.ITEM_TYPES);
 
     public static final FoodTag SALTY = register(FoodTagCategory.TASTE);
     public static final FoodTag SWEET = register(FoodTagCategory.TASTE);
@@ -46,7 +46,7 @@ public class FoodTagsRegister {
     }
 
     private static FoodTag register(boolean isVisible, FoodTagCategory ... categories) {
-        FoodTag tag = new FoodTag(categories);
+        FoodTag tag = new FoodTag(isVisible, categories);
         ALL.add(tag);
         return tag;
     }

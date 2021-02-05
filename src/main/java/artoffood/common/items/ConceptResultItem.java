@@ -18,7 +18,6 @@ public class ConceptResultItem extends FoodIngredientItem {
     @Nullable
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
-//        return new ConceptResultPreviewProvider(nbt);
         if (nbt != null)
             return new IngredientEntityProvider(IngredientNBTConverter.read(nbt));
         else

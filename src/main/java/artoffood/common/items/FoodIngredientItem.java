@@ -30,7 +30,7 @@ public class FoodIngredientItem extends Item {
     }
 
     @Override
-    public ITextComponent getDisplayName(ItemStack stack) {
+    public @NotNull ITextComponent getDisplayName(ItemStack stack) {
         AtomicReference<String> name = new AtomicReference<>(null);
         stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                 cap -> name.set(getDisaplayName(cap.getIngredient().core))
@@ -61,21 +61,19 @@ public class FoodIngredientItem extends Item {
 
         AtomicReference<MBIngredient> ingredient = new AtomicReference<>(MBIngredient.EMPTY);
         stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                c -> {
-                    ingredient.set(c.getIngredient());
-                }
+                c -> ingredient.set(c.getIngredient())
         );
 
         if (ingredient.get() == MBIngredient.EMPTY) return;
 
         List<String> taste = MBIngredientHelper.tasteDescription(ingredient.get());
         if (!taste.isEmpty()) {
-            taste.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
+            taste.forEach( t -> tooltip.add( new StringTextComponent(t)));
         }
 
         List<String> tags = MBIngredientHelper.tagsDescription(ingredient.get());
         if (!tags.isEmpty()) {
-            tags.forEach( t -> { tooltip.add( new StringTextComponent(t)); });
+            tags.forEach( t -> tooltip.add( new StringTextComponent(t)));
         }
     }
 }
