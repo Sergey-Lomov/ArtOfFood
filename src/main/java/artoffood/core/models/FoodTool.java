@@ -1,9 +1,11 @@
 package artoffood.core.models;
 
 import artoffood.core.registries.FoodTagsRegister;
+import artoffood.core.registries.FoodToolsRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FoodTool extends FoodItem {
 
@@ -43,5 +45,12 @@ public class FoodTool extends FoodItem {
     @Override
     public FoodItem clone() {
         return new FoodTool(functionals);
+    }
+
+    @Override
+    protected int craftPriority() {
+        if (FoodToolsRegister.ALL.contains(this))
+            return Integer.MAX_VALUE - FoodToolsRegister.ALL.indexOf(this);
+        return 0;
     }
 }

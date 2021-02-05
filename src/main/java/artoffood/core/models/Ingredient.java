@@ -21,6 +21,8 @@ public class Ingredient extends FoodItem {
     // TODO: Implement eating of edible ingredients
     public boolean edible;
 
+    private Integer craftPriority = null;
+
     public Ingredient(IngredientOrigin origin,
                       Nutritional nutritional,
                       Taste taste,
@@ -103,5 +105,14 @@ public class Ingredient extends FoodItem {
         hedonismScore = prototype.hedonismScore;
         edible = prototype.edible;
         setTags(new ArrayList<>(prototype.tags));
+    }
+
+    @Override
+    protected int craftPriority() {
+        if (craftPriority != null)
+            return craftPriority;
+
+        craftPriority = origin.craftPriority();
+        return craftPriority;
     }
 }

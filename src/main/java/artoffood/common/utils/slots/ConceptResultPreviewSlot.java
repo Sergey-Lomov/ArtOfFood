@@ -6,6 +6,7 @@ import artoffood.common.capabilities.food_tool.IFoodToolEntity;
 import artoffood.common.capabilities.ingredient.IIngredientEntity;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.utils.FoodToolHelper;
+import artoffood.common.utils.IngredientFactory;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
@@ -168,15 +169,7 @@ public class ConceptResultPreviewSlot extends Slot {
             }
         }
 
-        // Create result - concept result item stack, without preview info (slots refs)
-        Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(origin.concept);
-        int count = origin.concept.resultsCount(origin.items);
-        ItemStack result = new ItemStack(item, count);
-        result.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                cap -> cap.setIngredient(atomicResult.get())
-        );
-
-        return result;
+        return IngredientFactory.createStack(origin.concept, origin.items, atomicResult.get());
     }
 
     private Pair<Boolean, ItemStack> handledStack(ItemStack source, FoodItem item) {

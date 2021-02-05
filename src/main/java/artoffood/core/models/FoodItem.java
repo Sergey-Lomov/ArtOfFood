@@ -23,6 +23,11 @@ public abstract class FoodItem {
         protected List<FoodTag> typeTags() {
             return new ArrayList<FoodTag>() {{ add(FoodTagsRegister.EMPTY); }};
         }
+
+        @Override
+        protected int craftPriority() {
+            return 0;
+        }
     };
 
     private @NotNull List<FoodTag> tags = new ArrayList<>();
@@ -45,4 +50,7 @@ public abstract class FoodItem {
     public abstract boolean isEmpty();
     public abstract FoodItem clone();
     protected abstract List<FoodTag> typeTags();
+
+    // TODO: Craft priority system disabled. This code (included derived classes) should be removed, if this system still be not necessary
+    protected abstract int craftPriority();
 }

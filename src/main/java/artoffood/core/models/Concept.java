@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public abstract class Concept {
 
@@ -100,6 +101,25 @@ public abstract class Concept {
 
         return true;
     }
+
+    // TODO: Craft priority system disabled. This code should be removed, if this system still be not necessary
+/*    protected List<FoodItem> sortItems(@NotNull List<FoodItem> items) {
+        List<FoodItem> sorted = new ArrayList<>(items.size());
+        List<Integer> usedIndexes = new ArrayList<>(items.size());
+
+        for (int iter = 0; iter < items.size(); iter++) {
+            FoodItem sourceItem = items.get(iter);
+            int slotGroup = slots.get(iter).groupId;
+            IntStream groupIdexes = IntStream.range(0, items.size()).filter(i -> slots.get(i).groupId == slotGroup);
+            IntStream avaialbleIdexes = groupIdexes.filter(i -> !usedIndexes.contains(i));
+            Stream<FoodItem> availableItems = avaialbleIdexes.mapToObj(i -> items.get(i));
+            FoodItem sortedItem = availableItems.sorted(Comparator.comparing(FoodItem::craftPriority)).findFirst().get();
+            sorted.add(sortedItem);
+            usedIndexes.add(items.indexOf(sortedItem));
+        }
+
+        return sorted;
+    }*/
 
     public boolean isSimilarFoodItems(@NotNull List<FoodItem> i1, @NotNull List<FoodItem> i2) {
         if (i1.size() != i2.size() || i1.size() != slots.size()) return false;

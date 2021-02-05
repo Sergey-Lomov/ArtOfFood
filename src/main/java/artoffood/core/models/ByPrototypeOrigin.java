@@ -26,4 +26,12 @@ public class ByPrototypeOrigin implements IngredientOrigin {
     public IngredientOrigin clone() {
         return new ByPrototypeOrigin(prototype);
     }
+
+    @Override
+    public int craftPriority() {
+        if (IngredientPrototypesRegister.ALL.contains(this))
+            return IngredientPrototypesRegister.ALL.indexOf(this);
+
+        return 0;
+    }
 }

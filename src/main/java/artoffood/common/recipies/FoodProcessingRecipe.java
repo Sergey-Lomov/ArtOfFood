@@ -5,9 +5,11 @@ import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.PrototypedIngredientItem;
 import artoffood.common.items.FoodToolItem;
 import artoffood.common.utils.FoodToolHelper;
+import artoffood.common.utils.IngredientFactory;
 import artoffood.common.utils.ModInventoryHelper;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.FoodItem;
+import artoffood.core.registries.ConceptsRegister;
 import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBProcessing;
@@ -16,6 +18,7 @@ import artoffood.minebridge.registries.MBProcessingsRegister;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraft.network.PacketBuffer;
@@ -35,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class FoodProcessingRecipe implements ICraftingRecipe {
 
     private final MBProcessing processing;
-    private final int outputCount;
     private final ResourceLocation id;
 
     private @Nullable ItemStack ingredient(IInventory inv) {
@@ -54,11 +56,10 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
         return null;
     }
 
-    public FoodProcessingRecipe(ResourceLocation id, MBProcessing processing, int outputCount) {
+    public FoodProcessingRecipe(ResourceLocation id, MBProcessing processing) {
 
         this.id = id;
         this.processing = processing;
-        this.outputCount = outputCount;
     }
 
     @Override
@@ -167,24 +168,22 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
     private ItemStack processedStack(ItemStack ingredient, ItemStack tool) {
         AtomicReference<MBFoodItem> toolItem = new AtomicReference<>(null);
         tool.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent( c -> toolItem.set(c.getFoodItem()));
-        //AtomicReference<MBFoodItem> ingredientItem = new AtomicReference<>(null);
+        AtomicReference<ItemStack> result = new AtomicReference<>(null);
 
-        ItemStack result = ingredient.copy();
-        result.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent( c -> {
+        ingredient.getCapability(FoodItemEntityCapability.INSTANCE).ifPresent( c -> {
             List<MBFoodItem> items = new ArrayList<MBFoodItem>() {{ add(c.getFoodItem()); }};
             if (toolItem.get() != null) items.add(toolItem.get());
-            MBIngredient resultIngredient = MBConceptsRegister.COUNTERTOP_PROCESSINGS.getIngredient(items);
-            c.setFoodItem(resultIngredient);
+
+            ItemStack resultStack = IngredientFactory.createStack(MBConceptsRegister.COUNTERTOP_PROCESSINGS, items);
+            result.set(resultStack);
         });
 
-        result.setCount(outputCount);
-        return result;
+        return result.get() != null ? result.get() : ItemStack.EMPTY;
     }
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FoodProcessingRecipe> {
 
         public static final String processingIdKey = "processing";
-        public static final String outputCountKey = "output_count";
 
         @Override
         public @NotNull FoodProcessingRecipe read (@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
@@ -192,34 +191,30 @@ public class FoodProcessingRecipe implements ICraftingRecipe {
             final String processingId = JSONUtils.getString(json, processingIdKey);
             final MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_ID.get(processingId);
 
-            final int outputCount = json.has(outputCountKey) ? JSONUtils.getInt(json, outputCountKey) : 1;
-
             if (processing == null) {
                 throw new IllegalStateException("Try to parse processing recipe with unknown processing id");
             }
 
-            return new FoodProcessingRecipe(recipeId, processing, outputCount);
+            return new FoodProcessingRecipe(recipeId, processing);
         }
 
         @Override
         public FoodProcessingRecipe read (@NotNull ResourceLocation recipeId, PacketBuffer buffer) {
 
             final String processingId = buffer.readString();
-            final int outputCount = buffer.readInt();
             final MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_ID.get(processingId);
 
             if (processing == null) {
                 throw new IllegalStateException("Try to read processing recipe with unknown processing id");
             }
 
-            return new FoodProcessingRecipe(recipeId, processing, outputCount);
+            return new FoodProcessingRecipe(recipeId, processing);
         }
 
         @Override
         public void write (PacketBuffer buffer, FoodProcessingRecipe recipe) {
 
             buffer.writeString(recipe.processing.id);
-            buffer.writeInt(recipe.outputCount);
         }
     }
 }

@@ -1,5 +1,6 @@
 package artoffood.core.models;
 
+import artoffood.core.registries.IngredientPrototypesRegister;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,6 +17,9 @@ public class ByConceptOrigin implements IngredientOrigin {
             throw new IllegalStateException("Try to create ingredient origin by concept with not matches items");
 
         this.concept = concept;
+
+
+
         this.items = items;
     }
 
@@ -53,5 +57,14 @@ public class ByConceptOrigin implements IngredientOrigin {
     public IngredientOrigin clone() {
         List<FoodItem> itemsCopy = items.stream().map(i -> i.clone()).collect(Collectors.toList());
         return new ByConceptOrigin(concept, itemsCopy);
+    }
+
+    @Override
+    public int craftPriority() {
+        int totalPrototype = IngredientPrototypesRegister.ALL.size();
+        int priority = totalPrototype;
+        for (int i = 0; i < items.size(); i++)
+            priority += Math.pow(totalPrototype, i) * items.get(i).craftPriority();
+        return priority;
     }
 }
