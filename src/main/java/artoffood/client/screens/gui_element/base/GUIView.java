@@ -2,7 +2,6 @@ package artoffood.client.screens.gui_element.base;
 
 import artoffood.client.utils.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -42,9 +41,15 @@ public class GUIView extends AbstractGui {
 
     public Consumer<GUIView> parentFrameUpdateHandler = v -> {};
 
+    public boolean isHidden = false;
 
     public GUIView(int x, int y, int width, int height) {
         this.frame = new Rectangle(x, y, width, height);
+        handleFrameUpdate();
+    }
+
+    public GUIView(Rectangle frame) {
+        this.frame = new Rectangle(frame);
         handleFrameUpdate();
     }
 
@@ -108,8 +113,6 @@ public class GUIView extends AbstractGui {
             GUIView child = childs.stream().findFirst().get();
             removeChild(child);
         }
-        if (!childs.isEmpty())
-            childs.forEach(c -> removeChild(c));
     }
 
     public void addChild(GUIView child) {
@@ -125,6 +128,8 @@ public class GUIView extends AbstractGui {
     // Controls events handling
 
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (isHidden) return false;
+
         for (GUIView child: childs) {
             if (child.mouseScrolled(mouseX, mouseY, delta))
                 return true;
@@ -134,6 +139,8 @@ public class GUIView extends AbstractGui {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (isHidden) return false;
+
         for (GUIView child: childs) {
             if (child.mouseClicked(mouseX, mouseY, button))
                 return true;
@@ -143,6 +150,8 @@ public class GUIView extends AbstractGui {
     }
 
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (isHidden) return false;
+
         for (GUIView child: childs) {
             if (child.mouseDragged(mouseX, mouseY, button, dragX, dragY))
                     return true;
@@ -152,6 +161,8 @@ public class GUIView extends AbstractGui {
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (isHidden) return false;
+
         for (GUIView child: childs) {
             if (child.mouseReleased(mouseX, mouseY, button))
                 return true;
@@ -167,6 +178,8 @@ public class GUIView extends AbstractGui {
     // Rendering
 
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
+        if (isHidden) return;
+
         preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
         childsRender(matrixStack, mouseX, mouseY, partialTicks, transformedParent);
         postChildsRender(matrixStack, mouseX, mouseY, partialTicks);
@@ -176,7 +189,7 @@ public class GUIView extends AbstractGui {
         if (backColor != null)
             fill(matrixStack, contentFrame.x, contentFrame.y, (int)contentFrame.getMaxX(), (int)contentFrame.getMaxY(), backColor);
         renderBorder(matrixStack);
-    };
+    }
 
     protected void childsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
         final Vector4f positionVector = new Vector4f(contentFrame.x, contentFrame.y, 0, 1);
@@ -191,7 +204,7 @@ public class GUIView extends AbstractGui {
         configInnerScissor(matrixStack, intersection);
         childs.forEach(c -> renderChild(c, matrixStack, mouseX, mouseY, partialTicks, intersection));
         GL11.glPopAttrib();
-    };
+    }
 
     protected void renderChild(GUIView child, @NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
         child.render(matrixStack, mouseX, mouseY, partialTicks, transformedParent);

@@ -26,6 +26,12 @@ public class LocalisationManager {
         public static String umami() { return I18n.format("taste.umami"); }
     }
 
+    public static class Nutritional {
+
+        public static String calorie() { return I18n.format("nutritional.calorie"); }
+        public static String digestibility() { return I18n.format("nutritional.digestibility"); }
+    }
+
     public static class Inventories {
 
         public static String kitchen_drawer() { return I18n.format("inventories.kitchen_drawer"); }

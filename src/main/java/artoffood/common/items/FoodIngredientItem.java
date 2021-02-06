@@ -8,7 +8,7 @@ import artoffood.minebridge.models.MBIngredientPrototype;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.registries.MBIngredientPrototypesRegister;
 import artoffood.minebridge.utils.LocalisationManager;
-import artoffood.minebridge.utils.MBIngredientHelper;
+import artoffood.minebridge.utils.MBIngredientDescriptionHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -33,23 +33,10 @@ public class FoodIngredientItem extends Item {
     public @NotNull ITextComponent getDisplayName(ItemStack stack) {
         AtomicReference<String> name = new AtomicReference<>(null);
         stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                cap -> name.set(getDisaplayName(cap.getIngredient().core))
+                cap -> name.set(MBIngredientDescriptionHelper.title(cap.getIngredient()))
         );
 
         return name.get() != null ? new StringTextComponent(name.get()) : super.getDisplayName(stack);
-    }
-
-    protected String getDisaplayName(Ingredient ingredient) {
-        if (ingredient.origin instanceof ByPrototypeOrigin) {
-            IngredientPrototype coreType = ((ByPrototypeOrigin) ingredient.origin).prototype;
-            MBIngredientPrototype type = MBIngredientPrototypesRegister.PROTOTYPE_BY_CORE.get(coreType);
-            return LocalisationManager.prototypeTitle(type.prototypeId);
-        } else if (ingredient.origin instanceof ByConceptOrigin) {
-            Concept coreConcept = ((ByConceptOrigin) ingredient.origin).concept;
-            MBConcept concept = MBConceptsRegister.CONCEPT_BY_CORE.get(coreConcept);
-            return LocalisationManager.conceptTitle(concept.conceptId);
-        } else
-            throw new IllegalStateException("Try to get display name for ingredient with unsupported origin type");
     }
 
     @Override
@@ -66,12 +53,17 @@ public class FoodIngredientItem extends Item {
 
         if (ingredient.get() == MBIngredient.EMPTY) return;
 
-        List<String> taste = MBIngredientHelper.tasteDescription(ingredient.get());
+        List<String> nutritional = MBIngredientDescriptionHelper.nutritionalDescription(ingredient.get());
+        if (!nutritional.isEmpty()) {
+            nutritional.forEach( t -> tooltip.add( new StringTextComponent(t)));
+        }
+
+        List<String> taste = MBIngredientDescriptionHelper.tasteDescription(ingredient.get());
         if (!taste.isEmpty()) {
             taste.forEach( t -> tooltip.add( new StringTextComponent(t)));
         }
 
-        List<String> tags = MBIngredientHelper.tagsDescription(ingredient.get());
+        List<String> tags = MBIngredientDescriptionHelper.tagsDescription(ingredient.get());
         if (!tags.isEmpty()) {
             tags.forEach( t -> tooltip.add( new StringTextComponent(t)));
         }

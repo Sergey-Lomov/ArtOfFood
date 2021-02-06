@@ -33,14 +33,7 @@ public class FoodTagsRegister {
     public static final FoodTag OIL = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
 
     public static final FoodTag SALAD = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
-/*
-    public static FoodTag CONTENTS_VEGETABLE = register(false, FoodTagCategory.CONTENT);
-    public static FoodTag CONTENTS_SEAFOOD = register(false,FoodTagCategory.CONTENT);
-    public static FoodTag CONTENTS_MEAT = register(false,FoodTagCategory.CONTENT);
-    public static FoodTag CONTENTS_OIL = register(false,FoodTagCategory.CONTENT);
-    public static FoodTag CONTENTS_SOUCE = register(false,FoodTagCategory.CONTENT);
-    public static FoodTag SPICED = register(false,FoodTagCategory.CONTENT);
-*/
+
     private static FoodTag register(FoodTagCategory ... categories) {
         return register(true, categories);
     }

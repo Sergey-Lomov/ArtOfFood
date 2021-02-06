@@ -3,12 +3,16 @@ package artoffood.client.screens;
 import artoffood.client.screens.gui_element.ConceptCellViewModel;
 import artoffood.client.screens.gui_element.ConceptListCell;
 import artoffood.client.screens.gui_element.ConceptSlotsView;
+import artoffood.client.screens.gui_element.IngredientInfoView;
 import artoffood.client.screens.gui_element.base.GUIListCell;
 import artoffood.client.screens.gui_element.base.GUITextureView;
 import artoffood.client.screens.gui_element.base.GUIVerticalList;
 import artoffood.client.screens.gui_element.base.GUIView;
 import artoffood.common.blocks.devices.countertop.CountertopContainer;
+import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
+import artoffood.common.utils.slots.ConceptResultPreviewSlot;
 import artoffood.minebridge.models.MBConcept;
+import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.utils.LocalisationManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -39,6 +43,7 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     private GUIView screenView;
     private GUIVerticalList conceptsList;
     private ConceptSlotsView conceptView;
+    private IngredientInfoView previewInfoView;
 
     public CountertopScreen(CountertopContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
@@ -68,9 +73,12 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         backgroundView.setBorderWidth(0);
         backgroundView.texture = Textures.Screens.COUNTERTOP_BACK;
 
+        previewInfoView = new IngredientInfoView(CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
+
         screenView.addChild(backgroundView);
         screenView.addChild(conceptsList);
         screenView.addChild(conceptView);
+        screenView.addChild(previewInfoView);
     }
 
     @Override
@@ -78,7 +86,20 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         this.renderBackground(matrixStack);
         screenView.render(matrixStack, mouseX, mouseY, partialTicks, null);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
+
+        if (hoveredSlot instanceof ConceptResultPreviewSlot) {
+            hoveredSlot.getStack().getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                    cap -> showPreviewInfo(cap.getIngredient())
+            );
+        } else {
+            previewInfoView.isHidden = true;
+            renderHoveredTooltip(matrixStack, mouseX, mouseY);
+        }
+    }
+
+    private void showPreviewInfo(MBIngredient preview) {
+        previewInfoView.setIngredient(preview);
+        previewInfoView.isHidden = false;
     }
 
     @Override
