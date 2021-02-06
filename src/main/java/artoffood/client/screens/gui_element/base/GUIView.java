@@ -29,10 +29,10 @@ public class GUIView extends AbstractGui {
     private Rectangle frame;
     protected Rectangle absoluteFrame;
     protected Rectangle contentFrame;
-    private int leftBorderWidth = 1;
-    private int rightBorderWidth = 1;
-    private int topBorderWidth = 1;
-    private int bottomBorderWidth = 1;
+    protected int leftBorderWidth = 1;
+    protected int rightBorderWidth = 1;
+    protected int topBorderWidth = 1;
+    protected int bottomBorderWidth = 1;
 
     public @Nullable Integer backColor = null;
     public int topLeftBorderColor = Color.decode("#373737").getRGB();
@@ -239,7 +239,7 @@ public class GUIView extends AbstractGui {
         Minecraft.getInstance().textureManager.bindTexture(texture.atlas.resource);
         final int width = Math.min(texture.uWidth, inFrame.width);
         final int height = Math.min(texture.vHeight, inFrame.height);
-        blit(matrixStack, inFrame.x, inFrame.y, texture.uOffset, texture.vOffset, width, height, texture.atlas.width, texture.atlas.height);
+        blit(matrixStack, inFrame.x, inFrame.y, inFrame.width, inFrame.height, texture.uOffset, texture.vOffset, width, height, texture.atlas.width, texture.atlas.height);
     }
 
     private Rectangle safeIntersection(@Nullable Rectangle r1, @Nullable Rectangle r2) {

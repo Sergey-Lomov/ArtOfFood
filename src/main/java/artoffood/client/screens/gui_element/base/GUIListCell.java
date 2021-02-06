@@ -38,7 +38,7 @@ public abstract class GUIListCell<T> extends GUIView {
     public T getModel() { return model; }
 
     public void setFrame(int x, int y, int width) {
-        final int height = calcHeight(width);
+        final int height = calcHeight(width - leftBorderWidth - rightBorderWidth);
         setFrame(new Rectangle(x, y, width, height));
     }
 

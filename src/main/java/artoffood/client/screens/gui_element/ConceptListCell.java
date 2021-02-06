@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
 
-    public static final int HEIGHT = 20;
+    public static final int VERTICAL_INSETS = 4;
     private static final int TITLE_INSET = 0;
     private static final int ICON_INSET = 0;
     private static final int ICON_SIZE = 16;
@@ -41,11 +41,17 @@ public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
 
         titleLabel.textColor = mainTextColor;
         titleLabel.useShadow = true;
+        titleLabel.multiline = true;
         titleLabel.shadowTextColor = shadowTextColor;
+        titleLabel.interlineSpace = 0;
         titleLabel.parentFrameUpdateHandler = l -> {
-            final int y = (contentView.getFrame().height - titleLabel.font.FONT_HEIGHT) / 2;
-            final Point point = new Point(TITLE_INSET + (int)icon.getFrame().getMaxX(), y);
-            final Dimension dimension = new Dimension(contentFrame.width - TITLE_INSET, titleLabel.font.FONT_HEIGHT);
+            String title = LocalisationManager.conceptTitle(model.concept.conceptId);
+            int x = TITLE_INSET + (int)icon.getFrame().getMaxX();
+            int width = contentFrame.width - TITLE_INSET - x;
+            int height = titleLabel.font.getWordWrappedHeight(title, width);
+            int y = (contentView.getFrame().height - height) / 2;
+            Point point = new Point(x, y);
+            Dimension dimension = new Dimension(width, height);
             l.setFrame(new Rectangle(point, dimension));
         };
 
@@ -64,7 +70,11 @@ public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
 
     @Override
     protected int calcHeight(int widthLimit) {
-        return HEIGHT;
+        int titleWidth = widthLimit - TITLE_INSET - ICON_SIZE - titleLabel.insets.left - titleLabel.insets.right;
+        String title = LocalisationManager.conceptTitle(model.concept.conceptId);
+        int labelHeight = titleLabel.font.getWordWrappedHeight(title, titleWidth);
+        int maxHeight = Math.max(labelHeight, ICON_SIZE);
+        return maxHeight + VERTICAL_INSETS * 2;
     }
 
     @Override
