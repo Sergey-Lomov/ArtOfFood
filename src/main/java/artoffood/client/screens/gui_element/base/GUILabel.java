@@ -26,7 +26,8 @@ public class GUILabel extends GUIView {
 
     public boolean multiline = false;
     public Point shadowOffset = new Point(1,1);
-    public int  interlineSpace = 2;
+    public int interlineSpace = 2;
+    public boolean centrate = false;
 
     public GUILabel(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -63,14 +64,22 @@ public class GUILabel extends GUIView {
                 sizedLines.add(lines.get(0));
         }
 
-        List<IReorderingProcessor> linesProcessors = LanguageMap.getInstance().func_244260_a(sizedLines);
-        for (int i = 0; i < linesProcessors.size(); i++)
-            renderReorderingProcessor(matrixStack, linesProcessors.get(i), i);
+        for (int i = 0; i < sizedLines.size(); i++)
+            renderReorderingProcessor(matrixStack, sizedLines.get(i), i);
     }
 
-    protected void renderReorderingProcessor(@NotNull MatrixStack matrixStack, IReorderingProcessor proc, int lineIndex) {
-        int x = contentFrame.x + insets.left;
-        int y = contentFrame.y + insets.top + lineIndex * (font.FONT_HEIGHT + interlineSpace) ;
+    protected void renderReorderingProcessor(@NotNull MatrixStack matrixStack, ITextProperties string, int lineIndex) {
+        int x;
+        int y = contentFrame.y + insets.top + lineIndex * (font.FONT_HEIGHT + interlineSpace);
+
+        if (centrate) {
+            x = (contentFrame.width - font.getStringPropertyWidth(string)) / 2;
+        } else {
+            x = contentFrame.x + insets.left;
+        }
+
+        IReorderingProcessor proc = LanguageMap.getInstance().func_241870_a(string);
+
         if (useShadow)
             font.func_238422_b_(matrixStack, proc, x + shadowOffset.x, y + shadowOffset.y, shadowTextColor);
         font.func_238422_b_(matrixStack, proc, x, y, textColor);

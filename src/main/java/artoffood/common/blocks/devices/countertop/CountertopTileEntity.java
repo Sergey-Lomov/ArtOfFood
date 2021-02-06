@@ -32,7 +32,7 @@ public class CountertopTileEntity extends BaseInteractiveTileEntity {
 
     @Override
     public @NotNull ITextComponent getDisplayName() {
-        String string = LocalisationManager.Inventories.processing_title();
+        String string = LocalisationManager.Inventories.countertop_title();
         return new StringTextComponent(string);
     }
 

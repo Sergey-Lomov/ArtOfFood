@@ -4,10 +4,7 @@ import artoffood.client.screens.gui_element.ConceptCellViewModel;
 import artoffood.client.screens.gui_element.ConceptListCell;
 import artoffood.client.screens.gui_element.ConceptSlotsView;
 import artoffood.client.screens.gui_element.IngredientInfoView;
-import artoffood.client.screens.gui_element.base.GUIListCell;
-import artoffood.client.screens.gui_element.base.GUITextureView;
-import artoffood.client.screens.gui_element.base.GUIVerticalList;
-import artoffood.client.screens.gui_element.base.GUIView;
+import artoffood.client.screens.gui_element.base.*;
 import artoffood.common.blocks.devices.countertop.CountertopContainer;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.utils.slots.ConceptResultPreviewSlot;
@@ -18,6 +15,7 @@ import artoffood.minebridge.utils.LocalisationManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -28,8 +26,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
 
     public static final int WIDTH = 277;
     public static final int HEIGHT = 192;
-    private static final float PLAYER_INV_LABEL_X_POS = 110;
-    private static final float FONT_Y_SPACING = 11;
+    private static final int PLAYER_INV_LABEL_X_POS = 110;
+    private static final int FONT_Y_SPACING = 11;
 
     private static final int CONCEPT_LIST_WIDTH = 97;
     private static final int CONCEPT_LIST_HEIGHT = 170;
@@ -40,9 +38,13 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     public static final int CONCEPT_SLOTS_VIEW_TOP = CONCEPT_LIST_TOP;
     public static final int CONCEPT_SLOTS_VIEW_LEFT = CONCEPT_LIST_LEFT + CONCEPT_LIST_WIDTH + 6;
 
+    private static final String INVENTORY_LABEL = "Inventory";
+
     private GUIView screenView;
     private GUIVerticalList conceptsList;
     private ConceptSlotsView conceptView;
+    private GUILabel titleLabel;
+    private GUILabel inventoryLabel;
     private IngredientInfoView previewInfoView;
 
     public CountertopScreen(CountertopContainer container, PlayerInventory playerInventory, ITextComponent title) {
@@ -75,10 +77,22 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
 
         previewInfoView = new IngredientInfoView(CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
 
+        titleLabel = new GUILabel(0, CONCEPT_LIST_TOP - FONT_Y_SPACING, width, font.FONT_HEIGHT);
+        titleLabel.textColor = Color.darkGray.getRGB();
+        titleLabel.centrate = true;
+        titleLabel.setText(LocalisationManager.Inventories.countertop_title());
+
+        int inventoryLabelY = CountertopContainer.PLAYER_INVENTORY_Y_POS - FONT_Y_SPACING;
+        inventoryLabel = new GUILabel(PLAYER_INV_LABEL_X_POS, inventoryLabelY, width - inventoryLabelY, font.FONT_HEIGHT);
+        inventoryLabel.setText(INVENTORY_LABEL);
+        inventoryLabel.textColor = Color.darkGray.getRGB();
+
         screenView.addChild(backgroundView);
         screenView.addChild(conceptsList);
         screenView.addChild(conceptView);
         screenView.addChild(previewInfoView);
+        screenView.addChild(titleLabel);
+        screenView.addChild(inventoryLabel);
     }
 
     @Override
@@ -104,13 +118,13 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
 
     @Override
     protected void drawGuiContainerForegroundLayer(@NotNull MatrixStack matrixStack, int mouseX, int mouseY) {
-        final float PROCESSING_LABEL_Y_POS = CONCEPT_LIST_TOP - FONT_Y_SPACING;
-        final float TITLE_WIDTH = font.getStringWidth(LocalisationManager.Inventories.processing_title());
+/*        final float PROCESSING_LABEL_Y_POS = CONCEPT_LIST_TOP - FONT_Y_SPACING;
+        final float TITLE_WIDTH = font.getStringWidth(LocalisationManager.Inventories.countertop_title());
         final float PROCESSING_LABEL_X_POS = (xSize - TITLE_WIDTH) / 2;
         font.func_243248_b(matrixStack, title, PROCESSING_LABEL_X_POS, PROCESSING_LABEL_Y_POS, Color.darkGray.getRGB());  //this.font.drawString;
 
         final float PLAYER_INV_LABEL_Y_POS = CountertopContainer.PLAYER_INVENTORY_Y_POS - FONT_Y_SPACING;
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), PLAYER_INV_LABEL_X_POS, PLAYER_INV_LABEL_Y_POS, Color.darkGray.getRGB());
+        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), PLAYER_INV_LABEL_X_POS, PLAYER_INV_LABEL_Y_POS, Color.darkGray.getRGB());*/
     }
 
     @Override
@@ -152,6 +166,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     }
 
     protected void setCurrentConcept(MBConcept concept) {
+        String conceptTitle = LocalisationManager.conceptTitle(concept.conceptId);
+        titleLabel.setText(conceptTitle);
         conceptView.setConcept(concept);
         container.setConcept(concept);
     }

@@ -8,7 +8,7 @@
 
   "inventories.kitchen_drawer": "Kitchen Drawer",
   "inventories.kitchen_drawer_comment": "May store only cooking tools",
-  "inventories.processing_title": "Processing",
+  "inventories.countertop": "Countertop",
   "inventories.ingredient_slot_prompt": "This slot should contain cooking ingredient",
   "inventories.tool_slot_prompt": "This slot may contain cooking tool",
 
