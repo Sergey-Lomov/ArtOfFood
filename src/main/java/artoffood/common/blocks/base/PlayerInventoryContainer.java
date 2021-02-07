@@ -1,7 +1,7 @@
 package artoffood.common.blocks.base;
 
 import artoffood.client.screens.Constants;
-import artoffood.common.utils.slots.ConceptResultPreviewSlot;
+import artoffood.common.utils.slots.ConceptResultSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -33,7 +33,8 @@ public abstract class PlayerInventoryContainer extends Container  {
     protected void addPlayerInventorySlots(PlayerInventory inventory, int x_pos, int y_pos) {
         final int HOTBAR_Y_POS = HOTBAR_Y_DISPLACEMENT + y_pos;
         for (int x = 0; x < HOTBAR_SLOT_COUNT; x++) {
-            addSlot(new Slot(inventory, x, x_pos + Constants.SLOT_FULL_SIZE * x, HOTBAR_Y_POS));
+            Slot slot = new Slot(inventory, x, x_pos + Constants.SLOT_FULL_SIZE * x, HOTBAR_Y_POS);
+            addSlot(slot);
         }
 
         for (int y = 0; y < PLAYER_INVENTORY_ROW_COUNT; y++) {
@@ -41,7 +42,8 @@ public abstract class PlayerInventoryContainer extends Container  {
                 int slotNumber = HOTBAR_SLOT_COUNT + y * PLAYER_INVENTORY_COLUMN_COUNT + x;
                 int xpos = x_pos + x * Constants.SLOT_FULL_SIZE;
                 int ypos = y_pos + y * Constants.SLOT_FULL_SIZE;
-                addSlot(new Slot(inventory, slotNumber,  xpos, ypos));
+                Slot slot = new Slot(inventory, slotNumber,  xpos, ypos);
+                addSlot(slot);
             }
         }
     }
@@ -75,8 +77,8 @@ public abstract class PlayerInventoryContainer extends Container  {
 
         boolean takeFailed = sourceSlot.onTake(playerEntity, copyOfSourceStack).isEmpty();
 
-        if (sourceSlot instanceof ConceptResultPreviewSlot) {
-            ((ConceptResultPreviewSlot) sourceSlot).tryToRestorePreview(copyOfSourceStack);
+        if (sourceSlot instanceof ConceptResultSlot) {
+            ((ConceptResultSlot) sourceSlot).tryToRestorePreview(copyOfSourceStack);
         } else {
             if (sourceStack.getCount() == 0) {
                 sourceSlot.putStack(ItemStack.EMPTY);

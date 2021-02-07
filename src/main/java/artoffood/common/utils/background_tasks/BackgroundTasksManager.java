@@ -1,6 +1,8 @@
 package artoffood.common.utils.background_tasks;
 
+import artoffood.ArtOfFood;
 import artoffood.common.utils.ConceptResultsCombinator;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,9 +24,18 @@ public class BackgroundTasksManager {
 
         conceptResultsExecutor = Executors.newSingleThreadExecutor();
         conceptResultsExecutor.submit(() -> {
-            ConceptResultsCalculationOutput output = ConceptResultsCombinator.possbileResults(input);
-            Thread callbackThread = new Thread(callbackGroup, () -> callback.accept(output));
-            callbackThread.start();
+            try {
+                ConceptResultsCalculationOutput output = ConceptResultsCombinator.possibleResults(input);
+                Thread callbackThread = new Thread(callbackGroup, () -> callback.accept(output));
+                callbackThread.start();
+            } catch (InterruptedException e) {
+                LogManager.getLogger(ArtOfFood.MOD_ID).info("Concept results calculation interrupter");
+            }
         });
+    }
+
+    public void cancelConceptResultsCalculation() {
+        if (conceptResultsExecutor != null)
+            conceptResultsExecutor.shutdownNow();
     }
 }

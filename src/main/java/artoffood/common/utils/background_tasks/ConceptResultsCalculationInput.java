@@ -14,15 +14,13 @@ public class ConceptResultsCalculationInput {
     public final Function<Slot, Integer> containerIdForSlot;
     public final Function<Integer, Integer> containerIdForConceptInId;
     public final int resultsLimit;
-    public final int complexityLimit;
 
-    public ConceptResultsCalculationInput(MBConcept concept, NonNullList<Slot> conceptSlots, NonNullList<Slot> availableSlots, Function<Slot, Integer> containerIdForSlot, Function<Integer, Integer> containerIdForConceptInId, int resultsLimit, int complexityLimit) {
+    public ConceptResultsCalculationInput(MBConcept concept, NonNullList<Slot> conceptSlots, NonNullList<Slot> availableSlots, Function<Slot, Integer> containerIdForSlot, Function<Integer, Integer> containerIdForConceptInId, int resultsLimit) {
         this.concept = concept;
         this.conceptSlots = conceptSlots;
         this.availableSlots = availableSlots;
         this.containerIdForSlot = containerIdForSlot;
         this.containerIdForConceptInId = containerIdForConceptInId;
         this.resultsLimit = resultsLimit;
-        this.complexityLimit = complexityLimit;
     }
 }

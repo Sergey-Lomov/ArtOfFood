@@ -5,18 +5,16 @@ import artoffood.core.registries.FoodTagsRegister;
 import artoffood.core.registries.TagsPredicates;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public abstract class Concept {
 
     private static final float MAIN_TASTES_LIMIT = 4;
-    private static final float BITTERNEES_LIMIT = 3;
+    private static final float BITTERNESS_LIMIT = 3;
     private static final float INSIPID_LIMIT = 14.5f;
 
     public final List<ConceptSlot> slots;
@@ -82,7 +80,7 @@ public abstract class Concept {
             result.add(Tags.SWEET);
         if (taste.umami >= MAIN_TASTES_LIMIT)
             result.add(Tags.STRONG_UMAMI);
-        if (taste.bitterness >= BITTERNEES_LIMIT)
+        if (taste.bitterness >= BITTERNESS_LIMIT)
             result.add(Tags.BITTER);
 
         if (taste.totalPower() <= INSIPID_LIMIT && result.isEmpty())
@@ -100,6 +98,10 @@ public abstract class Concept {
         }
 
         return true;
+    }
+
+    public int slotsMatchItem(@NotNull FoodItem item) {
+        return (int)slots.stream().filter(s -> s.validate(item)).count();
     }
 
     // TODO: Craft priority system disabled. This code should be removed, if this system still be not necessary

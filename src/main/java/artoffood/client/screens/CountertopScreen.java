@@ -7,7 +7,7 @@ import artoffood.client.screens.gui_element.IngredientInfoView;
 import artoffood.client.screens.gui_element.base.*;
 import artoffood.common.blocks.devices.countertop.CountertopContainer;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
-import artoffood.common.utils.slots.ConceptResultPreviewSlot;
+import artoffood.common.utils.slots.ConceptResultSlot;
 import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.registries.MBConceptsRegister;
@@ -15,7 +15,6 @@ import artoffood.minebridge.utils.LocalisationManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -41,10 +40,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     private static final String INVENTORY_LABEL = "Inventory";
 
     private GUIView screenView;
-    private GUIVerticalList conceptsList;
     private ConceptSlotsView conceptView;
     private GUILabel titleLabel;
-    private GUILabel inventoryLabel;
     private IngredientInfoView previewInfoView;
 
     public CountertopScreen(CountertopContainer container, PlayerInventory playerInventory, ITextComponent title) {
@@ -66,7 +63,7 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         screenView = new GUIView(getGuiLeft(), getGuiTop(), xSize, ySize);
         screenView.setBorderWidth(0);
 
-        conceptsList = new GUIVerticalList(ConceptListCell.class, models, CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
+        GUIVerticalList<ConceptCellViewModel, ConceptListCell> conceptsList = new GUIVerticalList<>(ConceptListCell.class, models, CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
         conceptsList.delegate = this;
 
         conceptView = new ConceptSlotsView(CONCEPT_SLOTS_VIEW_LEFT, CONCEPT_SLOTS_VIEW_TOP, CONCEPT_SLOTS_VIEW_SIZE, CONCEPT_SLOTS_VIEW_SIZE);
@@ -83,7 +80,7 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         titleLabel.setText(LocalisationManager.Inventories.countertop_title());
 
         int inventoryLabelY = CountertopContainer.PLAYER_INVENTORY_Y_POS - FONT_Y_SPACING;
-        inventoryLabel = new GUILabel(PLAYER_INV_LABEL_X_POS, inventoryLabelY, width - inventoryLabelY, font.FONT_HEIGHT);
+        GUILabel inventoryLabel = new GUILabel(PLAYER_INV_LABEL_X_POS, inventoryLabelY, width - inventoryLabelY, font.FONT_HEIGHT);
         inventoryLabel.setText(INVENTORY_LABEL);
         inventoryLabel.textColor = Color.darkGray.getRGB();
 
@@ -101,7 +98,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         screenView.render(matrixStack, mouseX, mouseY, partialTicks, null);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        if (hoveredSlot instanceof ConceptResultPreviewSlot) {
+        if (hoveredSlot instanceof ConceptResultSlot
+                && !hoveredSlot.getStack().isEmpty()) {
             hoveredSlot.getStack().getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                     cap -> showPreviewInfo(cap.getIngredient())
             );
@@ -114,17 +112,6 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     private void showPreviewInfo(MBIngredient preview) {
         previewInfoView.setIngredient(preview);
         previewInfoView.isHidden = false;
-    }
-
-    @Override
-    protected void drawGuiContainerForegroundLayer(@NotNull MatrixStack matrixStack, int mouseX, int mouseY) {
-/*        final float PROCESSING_LABEL_Y_POS = CONCEPT_LIST_TOP - FONT_Y_SPACING;
-        final float TITLE_WIDTH = font.getStringWidth(LocalisationManager.Inventories.countertop_title());
-        final float PROCESSING_LABEL_X_POS = (xSize - TITLE_WIDTH) / 2;
-        font.func_243248_b(matrixStack, title, PROCESSING_LABEL_X_POS, PROCESSING_LABEL_Y_POS, Color.darkGray.getRGB());  //this.font.drawString;
-
-        final float PLAYER_INV_LABEL_Y_POS = CountertopContainer.PLAYER_INVENTORY_Y_POS - FONT_Y_SPACING;
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), PLAYER_INV_LABEL_X_POS, PLAYER_INV_LABEL_Y_POS, Color.darkGray.getRGB());*/
     }
 
     @Override
@@ -162,7 +149,8 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
 
     @Override
     public void didSelectCell(GUIListCell<ConceptCellViewModel> cell) {
-        setCurrentConcept(cell.getModel().concept);
+        if (cell.getModel() != null)
+            setCurrentConcept(cell.getModel().concept);
     }
 
     protected void setCurrentConcept(MBConcept concept) {

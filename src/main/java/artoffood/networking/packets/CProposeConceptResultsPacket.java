@@ -1,6 +1,6 @@
 package artoffood.networking.packets;
 
-import artoffood.common.utils.slots.ConceptResultPreviewSlotConfig;
+import artoffood.common.utils.slots.ConceptResultSlotConfig;
 import artoffood.networking.BufferHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -12,10 +12,10 @@ import java.util.function.Supplier;
 public class CProposeConceptResultsPacket {
 
     private String conceptId;
-    private NonNullList<ConceptResultPreviewSlotConfig> propositions;
+    private NonNullList<ConceptResultSlotConfig> propositions;
 
     public CProposeConceptResultsPacket(String conceptId,
-                                        NonNullList<ConceptResultPreviewSlotConfig> propositions) {
+                                        NonNullList<ConceptResultSlotConfig> propositions) {
         this.conceptId = conceptId;
         this.propositions = propositions;
     }

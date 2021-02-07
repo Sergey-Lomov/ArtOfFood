@@ -31,6 +31,10 @@ public class MBIngredientPrototypesRegister {
             "tomato",
             new Color(200,50,50));
 
+    public static MBIngredientPrototype YELLOW_BELL_PEPPER = prototype(IngredientPrototypesRegister.YELLOW_BELL_PEPPER,
+            "yellow_bell_pepper",
+            new Color(255,160,25));
+
     public static MBIngredientPrototype SUNFLOWER_OIL = prototype(IngredientPrototypesRegister.SUNFLOWER_OIL,
             "sunflower_oil",
             new Color(175, 150,0));

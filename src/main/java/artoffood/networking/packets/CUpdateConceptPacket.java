@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 public class CUpdateConceptPacket {
 
+    public static final String NIL_CONCEPT_ID = "nil_concept";
     private String conceptId;
 
     public CUpdateConceptPacket(String conceptId) {

@@ -46,4 +46,11 @@ public class IngredientPrototypesRegister {
             false,
             Tags.OIL)
     {{ ALL.add(this); }};
+
+    public static IngredientPrototype YELLOW_BELL_PEPPER = new IngredientPrototype(
+            new Nutritional(125, 1.5f),
+            new TasteBuilder().sweetness(1).bitterness(1).build(),
+            false,
+            Tags.VEGETABLE, Tags.SOLID)
+    {{ ALL.add(this); }};
 }

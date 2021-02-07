@@ -10,15 +10,10 @@ import artoffood.common.utils.IngredientFactory;
 import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
-import artoffood.core.models.Concept;
-import artoffood.core.models.ConceptSlot;
 import artoffood.core.models.FoodItem;
-import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBIngredient;
-import artoffood.minebridge.registries.MBConceptsRegister;
 import javafx.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IRecipeHolder;
 import net.minecraft.inventory.container.Slot;
@@ -27,37 +22,31 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class ConceptResultPreviewSlot extends Slot {
+public class ConceptResultSlot extends Slot {
 
     private final PlayerEntity player;
+    private final ConceptResultSlotDelegate delegate;
     private int amountCrafted = 1;
-    private final Function<Integer, @Nullable Slot> slotForContainerId;
-    private final Supplier<PlayerInventory> playerInventory;
     public NonNullList<SlotReference> references = NonNullList.create();
 
-    public ConceptResultPreviewSlot(PlayerEntity player,
-                                    Function<Integer, @Nullable Slot> slotForContainerId,
-                                    IInventory inventoryIn, int index,
-                                    int xPosition, int yPosition, Supplier<PlayerInventory> playerInventory) {
+    public ConceptResultSlot(PlayerEntity player,
+                             ConceptResultSlotDelegate delegate,
+                             IInventory inventoryIn, int index,
+                             int xPosition, int yPosition) {
         super(inventoryIn, index, xPosition, yPosition);
         this.player = player;
-        this.slotForContainerId = slotForContainerId;
-        this.playerInventory = playerInventory;
+        this.delegate = delegate;
     }
 
     public void clear() {
-        putStack(ItemStack.EMPTY);
         references = NonNullList.create();
+        putStack(ItemStack.EMPTY);
     }
 
     public void tryToRestorePreview(ItemStack result) {
@@ -66,11 +55,11 @@ public class ConceptResultPreviewSlot extends Slot {
     }
 
     @Override
-    public void putStack(ItemStack stack) {
+    public void putStack(@NotNull ItemStack stack) {
         super.putStack(stack);
     }
 
-    public void configure(ConceptResultPreviewSlotConfig config) {
+    public void configure(ConceptResultSlotConfig config) {
         if (!(config.result.core.origin instanceof ByConceptOrigin)) return;
 
         references = config.references;
@@ -78,9 +67,9 @@ public class ConceptResultPreviewSlot extends Slot {
         ByConceptOrigin origin = (ByConceptOrigin) config.result.core.origin;
         Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(origin.concept);
         ItemStack stack = new ItemStack(item, config.resultCount);
-        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent( cap -> {
-            cap.setIngredient(config.result);
-        });
+        stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                cap -> cap.setIngredient(config.result)
+        );
         putStack(stack);
     }
 
@@ -124,15 +113,18 @@ public class ConceptResultPreviewSlot extends Slot {
     public @NotNull ItemStack onTake(@NotNull PlayerEntity thePlayer, @NotNull ItemStack stack) {
         ItemStack result = tryToGetResult(stack, true);
         super.onTake(player, stack);
+        if (!getHasStack()) {
+            tryToRestorePreview(stack);
+        }
         return result;
     }
 
     protected @NotNull ItemStack tryToGetResult(ItemStack target, boolean decreaseStacks) {
 
         AtomicReference<MBIngredient> atomicResult = new AtomicReference<>(null);
-        target.getCapability(IngredientEntityCapability.INSTANCE).ifPresent( cap -> {
-            atomicResult.set(cap.getIngredient());
-        });
+        target.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
+                cap -> atomicResult.set(cap.getIngredient())
+        );
         if (atomicResult.get() == null) return ItemStack.EMPTY;
         if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) return ItemStack.EMPTY;
 
@@ -153,7 +145,7 @@ public class ConceptResultPreviewSlot extends Slot {
                     return ItemStack.EMPTY;
             }
 
-            Slot fromSlot = slotForContainerId.apply(reference.containerFromSlotId);
+            Slot fromSlot = delegate.slotForContainerIndex(reference.containerFromSlotId);
             if (fromSlot == null) return ItemStack.EMPTY;
 
             ItemStack sourceStack = futureStacks.containsKey(fromSlot) ? futureStacks.get(fromSlot) : fromSlot.getStack();
@@ -163,10 +155,7 @@ public class ConceptResultPreviewSlot extends Slot {
         }
 
         if (decreaseStacks) {
-            // Apply calculated stacks into slots
-            for (Slot slot : futureStacks.keySet()) {
-                slot.inventory.setInventorySlotContents(slot.getSlotIndex(), futureStacks.get(slot));
-            }
+            delegate.applySlotChanges(futureStacks);
         }
 
         return IngredientFactory.createStack(origin.concept, origin.items, atomicResult.get());

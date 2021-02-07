@@ -1,6 +1,6 @@
 package artoffood.networking.packets;
 
-import artoffood.common.utils.slots.ConceptResultPreviewSlotConfig;
+import artoffood.common.utils.slots.ConceptResultSlotConfig;
 import artoffood.networking.BufferHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,10 +14,10 @@ public class SConceptResultsApprovedPacket {
 
     private int windowId;
     private String conceptId;
-    private NonNullList<ConceptResultPreviewSlotConfig> results;
+    private NonNullList<ConceptResultSlotConfig> results;
 
 
-    public SConceptResultsApprovedPacket(int windowIdIn, String conceptId, NonNullList<ConceptResultPreviewSlotConfig> results) {
+    public SConceptResultsApprovedPacket(int windowIdIn, String conceptId, NonNullList<ConceptResultSlotConfig> results) {
         this.windowId = windowIdIn;
         this.conceptId = conceptId;
         this.results = results;

@@ -1,9 +1,10 @@
 package artoffood.networking.packets;
 
-import artoffood.common.utils.slots.ConceptResultPreviewSlotConfig;
-import net.minecraft.util.NonNullList;
+import artoffood.common.utils.slots.ConceptResultSlotConfig;
+
+import java.util.List;
 
 public interface IConceptResultsProposesHandler {
 
-    void handleResultsProposes(String conceptId, NonNullList<ConceptResultPreviewSlotConfig> propositions);
+    void handleResultsProposes(String conceptId, List<ConceptResultSlotConfig> propositions);
 }
