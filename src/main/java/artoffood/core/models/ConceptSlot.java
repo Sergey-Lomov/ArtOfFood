@@ -16,7 +16,7 @@ public class ConceptSlot {
         this.groupId = groupId;
     }
 
-    public boolean validate(FoodItem item) {
+    public boolean validate(ConceptSlotVerifiable item) {
         return predicate.test(item.tags()) || (optional && item.isEmpty());
     }
 }

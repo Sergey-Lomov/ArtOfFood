@@ -1,7 +1,7 @@
 package artoffood.common.capabilities.ingredient;
 
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
-import artoffood.common.utils.IngredientNBTConverter;
+import artoffood.common.utils.FoodItemNBTConverter;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -24,13 +24,13 @@ public class IngredientEntityCapability extends FoodItemEntityCapability {
         @Nullable
         @Override
         public INBT writeNBT(Capability<IIngredientEntity> capability, IIngredientEntity instance, Direction side) {
-            return IngredientNBTConverter.write(instance.getIngredient());
+            return FoodItemNBTConverter.writeIngredient(instance.getIngredient());
         }
 
         @Override
         public void readNBT(Capability<IIngredientEntity> capability, IIngredientEntity instance, Direction side, INBT nbt) {
             if (nbt instanceof CompoundNBT)
-                instance.setIngredient(IngredientNBTConverter.read((CompoundNBT) nbt));
+                instance.setIngredient(FoodItemNBTConverter.readIngredient((CompoundNBT) nbt));
         }
     }
 }

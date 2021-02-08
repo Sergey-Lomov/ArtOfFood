@@ -39,13 +39,17 @@ public class ConceptResultsCombinator {
         final MBIngredient result;
         final int resultCount;
         final NonNullList<SlotReference> references;
-        final List<FoodItem> items;
+        final NonNullList<MBFoodItem> items;
 
-        private ResultDescription(MBIngredient result, int resultCount, NonNullList<SlotReference> references, List<FoodItem> items) {
+        private ResultDescription(MBIngredient result, int resultCount, NonNullList<SlotReference> references, NonNullList<MBFoodItem> items) {
             this.result = result;
             this.resultCount = resultCount;
             this.references = references;
             this.items = items;
+        }
+
+        List<FoodItem> coreItems() {
+            return items.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
         }
     }
 
@@ -55,7 +59,7 @@ public class ConceptResultsCombinator {
 
         NonNullList<ResultDescription> results = generateResults(input, candidates);
         List<ConceptResultSlotConfig> configsList = results.stream()
-                .map(r -> new ConceptResultSlotConfig(r.result, r.resultCount, r.references))
+                .map(r -> new ConceptResultSlotConfig(r.result, r.resultCount, r.items, r.references))
                 .collect(Collectors.toList());
         NonNullList<ConceptResultSlotConfig> configs = NonNullList.create();
         configs.addAll(configsList);
@@ -145,17 +149,13 @@ public class ConceptResultsCombinator {
         List<MBFoodItem> mbFoodItems = combinationFoodItems(combination);
         List<FoodItem> items = mbFoodItems.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
 
-        if (!concept.core.matches(items)) return null;  // Combination invalid for current concept
+        if (!concept.core.matchesItems(items)) return null;  // Combination invalid for current concept
 
         List<ResultDescription> sameResults = results.stream()
-                .filter(r -> concept.core.isSimilarFoodItems(items, r.items))
+                .filter(r -> concept.core.isSimilarFoodItems(items, r.coreItems()))
                 .collect(Collectors.toList());
 
-        for (ResultDescription sameResult : sameResults) {
-            if (concept.core.isSimilarFoodItems(items, sameResult.items)) {
-                return null;    // Similar result found
-            }
-        }
+        if (!(sameResults.isEmpty())) return null;    // Similar result found
 
         List<Slot> lessItemsSlots = slotsWithNotEnoughItems(combination);
         if (!lessItemsSlots.isEmpty()) {
@@ -175,12 +175,14 @@ public class ConceptResultsCombinator {
         }
 
         MBIngredient resultIngredient = concept.getIngredient(mbFoodItems);
+        NonNullList<MBFoodItem> nonNullFoodItems = NonNullList.create();
+        nonNullFoodItems.addAll(mbFoodItems);
 
         return new ResultDescription(
                 resultIngredient,
                 concept.core.resultsCount(items),
                 references,
-                items);
+                nonNullFoodItems);
     }
 
     // Search slots, which have no enough items. For example some slot may be used in combination 3 times, but have only 2 items.

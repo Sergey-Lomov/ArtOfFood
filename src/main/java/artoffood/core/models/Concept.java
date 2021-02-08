@@ -34,7 +34,7 @@ public abstract class Concept {
     }
 
     public @NotNull Ingredient getIngredient(List<FoodItem> items) {
-        IngredientOrigin origin = new ByConceptOrigin(this, items);
+        IngredientOrigin origin = ByConceptOrigin.from(this, items);
         Nutritional nutritional = getNutritional(items);
         Taste taste = getTaste(items);
         float hedonism = getHedonismScore(items);
@@ -89,7 +89,12 @@ public abstract class Concept {
         return result;
     }
 
-    public boolean matches(@NotNull List<FoodItem> items) {
+    public boolean matchesItems(@NotNull List<FoodItem> items) {
+        List<ConceptSlotVerifiable> verifiable = new ArrayList<>(items);
+        return matches(verifiable);
+    }
+
+    public boolean matches(@NotNull List<ConceptSlotVerifiable> items) {
         if (items.size() != slots.size()) return false;
 
         for (int i = 0; i < slots.size(); i++) {

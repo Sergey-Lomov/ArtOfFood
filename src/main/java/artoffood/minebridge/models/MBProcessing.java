@@ -26,7 +26,7 @@ public class MBProcessing {
     }
 
     public boolean availableForIngredient(List<FoodTag> tags) { return core.availableForIngredient(tags); }
-    public boolean availableWithTool(MBFoodTool tool) { return core.availableWithTool(tool.core); }
+    public boolean availableWithTool(MBFoodTool tool) { return core.availableWithTool(tool.core.tags()); }
     public boolean availableWithoutTool() { return core.availableWithoutTool(); }
 
     public void updateIngredient(@NotNull MBIngredient ingredient) {

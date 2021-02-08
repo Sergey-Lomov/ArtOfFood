@@ -1,7 +1,6 @@
 package artoffood.common.capabilities.food_tool;
 
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
-import artoffood.common.utils.IngredientNBTConverter;
 import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.registries.MBFoodToolsRegister;
 import net.minecraft.nbt.CompoundNBT;

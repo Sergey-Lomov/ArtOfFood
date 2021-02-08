@@ -24,12 +24,12 @@ public class IngredientEntityProvider implements ICapabilitySerializable<Compoun
             entity.setIngredient(new MBIngredient(prototype));
     }
 
-    public IngredientEntityProvider(@NotNull MBConcept concept, @NotNull List<MBFoodItem> items) {
-        entity.setIngredient(concept.getIngredient(items));
-    }
-
     public IngredientEntityProvider(@NotNull MBIngredient ingredient) {
         entity.setIngredient(ingredient);
+    }
+
+    public IngredientEntityProvider(CompoundNBT nbt) {
+        deserializeNBT(nbt);
     }
 
     public void invalidate() {

@@ -13,19 +13,21 @@ import java.util.List;
 
 public class ProcessingsRegister {
 
-    class Tags extends FoodTagsRegister {};
+    static class Tags extends FoodTagsRegister {};
     private static TagsPredicate contains(FoodTag tag) { return TagsPredicates.CONTAINS.get(tag); }
 
     public static List<Processing> ALL = new ArrayList<>();
 
     public static Processing SLICING = new ProcessingBuilder(contains(Tags.SOLID))
-            .addRequirement(FoodToolFunctional.KNIFE)
+            .addToolRequirement(Tags.Tools.SLICER)
+            .addDeviceRequirement(FoodTagsRegister.Devices.COUNTERTOP)
             .nutritionalTransform(new MultiplyNutritionTransform(1, 1.2f))
             .tagsTransform(new ChangeTagsTransform(Tags.SOLID, Tags.SLICED))
             .build();
 
     public static Processing GRATE = new ProcessingBuilder(contains(Tags.SOLID))
-            .addRequirement(FoodToolFunctional.GRATER)
+            .addToolRequirement(Tags.Tools.GRATER)
+            .addDeviceRequirement(FoodTagsRegister.Devices.COUNTERTOP)
             .nutritionalTransform(new MultiplyNutritionTransform(0.9f, 1.3f))
             .tagsTransform(new ChangeTagsTransform(Tags.SOLID, Tags.GRATED))
             .build();

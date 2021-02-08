@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Ingredient extends FoodItem {
 
-    private static final List<FoodTag> typeTags = new ArrayList<FoodTag>() {{ add(FoodTagsRegister.INGREDIENT); }};
+    static final List<FoodTag> TYPE_TAGS = new ArrayList<FoodTag>() {{ add(FoodTagsRegister.INGREDIENT); }};
     public static final Ingredient EMPTY = new Ingredient(IngredientPrototypesRegister.EMPTY);
 
     public final @NotNull IngredientOrigin origin;
@@ -39,7 +39,7 @@ public class Ingredient extends FoodItem {
         this.setTags(tags);
     }
 
-    public Ingredient(IngredientOrigin origin) {
+    /*public Ingredient(IngredientOrigin origin) {
         super();
 
         this.origin = origin;
@@ -52,7 +52,7 @@ public class Ingredient extends FoodItem {
         } else {
             throw new IllegalStateException("Try to create ingredient uses unsupported origin type");
         }
-    }
+    }*/
 
     public Ingredient(IngredientPrototype prototype) {
         super();
@@ -62,7 +62,7 @@ public class Ingredient extends FoodItem {
 
     @Override
     protected List<FoodTag> typeTags() {
-        return typeTags;
+        return TYPE_TAGS;
     }
 
     @Override
@@ -87,6 +87,11 @@ public class Ingredient extends FoodItem {
         return new Ingredient(origin.clone(), nutritional.clone(), taste.clone(), hedonismScore, edible, tagsCopy);
     }
 
+    @Override
+    protected FoodItemHistoryRepresentation historyRepresentation() {
+        return new IngredientHistoryRepresentation(origin, tags());
+    }
+
     public boolean isEmpty() {
         return this == Ingredient.EMPTY || origin.isEmpty();
     }
@@ -107,12 +112,4 @@ public class Ingredient extends FoodItem {
         setTags(new ArrayList<>(prototype.tags));
     }
 
-    @Override
-    protected int craftPriority() {
-        if (craftPriority != null)
-            return craftPriority;
-
-        craftPriority = origin.craftPriority();
-        return craftPriority;
-    }
 }

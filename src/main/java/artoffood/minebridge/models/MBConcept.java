@@ -50,7 +50,12 @@ public abstract class MBConcept {
         return core.getIngredient(coreItems);
     }
 
-    protected class Slots extends MBVisualSlotsTypesRegister {};
+    public boolean matches(List<MBFoodItem> items) {
+        List<FoodItem> coreItems = items.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
+        return core.matchesItems(coreItems);
+    }
+
+    protected static class Slots extends MBVisualSlotsTypesRegister {};
 
     protected Color ingredientMainColor(List<MBFoodItem> items, int index) {
         if (items.get(index).itemCore().isEmpty()) return ColorsSchema.EMPTY_COLOR;

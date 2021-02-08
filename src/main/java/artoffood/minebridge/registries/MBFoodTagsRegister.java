@@ -37,6 +37,10 @@ public class MBFoodTagsRegister {
 
     public static final MBFoodTag SALAD = register("dish.salad", Core.SALAD);
 
+    public static final MBFoodTag SLICER = register("tool.slicer", Core.Tools.SLICER);
+    public static final MBFoodTag GRATER = register("tool.grater", Core.Tools.GRATER);
+    public static final MBFoodTag COUNTERTOP = register("device.countertop", Core.Devices.COUNTERTOP);
+
     private static MBFoodTag register(String titleKey, FoodTag core) {
         return new MBFoodTag(titleKey, core) {{
             TAG_BY_ID.put(tagId, this);

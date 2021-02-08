@@ -39,7 +39,7 @@ public class TestConcept extends Concept {
     }
 
     @Override
-    public boolean matches(@NotNull List<FoodItem> items) {
+    public boolean matches(@NotNull List<ConceptSlotVerifiable> items) {
         if (!super.matches(items)) return false;
 
         return !(items.get(0).equals(items.get(1)));

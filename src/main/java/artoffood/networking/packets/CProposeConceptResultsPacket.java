@@ -22,7 +22,7 @@ public class CProposeConceptResultsPacket {
 
     public void processPacket(Supplier<NetworkEvent.Context> ctx) {
         PlayerEntity playerEntity = ctx.get().getSender();
-        if (playerEntity.openContainer instanceof IConceptResultsProposesHandler) {
+        if (playerEntity != null && playerEntity.openContainer instanceof IConceptResultsProposesHandler) {
             IConceptResultsProposesHandler handler = (IConceptResultsProposesHandler) playerEntity.openContainer;
             handler.handleResultsProposes(conceptId, propositions);
         }

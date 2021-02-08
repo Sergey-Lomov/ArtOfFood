@@ -115,6 +115,9 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
     }
 
     @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) { }
+
+    @Override
     protected void drawGuiContainerBackgroundLayer(@NotNull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {}
 
     @Override

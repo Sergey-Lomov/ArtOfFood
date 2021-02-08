@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 public class IngredientFactory {
 
     public static ItemStack createStack(Concept concept, List<FoodItem> items, MBIngredient ingredient) {
+        if (!(concept.matchesItems(items))) return ItemStack.EMPTY;
+
         Item item = ItemsRegistrator.CONCEPT_RESULT_ITEM.get(concept);
         int count = concept.resultsCount(items);
         ItemStack result = new ItemStack(item, count);
@@ -29,6 +31,8 @@ public class IngredientFactory {
     }
 
     public static ItemStack createStack(MBConcept concept, List<MBFoodItem> items) {
+        if (!(concept.matches(items))) return ItemStack.EMPTY;
+
         List<FoodItem> coreItems = items.stream().map(i -> i.itemCore()).collect(Collectors.toList());
         MBIngredient ingredient = concept.getIngredient(items);
         return createStack(concept.core, coreItems, ingredient);

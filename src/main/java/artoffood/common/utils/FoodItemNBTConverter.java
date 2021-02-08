@@ -1,6 +1,8 @@
 package artoffood.common.utils;
 
 import artoffood.core.models.*;
+import artoffood.minebridge.models.MBFoodItem;
+import artoffood.minebridge.models.MBFoodTool;
 import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBItemRendering;
 import artoffood.minebridge.models.color_schemas.ColorsSchema;
@@ -20,11 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class IngredientNBTConverter {
+public class FoodItemNBTConverter {
 
     public static final String ITEMS_KEY = "items";
     public static final String ITEM_TYPE_KEY = "type";
-    public static final String ITEM_DATA_KEY = "data";
     public static final String INGREDIENT_ITEM_TYPE = "ingredient";
     public static final String TOOL_ITEM_TYPE = "tool";
     public static final String EMPTY_ITEM_TYPE = "empty";
@@ -63,28 +64,59 @@ public class IngredientNBTConverter {
     private static final String KEY_KEY = "key";
     private static final String VALUE_KEY = "value";
 
-    public static CompoundNBT write(MBIngredient ingredient) {
+    public static CompoundNBT writeItem(MBFoodItem item) {
+        if (item instanceof MBFoodTool) {
+            return writeTool((MBFoodTool) item);
+        } else if (item instanceof MBIngredient) {
+            return writeIngredient((MBIngredient) item);
+        } else if (item.itemCore().isEmpty()) {
+            return writeEmptyItem();
+        } else
+            throw new IllegalStateException("Try to write item of unsupported type");
+    }
+
+    public static MBFoodItem readItem(CompoundNBT nbt) {
+        String type = nbt.getString(ITEM_TYPE_KEY);
+        switch (type) {
+            case INGREDIENT_ITEM_TYPE:
+                return readIngredient(nbt);
+            case TOOL_ITEM_TYPE:
+                return readTool(nbt);
+            case EMPTY_ITEM_TYPE:
+                return MBFoodItem.EMPTY;
+            default:
+                throw new IllegalStateException("Read from NBT item of unsupported type");
+        }
+    }
+
+    public static CompoundNBT writeTool(MBFoodTool tool) {
         CompoundNBT result = new CompoundNBT();
-        result.put(INGREDIENT_ITEM_TYPE, writeIngredient(ingredient));
+        result.putString(ITEM_TYPE_KEY, TOOL_ITEM_TYPE);
+        result.putString(TOOL_ID_KEY, tool.id);
         return result;
     }
 
-    public static MBIngredient read(CompoundNBT nbt){
-        if (nbt.contains(INGREDIENT_ITEM_TYPE))
-            return readIngredient(nbt.getCompound(INGREDIENT_ITEM_TYPE));
-        else
-            return MBIngredient.EMPTY;
+
+    public static MBFoodTool readTool(CompoundNBT nbt){
+        String id = nbt.getString(TOOL_ID_KEY);
+        return MBFoodToolsRegister.TOOL_BY_ID.get(id);
+    }
+
+    public static CompoundNBT writeIngredient(MBIngredient ingredient) {
+        CompoundNBT result = writeCoreIngredient(ingredient.core);
+        result.putString(ITEM_TYPE_KEY, INGREDIENT_ITEM_TYPE);
+        result.put(RENDERING_KEY, writeRendering(ingredient.rendering));
+        result.putInt(STACK_SIZE_KEY, ingredient.stackSize);
+        return result;
+    }
+
+    public static MBIngredient readIngredient(CompoundNBT nbt) {
+        return new MBIngredient(readCoreIngredient(nbt),
+                nbt.getInt(STACK_SIZE_KEY),
+                readRendering(nbt.getCompound(RENDERING_KEY)));
     }
 
     // Writing methods
-
-    private static CompoundNBT writeIngredient(MBIngredient ingredient) {
-        CompoundNBT result = writeCoreIngredient(ingredient.core);
-        result.put(RENDERING_KEY, writeRendering(ingredient.rendering));
-        result.putInt(STACK_SIZE_KEY, ingredient.stackSize);
-
-        return result;
-    }
 
     private static CompoundNBT writeCoreIngredient(Ingredient ingredient) {
         CompoundNBT result = new CompoundNBT();
@@ -106,7 +138,7 @@ public class IngredientNBTConverter {
             ByConceptOrigin byConcept = (ByConceptOrigin) origin;
             String conceptId = MBConceptsRegister.CONCEPT_BY_CORE.get(byConcept.concept).conceptId;
             result.putString(CONCEPT_KEY, conceptId);
-            result.put(ITEMS_KEY, writeItems(byConcept.items));
+            result.put(ITEMS_KEY, writeHistoryItems(byConcept.items));
         } else if (origin instanceof ByPrototypeOrigin) {
             ByPrototypeOrigin byPrototype = (ByPrototypeOrigin) origin;
             String prototypeId = MBIngredientPrototypesRegister.PROTOTYPE_BY_CORE.get(byPrototype.prototype).prototypeId;
@@ -150,17 +182,17 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    private static ListNBT writeItems(List<FoodItem> items) {
+    private static ListNBT writeHistoryItems(List<FoodItemHistoryRepresentation> items) {
         ListNBT result = new ListNBT();
 
-        for (FoodItem item: items) {
-            if (item instanceof Ingredient) {
-                Ingredient ingredient = (Ingredient) item;
-                result.add(writeIngredientItem(ingredient));
-            } else if (item instanceof FoodTool) {
-                FoodTool tool = (FoodTool) item;
-                result.add(writeToolItem(tool));
-            } else if (item == FoodItem.EMPTY) {
+        for (FoodItemHistoryRepresentation item: items) {
+            if (item instanceof IngredientHistoryRepresentation) {
+                IngredientHistoryRepresentation ingredient = (IngredientHistoryRepresentation) item;
+                result.add(writeHistoryIngredient(ingredient));
+            } else if (item instanceof ToolHistoryRepresentation) {
+                ToolHistoryRepresentation tool = (ToolHistoryRepresentation) item;
+                result.add(writeHistoryTool(tool));
+            } else if (item == IngredientHistoryRepresentation.EMPTY) {
                 result.add(writeEmptyItem());
             } else
                 throw new IllegalStateException("Try to encode FoodIte, of unsupported type");
@@ -169,30 +201,26 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    private static CompoundNBT writeIngredientItem(Ingredient ingredient) {
+    private static CompoundNBT writeHistoryIngredient(IngredientHistoryRepresentation ingredient) {
         CompoundNBT result = new CompoundNBT();
         result.putString(ITEM_TYPE_KEY, INGREDIENT_ITEM_TYPE);
-        result.put(ITEM_DATA_KEY, writeCoreIngredient(ingredient));
+        result.put(ORIGIN_KEY, writeOrigin(ingredient.origin));
+        result.put(TAGS_KEY, writeTags(ingredient.tags()));
         return result;
     }
 
-    private static CompoundNBT writeToolItem(FoodTool tool) {
+    private static CompoundNBT writeHistoryTool(ToolHistoryRepresentation toolHistory) {
         CompoundNBT result = new CompoundNBT();
         result.putString(ITEM_TYPE_KEY, TOOL_ITEM_TYPE);
-        result.put(ITEM_DATA_KEY, writeTool(tool));
+        String id = MBFoodToolsRegister.TOOL_BY_CORE.get(toolHistory.tool).id;
+        result.putString(TOOL_ID_KEY, id);
+        result.put(TAGS_KEY, writeTags(toolHistory.tags()));
         return result;
     }
 
     private static CompoundNBT writeEmptyItem() {
         CompoundNBT result = new CompoundNBT();
         result.putString(ITEM_TYPE_KEY, EMPTY_ITEM_TYPE);
-        return result;
-    }
-
-    private static CompoundNBT writeTool(FoodTool tool) {
-        CompoundNBT result = new CompoundNBT();
-        String id = MBFoodToolsRegister.TOOL_BY_CORE.get(tool).id;
-        result.putString(TOOL_ID_KEY, id);
         return result;
     }
 
@@ -208,7 +236,6 @@ public class IngredientNBTConverter {
         }
         result.put(LAYERS_KEY, layers);
 
-
         return result;
     }
 
@@ -216,7 +243,7 @@ public class IngredientNBTConverter {
         ListNBT result = new ListNBT();
 
         for (String key: schema.keySet()) {
-            result.add(writeKeyValuePair(key, schema.get(key), IngredientNBTConverter::writeColor));
+            result.add(writeKeyValuePair(key, schema.get(key), FoodItemNBTConverter::writeColor));
         }
 
         return result;
@@ -242,12 +269,6 @@ public class IngredientNBTConverter {
 
     // Reading methods
 
-    private static MBIngredient readIngredient(CompoundNBT nbt) {
-        return new MBIngredient(readCoreIngredient(nbt),
-                nbt.getInt(STACK_SIZE_KEY),
-                readRendering(nbt.getCompound(RENDERING_KEY)));
-    }
-
     private static Ingredient readCoreIngredient(CompoundNBT nbt) {
         return new Ingredient(
                 readOrigin(nbt.getCompound(ORIGIN_KEY)),
@@ -258,11 +279,17 @@ public class IngredientNBTConverter {
                 readTags(nbt.getList(TAGS_KEY, Constants.NBT.TAG_STRING)));
     }
 
+    private static IngredientHistoryRepresentation readHistoryIngredient(CompoundNBT nbt) {
+        List<FoodTag> tags = readTags(nbt.getList(TAGS_KEY, Constants.NBT.TAG_STRING));
+        IngredientOrigin origin = readOrigin(nbt.getCompound(ORIGIN_KEY));
+        return new IngredientHistoryRepresentation(origin, tags);
+    }
+
     private static IngredientOrigin readOrigin(CompoundNBT nbt) {
         if (nbt.contains(CONCEPT_KEY)) {
             String conceptId = nbt.getString(CONCEPT_KEY);
             Concept concept = MBConceptsRegister.CONCEPT_BY_ID.get(conceptId).core;
-            List<FoodItem> items = readItems(nbt.getList(ITEMS_KEY, Constants.NBT.TAG_COMPOUND));
+            List<FoodItemHistoryRepresentation> items = readHistoryItems(nbt.getList(ITEMS_KEY, Constants.NBT.TAG_COMPOUND));
             return new ByConceptOrigin(concept, items);
         } else if (nbt.contains(PROTOTYPE_KEY)) {
             String prototypeId = nbt.getString(PROTOTYPE_KEY);
@@ -296,30 +323,34 @@ public class IngredientNBTConverter {
         return result;
     }
 
-    private static List<FoodItem> readItems(ListNBT list) {
-        List<FoodItem> result = new ArrayList<>();
+    private static List<FoodItemHistoryRepresentation> readHistoryItems(ListNBT list) {
+        List<FoodItemHistoryRepresentation> result = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++)
-            result.add(readItem(list.getCompound(i)));
+            result.add(readHistoryItem(list.getCompound(i)));
 
         return result;
     }
 
-    private static FoodItem readItem(CompoundNBT nbt) {
+    private static FoodItemHistoryRepresentation readHistoryItem(CompoundNBT nbt) {
         String type = nbt.getString(ITEM_TYPE_KEY);
-        if (type.equals(INGREDIENT_ITEM_TYPE)) {
-            return readCoreIngredient(nbt.getCompound(ITEM_DATA_KEY));
-        } else if (type.equals(TOOL_ITEM_TYPE)) {
-            return readTool(nbt.getCompound(ITEM_DATA_KEY));
-        } else if (type.equals(EMPTY_ITEM_TYPE)) {
-            return FoodItem.EMPTY;
-        } else
-            throw new IllegalStateException("Read from NBT item of unsupported type");
+        switch (type) {
+            case INGREDIENT_ITEM_TYPE:
+                return readHistoryIngredient(nbt);
+            case TOOL_ITEM_TYPE:
+                return readHistoryTool(nbt);
+            case EMPTY_ITEM_TYPE:
+                return FoodItemHistoryRepresentation.EMPTY;
+            default:
+                throw new IllegalStateException("Read from NBT item of unsupported type");
+        }
     }
 
-    private static FoodTool readTool(CompoundNBT nbt) {
+    private static ToolHistoryRepresentation readHistoryTool(CompoundNBT nbt) {
         String id = nbt.getString(TOOL_ID_KEY);
-        return MBFoodToolsRegister.TOOL_BY_ID.get(id).core;
+        List<FoodTag> tags = readTags(nbt.getList(TAGS_KEY, Constants.NBT.TAG_STRING));
+        FoodTool tool = MBFoodToolsRegister.TOOL_BY_ID.get(id).core;
+        return new ToolHistoryRepresentation(tool, tags);
     }
 
     private static MBItemRendering readRendering(CompoundNBT nbt) {
@@ -340,7 +371,7 @@ public class IngredientNBTConverter {
 
         for (int i = 0; i < listNbt.size(); i++) {
             final CompoundNBT compound = listNbt.getCompound(i);
-            Pair<String, Color> pair = readKeyValuePair(compound, IngredientNBTConverter::readColor);
+            Pair<String, Color> pair = readKeyValuePair(compound, FoodItemNBTConverter::readColor);
             result.put(pair.getKey(), pair.getValue());
         }
 

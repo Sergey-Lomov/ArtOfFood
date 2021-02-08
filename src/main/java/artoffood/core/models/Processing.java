@@ -11,18 +11,18 @@ import java.util.List;
 public class Processing {
 
     private final TagsPredicate ingredientPredicate;
-    private final List<FoodToolFunctional> requiredToolFunctionals;
-    private final List<FoodDeviceFunctional> requiredDeviceFunctionals;
+    private final List<FoodTag> requiredToolTags;
+    private final List<FoodTag> requiredDeviceTags;
     public final int resultCount;
 
     private final NutritionalTransform nutritionalTransform;
     private final TasteTransform tasteTransform;
     private final TagsTransform tagsTransform;
 
-    public Processing(TagsPredicate ingredientPredicate, List<FoodToolFunctional> requiredToolFunctionals, List<FoodDeviceFunctional> requiredDeviceFunctionals, int resultCount, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
+    public Processing(TagsPredicate ingredientPredicate, List<FoodTag> requiredToolTags, List<FoodTag> requiredDeviceTags, int resultCount, NutritionalTransform nutritionalTransform, TasteTransform tasteTransform, TagsTransform tagsTransform) {
         this.ingredientPredicate = ingredientPredicate;
-        this.requiredToolFunctionals = requiredToolFunctionals;
-        this.requiredDeviceFunctionals = requiredDeviceFunctionals;
+        this.requiredToolTags = requiredToolTags;
+        this.requiredDeviceTags = requiredDeviceTags;
         this.resultCount = resultCount;
         this.nutritionalTransform = nutritionalTransform;
         this.tasteTransform = tasteTransform;
@@ -36,8 +36,9 @@ public class Processing {
     }
 
     public boolean availableForIngredient(List<FoodTag> tags) { return ingredientPredicate.test(tags); }
-    public boolean availableWithTool(FoodTool foodTool) { return foodTool.containsAll(requiredToolFunctionals); }
-    public boolean availableWithDevice(List<FoodDeviceFunctional> deviceFunctionals) {
-        return deviceFunctionals.containsAll(requiredDeviceFunctionals); }
-    public boolean availableWithoutTool() { return requiredToolFunctionals.isEmpty(); }
+    public boolean availableWithTool(List<FoodTag> tags) { return tags.containsAll(requiredToolTags); }
+    public boolean availableWithDevice(List<FoodTag> tags) {
+        return tags.containsAll(requiredDeviceTags);
+    }
+    public boolean availableWithoutTool() { return requiredToolTags.isEmpty(); }
 }

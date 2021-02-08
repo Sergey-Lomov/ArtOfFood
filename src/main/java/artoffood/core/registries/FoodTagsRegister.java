@@ -34,6 +34,16 @@ public class FoodTagsRegister {
 
     public static final FoodTag SALAD = register(FoodTagCategory.FILTER, FoodTagCategory.PROCESSING);
 
+    public static class Tools {
+        public static final FoodTag SLICER = register(false, FoodTagCategory.TOOL_FUNCTIONAL);
+        public static final FoodTag GRATER = register(false, FoodTagCategory.TOOL_FUNCTIONAL);
+    }
+
+    public static class Devices {
+        public static final FoodTag COUNTERTOP = register(false, FoodTagCategory.DEVICE_FUNCTIONAL);
+    }
+
+
     private static FoodTag register(FoodTagCategory ... categories) {
         return register(true, categories);
     }

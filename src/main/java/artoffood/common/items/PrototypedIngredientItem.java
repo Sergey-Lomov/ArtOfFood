@@ -1,7 +1,7 @@
 package artoffood.common.items;
 
 import artoffood.common.capabilities.ingredient.IngredientEntityProvider;
-import artoffood.common.utils.IngredientNBTConverter;
+import artoffood.common.utils.FoodItemNBTConverter;
 import artoffood.minebridge.models.MBIngredientPrototype;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -21,9 +21,6 @@ public class PrototypedIngredientItem extends FoodIngredientItem {
     @Nullable
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
-        if (nbt != null)
-            return new IngredientEntityProvider(IngredientNBTConverter.read(nbt));
-        else
-            return new IngredientEntityProvider(prototype);
+        return new IngredientEntityProvider(prototype);
     }
 }

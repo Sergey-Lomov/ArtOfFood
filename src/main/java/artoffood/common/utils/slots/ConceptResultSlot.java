@@ -11,6 +11,7 @@ import artoffood.common.utils.SilentCraftingInventory;
 import artoffood.common.utils.resgistrators.ItemsRegistrator;
 import artoffood.core.models.ByConceptOrigin;
 import artoffood.core.models.FoodItem;
+import artoffood.minebridge.models.MBFoodItem;
 import artoffood.minebridge.models.MBIngredient;
 import javafx.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,6 +34,7 @@ public class ConceptResultSlot extends Slot {
     private final PlayerEntity player;
     private final ConceptResultSlotDelegate delegate;
     private int amountCrafted = 1;
+    public NonNullList<MBFoodItem> craftItems = NonNullList.create();
     public NonNullList<SlotReference> references = NonNullList.create();
 
     public ConceptResultSlot(PlayerEntity player,
@@ -62,6 +64,7 @@ public class ConceptResultSlot extends Slot {
     public void configure(ConceptResultSlotConfig config) {
         if (!(config.result.core.origin instanceof ByConceptOrigin)) return;
 
+        craftItems = config.items;
         references = config.references;
 
         ByConceptOrigin origin = (ByConceptOrigin) config.result.core.origin;
@@ -121,21 +124,23 @@ public class ConceptResultSlot extends Slot {
 
     protected @NotNull ItemStack tryToGetResult(ItemStack target, boolean decreaseStacks) {
 
-        AtomicReference<MBIngredient> atomicResult = new AtomicReference<>(null);
+        if (delegate == null) return ItemStack.EMPTY;
+
+        /*AtomicReference<MBIngredient> atomicResult = new AtomicReference<>(null);
         target.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
                 cap -> atomicResult.set(cap.getIngredient())
         );
-        if (atomicResult.get() == null) return ItemStack.EMPTY;
-        if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) return ItemStack.EMPTY;
+        if (atomicResult.get() == null) return ItemStack.EMPTY;*/
+        //if (!(atomicResult.get().core.origin instanceof ByConceptOrigin)) return ItemStack.EMPTY;
 
-        ByConceptOrigin origin = (ByConceptOrigin) atomicResult.get().core.origin;
+        //ByConceptOrigin origin = (ByConceptOrigin) atomicResult.get().core.origin;
         Map<Slot, ItemStack> futureStacks = new HashMap<>();
 
         // Check items stacks in slots is necessary ingredients. Prepare decreased stacks.
-        if (references.size() != origin.items.size()) return ItemStack.EMPTY;
+        if (references.size() != craftItems.size()) return ItemStack.EMPTY;
         for (int i = 0; i < references.size(); i++) {
             SlotReference reference = references.get(i);
-            FoodItem item = origin.items.get(i);
+            FoodItem item = craftItems.get(i).itemCore();
 
             // Handle empty refs for empty (optional) items
             if (reference.isEmptyFrom()) {
@@ -158,13 +163,13 @@ public class ConceptResultSlot extends Slot {
             delegate.applySlotChanges(futureStacks);
         }
 
-        return IngredientFactory.createStack(origin.concept, origin.items, atomicResult.get());
+        return delegate.stackForItems(craftItems); //IngredientFactory.createStack(origin.concept, origin.items, atomicResult.get());
     }
 
     private Pair<Boolean, ItemStack> handledStack(ItemStack source, FoodItem item) {
 
         Optional<IFoodItemEntity> foodItemEntity = source.getCapability(FoodItemEntityCapability.INSTANCE).resolve();
-        if (!foodItemEntity.isPresent()) return  new Pair<>(false, null);
+        if (!foodItemEntity.isPresent()) return new Pair<>(false, null);
 
         if (foodItemEntity.get() instanceof IIngredientEntity) {
             IIngredientEntity entity = (IIngredientEntity) foodItemEntity.get();

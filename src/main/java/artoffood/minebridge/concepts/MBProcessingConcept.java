@@ -1,9 +1,6 @@
 package artoffood.minebridge.concepts;
 
-import artoffood.core.models.Concept;
-import artoffood.core.models.FoodItem;
-import artoffood.core.models.Ingredient;
-import artoffood.core.models.Processing;
+import artoffood.core.models.*;
 import artoffood.core.models.concepts.ProcessingsConcept;
 import artoffood.minebridge.models.*;
 import artoffood.minebridge.registries.MBProcessingsRegister;
@@ -36,7 +33,7 @@ public class MBProcessingConcept extends MBConcept {
         MBIngredient original = (MBIngredient)items.get(0);
         MBItemRendering rendering = original.rendering.clone();
 
-        List<FoodItem> coreItems = items.stream().map(i -> i.itemCore()).collect(Collectors.toList());
+        List<ConceptSlotVerifiable> coreItems = items.stream().map(i -> i.itemCore()).collect(Collectors.toList());
         Processing coreProcessing = ((ProcessingsConcept)core).processingFor(coreItems);
         MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_CORE.get(coreProcessing);
         processing.updateRendering(rendering);

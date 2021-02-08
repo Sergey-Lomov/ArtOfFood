@@ -1,18 +1,17 @@
 package artoffood.core.models.concepts;
 
-import artoffood.core.models.FoodDeviceFunctional;
+import artoffood.core.models.FoodTag;
+import artoffood.core.registries.FoodTagsRegister;
+import net.minecraft.util.NonNullList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CountertopProcessings extends ProcessingsConcept {
 
-    private static final List<FoodDeviceFunctional> functionals = new ArrayList<FoodDeviceFunctional>() {{
-        add(FoodDeviceFunctional.COUNTERTOP);
-    }};
+    private static final List<FoodTag> DEVICE_TAGS = NonNullList.withSize(1, FoodTagsRegister.Devices.COUNTERTOP);
 
     @Override
-    protected List<FoodDeviceFunctional> providedFunctionals() {
-        return functionals;
+    protected List<FoodTag> providedDeviceTags() {
+        return DEVICE_TAGS;
     }
 }

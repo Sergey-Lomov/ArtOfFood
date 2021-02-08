@@ -14,6 +14,7 @@ import artoffood.client.screens.slot_prompt.lists.StubPromptTextures;
 import artoffood.client.utils.Texture;
 import artoffood.common.blocks.base.PlayerInventoryContainer;
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
+import artoffood.common.utils.IngredientFactory;
 import artoffood.common.utils.background_tasks.BackgroundTasksManager;
 import artoffood.common.utils.background_tasks.ConceptResultsCalculationInput;
 import artoffood.common.utils.resgistrators.ContainersRegistrator;
@@ -24,6 +25,7 @@ import artoffood.core.models.Ingredient;
 import artoffood.core.models.IngredientOrigin;
 import artoffood.minebridge.models.MBConcept;
 import artoffood.minebridge.models.MBFoodItem;
+import artoffood.minebridge.models.MBIngredient;
 import artoffood.minebridge.models.MBVisualSlot;
 import artoffood.minebridge.registries.MBConceptsRegister;
 import artoffood.minebridge.utils.LocalisationManager;
@@ -351,15 +353,16 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             if (!(origin instanceof ByConceptOrigin))
                 throw new IllegalStateException("Invalid proposition result origin type.");
 
-            List<FoodItem> items = ((ByConceptOrigin) origin).items;
-            Ingredient realResult = concept.core.getIngredient(items);
-            if (realResult.equals(proposition.result.core)) {
+            // TODO: Check, will be hacked result prevented on taken from slot or not
+//            List<FoodItem> items = ((ByConceptOrigin) origin).items;
+//            Ingredient realResult = concept.core.getIngredient(items);
+//            if (realResult.equals(proposition.result.core)) {
                 Slot slot = inventorySlots.get(approved.size() + FIRST_OUT_SLOT_INDEX);
                 if (slot instanceof ConceptResultSlot) {
                     ((ConceptResultSlot) slot).configure(proposition);
                     approved.add(proposition);
                 }
-            }
+//            }
         }
 
         for (int i = approved.size(); i < outInventories.size(); i++) {
@@ -417,6 +420,12 @@ public class CountertopContainer extends PlayerInventoryContainer implements ISl
             ItemStack newStack = futureStacks.get(slot);
             slot.putStack(newStack);
         }
+    }
+
+    @Override
+    public @NotNull ItemStack stackForItems(List<MBFoodItem> items) {
+        if (concept == null) return  ItemStack.EMPTY;
+        return IngredientFactory.createStack(concept, items);
     }
 
     protected void requestResultProposes () {

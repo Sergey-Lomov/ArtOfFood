@@ -47,13 +47,13 @@ public class BlendySaltySalad extends Concept {
     }
 
     @Override
-    public boolean matches(@NotNull List<FoodItem> items) {
+    public boolean matches(@NotNull List<ConceptSlotVerifiable> items) {
         if (!super.matches(items)) return false;
 
-        List<FoodItem> unique = new ArrayList<>();
+        List<ConceptSlotVerifiable> unique = new ArrayList<>();
         for (int iterator = 0; iterator < items.size(); iterator++) {
             if (slots.get(iterator).groupId != UNIQUE_CHECK_GROUP_ID) continue;
-            FoodItem item = items.get(iterator);
+            ConceptSlotVerifiable item = items.get(iterator);
             if (item.isEmpty()) continue;
             long equalsCount = unique.stream().filter(i -> i.equals(item)).count();
             if (equalsCount == 0) unique.add(item);

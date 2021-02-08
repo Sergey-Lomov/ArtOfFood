@@ -24,7 +24,7 @@ public class FoodToolItem extends Item {
         if (foodTool != null)
             return new FoodToolEntityProvider(foodTool);
         else
-            return new FoodToolEntityProvider(nbt);
+            return new FoodToolEntityProvider(MBFoodTool.EMPTY);
     }
 
     public boolean isUnbreakable() { return foodTool.isUnbreakable(); }

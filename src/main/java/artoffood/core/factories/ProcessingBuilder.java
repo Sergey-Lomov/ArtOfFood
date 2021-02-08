@@ -1,6 +1,7 @@
 package artoffood.core.factories;
 
 import artoffood.core.models.FoodDeviceFunctional;
+import artoffood.core.models.FoodTag;
 import artoffood.core.models.Processing;
 import artoffood.core.models.FoodToolFunctional;
 import artoffood.core.models.predicates.TagsPredicate;
@@ -15,8 +16,8 @@ import java.util.List;
 public class ProcessingBuilder {
 
     private final TagsPredicate ingredientPredicate;
-    private final List<FoodToolFunctional> requiredToolsFunctional = new ArrayList<>();
-    private final List<FoodDeviceFunctional> requiredDevicesFunctional = new ArrayList<>();
+    private final List<FoodTag> requiredToolsTags = new ArrayList<>();
+    private final List<FoodTag> requiredDevicesTags = new ArrayList<>();
     private int resultCount = 1;
     private NutritionalTransform nutritionalTransform = NutritionalTransform.EMPTY;
     private TasteTransform tasteTransform = TasteTransform.EMPTY;
@@ -28,18 +29,18 @@ public class ProcessingBuilder {
 
     public Processing build()
     {
-        Processing processing = new Processing(ingredientPredicate, requiredToolsFunctional, requiredDevicesFunctional, resultCount, nutritionalTransform, tasteTransform, tagsTransform);
+        Processing processing = new Processing(ingredientPredicate, requiredToolsTags, requiredDevicesTags, resultCount, nutritionalTransform, tasteTransform, tagsTransform);
         ProcessingsRegister.ALL.add(processing);
         return processing;
     }
 
-    public ProcessingBuilder addRequirement(FoodToolFunctional tool) {
-        this.requiredToolsFunctional.add(tool);
+    public ProcessingBuilder addToolRequirement(FoodTag tool) {
+        this.requiredToolsTags.add(tool);
         return this;
     }
 
-    public ProcessingBuilder addRequirement(FoodDeviceFunctional device) {
-        this.requiredDevicesFunctional.add(device);
+    public ProcessingBuilder addDeviceRequirement(FoodTag device) {
+        this.requiredDevicesTags.add(device);
         return this;
     }
 

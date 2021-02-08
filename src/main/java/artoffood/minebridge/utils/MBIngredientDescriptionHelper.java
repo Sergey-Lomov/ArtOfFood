@@ -69,7 +69,7 @@ public class MBIngredientDescriptionHelper {
     public static List<String> tagsDescription(MBIngredient ingredient) {
         List<FoodTag> tags = ingredient.core.tags();
         List<FoodTag> visible = tags.stream().filter(t -> t.isVisible).collect(Collectors.toList());
-        Function<FoodTag, String> toString = t -> tagDesctiprtion(t);
+        Function<FoodTag, String> toString = MBIngredientDescriptionHelper::tagDesctiprtion;
         List<String> stream = visible.stream().map(toString).collect(Collectors.toList());
         String descrpition = String.join(TAGS_SEPARATOR, stream);
         return new ArrayList<String>() {{ add(descrpition); }};

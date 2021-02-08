@@ -1,40 +1,41 @@
 package artoffood.core.models;
 
 import artoffood.core.registries.FoodTagsRegister;
-import artoffood.core.registries.FoodToolsRegister;
+import net.minecraft.util.NonNullList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class FoodTool extends FoodItem {
 
-    private static final List<FoodTag> typeTags = new ArrayList<FoodTag>() {{ add(FoodTagsRegister.TOOL); }};
-    public static final FoodTool EMPTY = new FoodTool(FoodToolFunctional.EMPTY);
+    static final List<FoodTag> TYPE_TAGS = new ArrayList<FoodTag>() {{ add(FoodTagsRegister.TOOL); }};
+    public static final FoodTool EMPTY = new FoodTool();
 
-    private final List<FoodToolFunctional> functionals = new ArrayList<>();
-
-    public FoodTool(FoodToolFunctional functional) {
+    public FoodTool() {
         super();
-        functionals.add(functional);
     }
 
-    public FoodTool(List<FoodToolFunctional> functionals) {
+    public FoodTool(FoodTag tag) {
         super();
-        this.functionals.addAll(functionals);
+        setTags(NonNullList.withSize(1, tag));
     }
 
-    public boolean contains(FoodToolFunctional functional) {
-        return functionals.contains(functional);
+    public FoodTool(List<FoodTag> tags) {
+        super();
+        setTags(tags);
     }
 
-    public boolean containsAll(List<FoodToolFunctional> requiredFunctionals) {
-        return functionals.containsAll(requiredFunctionals);
+    public boolean contains(FoodTag tag) {
+        return tags().contains(tag);
+    }
+
+    public boolean containsAll(List<FoodTag> requiredFunctionals) {
+        return tags().containsAll(requiredFunctionals);
     }
 
     @Override
     protected List<FoodTag> typeTags() {
-        return typeTags;
+        return TYPE_TAGS;
     }
 
     @Override
@@ -44,13 +45,12 @@ public class FoodTool extends FoodItem {
 
     @Override
     public FoodItem clone() {
-        return new FoodTool(functionals);
+        return new FoodTool(tags());
     }
 
     @Override
-    protected int craftPriority() {
-        if (FoodToolsRegister.ALL.contains(this))
-            return Integer.MAX_VALUE - FoodToolsRegister.ALL.indexOf(this);
-        return 0;
+    protected FoodItemHistoryRepresentation historyRepresentation() {
+        return new ToolHistoryRepresentation(this, tags());
     }
+
 }
