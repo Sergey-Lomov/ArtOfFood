@@ -36,6 +36,7 @@ public class FoodItemNBTConverter {
     private static final String EDIBLE_KEY = "edible";
     private static final String TAGS_KEY = "tags";
     private static final String STACK_SIZE_KEY = "stack_size";
+    private static final String CUSTOM_NAME_KEY = "name";
 
     private static final String ORIGIN_KEY = "origin";
     private static final String PROTOTYPE_KEY = "prototype";
@@ -107,13 +108,23 @@ public class FoodItemNBTConverter {
         result.putString(ITEM_TYPE_KEY, INGREDIENT_ITEM_TYPE);
         result.put(RENDERING_KEY, writeRendering(ingredient.rendering));
         result.putInt(STACK_SIZE_KEY, ingredient.stackSize);
+
+        if (ingredient.customName != null)
+            result.putString(CUSTOM_NAME_KEY, ingredient.customName);
+
         return result;
     }
 
     public static MBIngredient readIngredient(CompoundNBT nbt) {
+
+        String customName = null;
+        if (nbt.contains(CUSTOM_NAME_KEY))
+            customName = nbt.getString(CUSTOM_NAME_KEY);
+
         return new MBIngredient(readCoreIngredient(nbt),
                 nbt.getInt(STACK_SIZE_KEY),
-                readRendering(nbt.getCompound(RENDERING_KEY)));
+                readRendering(nbt.getCompound(RENDERING_KEY)),
+                customName);
     }
 
     // Writing methods

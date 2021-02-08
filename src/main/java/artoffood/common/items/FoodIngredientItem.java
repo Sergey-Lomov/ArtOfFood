@@ -33,7 +33,7 @@ public class FoodIngredientItem extends Item {
     public @NotNull ITextComponent getDisplayName(ItemStack stack) {
         AtomicReference<String> name = new AtomicReference<>(null);
         stack.getCapability(IngredientEntityCapability.INSTANCE).ifPresent(
-                cap -> name.set(MBIngredientDescriptionHelper.title(cap.getIngredient()))
+                cap -> name.set(cap.getIngredient().name())
         );
 
         return name.get() != null ? new StringTextComponent(name.get()) : super.getDisplayName(stack);

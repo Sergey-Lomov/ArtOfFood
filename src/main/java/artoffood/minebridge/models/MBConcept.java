@@ -33,19 +33,21 @@ public abstract class MBConcept {
         this.resultStackSize = resultStackSize;
     }
 
-    public abstract @NotNull MBItemRendering rendering(List<MBFoodItem> items);
+    public abstract @NotNull MBItemRendering getRendering(List<MBFoodItem> items);
 
     // TODO: Check, it is really necessary to send items into this method
-    public int getStackSize(List<MBFoodItem> items) { return 64; };
+    public int getStackSize(List<MBFoodItem> items) { return 64; }
+    public @Nullable String getCustomName(List<MBFoodItem> items) { return null; }
 
     public @Nullable MBIngredient getIngredient(List<MBFoodItem> items) {
-        Ingredient core = coreIngredient(items);
+        Ingredient core = getCoreIngredient(items);
         int stackSize = getStackSize(items);
-        MBItemRendering rendering = rendering(items);
-        return new MBIngredient(core, stackSize, rendering);
+        MBItemRendering rendering = getRendering(items);
+        @Nullable String customName = getCustomName(items);
+        return new MBIngredient(core, stackSize, rendering, customName);
     }
 
-    protected @NotNull Ingredient coreIngredient(List<MBFoodItem> items) {
+    protected @NotNull Ingredient getCoreIngredient(List<MBFoodItem> items) {
         List<FoodItem> coreItems = items.stream().map(MBFoodItem::itemCore).collect(Collectors.toList());
         return core.getIngredient(coreItems);
     }

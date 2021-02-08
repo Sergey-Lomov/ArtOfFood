@@ -27,7 +27,7 @@ public class IngredientInfoView extends GUILabel {
 
     public void setIngredient(MBIngredient ingredient) {
         List<String> strings = new ArrayList<>();
-        strings.add(MBIngredientDescriptionHelper.title(ingredient));
+        strings.add(ingredient.name());
         strings.add(TITLE_SEPARATOR);
         strings.addAll(MBIngredientDescriptionHelper.fullDescription(ingredient));
         setStrings(strings);

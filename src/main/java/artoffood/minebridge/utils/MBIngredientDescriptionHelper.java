@@ -23,19 +23,6 @@ public class MBIngredientDescriptionHelper {
     private static final String TAGS_SEPARATOR = ", ";
     private static final String PARAGRAPHS_SEPARATOR = " ";
 
-    public static String title(MBIngredient ingredient) {
-        if (ingredient.core.origin instanceof ByPrototypeOrigin) {
-            IngredientPrototype coreType = ((ByPrototypeOrigin) ingredient.core.origin).prototype;
-            MBIngredientPrototype type = MBIngredientPrototypesRegister.PROTOTYPE_BY_CORE.get(coreType);
-            return LocalisationManager.prototypeTitle(type.prototypeId);
-        } else if (ingredient.core.origin instanceof ByConceptOrigin) {
-            Concept coreConcept = ((ByConceptOrigin) ingredient.core.origin).concept;
-            MBConcept concept = MBConceptsRegister.CONCEPT_BY_CORE.get(coreConcept);
-            return LocalisationManager.conceptTitle(concept.conceptId);
-        } else
-            throw new IllegalStateException("Try to get display name for ingredient with unsupported origin type");
-    }
-
     public static List<String> fullDescription(MBIngredient ingredient) {
         List<String> description = nutritionalDescription(ingredient);
         description.add(PARAGRAPHS_SEPARATOR);

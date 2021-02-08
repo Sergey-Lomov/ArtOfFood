@@ -40,7 +40,7 @@ public class MBBlendySaltySalad extends MBConcept {
     }
 
     @Override
-    public @NotNull MBItemRendering rendering(List<MBFoodItem> items) {
+    public @NotNull MBItemRendering getRendering(List<MBFoodItem> items) {
         if (items.size() != slots.size())
             throw new IllegalStateException("Different number of slots and subingredients at rendering calculation");
 

@@ -29,20 +29,23 @@ public class MBProcessingConcept extends MBConcept {
         if (!(core instanceof ProcessingsConcept) || !(items.get(0) instanceof MBIngredient))
             return MBIngredient.EMPTY;
 
-        Ingredient coreIngredient = coreIngredient(items);
+        Ingredient coreIngredient = getCoreIngredient(items);
         MBIngredient original = (MBIngredient)items.get(0);
         MBItemRendering rendering = original.rendering.clone();
 
-        List<ConceptSlotVerifiable> coreItems = items.stream().map(i -> i.itemCore()).collect(Collectors.toList());
+        List<ConceptSlotVerifiable> coreItems = items.stream()
+                .map(MBFoodItem::itemCore)
+                .collect(Collectors.toList());
         Processing coreProcessing = ((ProcessingsConcept)core).processingFor(coreItems);
         MBProcessing processing = MBProcessingsRegister.PROCESSING_BY_CORE.get(coreProcessing);
         processing.updateRendering(rendering);
 
-        return new MBIngredient(coreIngredient, original.stackSize, rendering);
+        String customName = processing.customName(original);
+        return new MBIngredient(coreIngredient, original.stackSize, rendering, customName);
     }
 
     @Override
-    public @NotNull MBItemRendering rendering(List<MBFoodItem> items) {
+    public @NotNull MBItemRendering getRendering(List<MBFoodItem> items) {
         return MBItemRendering.EMPTY; //Should never been called
     }
 }

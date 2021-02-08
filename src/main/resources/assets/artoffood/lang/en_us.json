@@ -29,12 +29,16 @@
 
   "prototypes.cabbage": "Cabbage",
   "prototypes.tomato": "Tomato",
+  "prototypes.yellow_bell_pepper": "Yellow bell pepper",
   "prototypes.sunflower_oil": "Sunflower Oil",
   "prototypes.rock_salt": "Rock salt",
 
   "concepts.title.processings_concept": "Processings",
   "concepts.title.blendy_salty_salad": "Common salad",
   "concepts.title.test": "Test long concept name for resizing",
+
+  "processing.name_addition.sliced": "sliced",
+  "processing.name_addition.grated": "grated",
 
   "slot_hint.any_ingredient": "Any cooking ingredient",
   "slot_hint.any_tool": "Any cooking tool",

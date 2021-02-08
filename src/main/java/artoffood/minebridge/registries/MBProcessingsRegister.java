@@ -16,23 +16,30 @@ public class MBProcessingsRegister {
     public static HashMap<String, MBProcessing> PROCESSING_BY_ID = new HashMap();
     public static HashMap<Processing, MBProcessing> PROCESSING_BY_CORE = new HashMap();
 
-    public static MBProcessing SLICING = registerWithInnerToMain("slicing", ProcessingsRegister.SLICING, PROCESSING_PREFIX + "sliced");
-    public static MBProcessing GRATE = registerWithInnerToMain("grate", ProcessingsRegister.GRATE, PROCESSING_PREFIX + "grated");
+    public static MBProcessing SLICING = registerWithInnerToMain("slicing",
+            ProcessingsRegister.SLICING,
+            "sliced",
+            PROCESSING_PREFIX + "sliced");
 
-    private static MBProcessing registerWithInnerToMain(String id, Processing core, String newModel){
+    public static MBProcessing GRATE = registerWithInnerToMain("grate",
+            ProcessingsRegister.GRATE,
+            "grated",
+            PROCESSING_PREFIX + "grated");
+
+    private static MBProcessing registerWithInnerToMain(String id, Processing core, String nameAdditionKey, String newModel){
         MBItemRenderingTransform transform = new MBItemRenderingTransformBuilder()
                 .newModelKey(newModel)
                 .addLayer(ColorsSchema.MAIN_KEY)
                 .colorsTransform(new InnerToMainColorsTransform())
                 .build();
-        return new MBProcessing(id, core, transform) {{
+        return new MBProcessing(id, core, nameAdditionKey, transform) {{
             PROCESSING_BY_ID.put(id, this);
             PROCESSING_BY_CORE.put(core, this);
         }};
     }
 
-    private static MBProcessing register(String id, Processing core, MBItemRenderingTransform transform) {
-        return new MBProcessing(id, core, transform) {{
+    private static MBProcessing register(String id, Processing core, String nameAdditionKey, MBItemRenderingTransform transform) {
+        return new MBProcessing(id, core, nameAdditionKey, transform) {{
             PROCESSING_BY_ID.put(id, this);
             PROCESSING_BY_CORE.put(core, this);
         }};
