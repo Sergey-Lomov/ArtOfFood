@@ -9,6 +9,8 @@ import artoffood.client.screens.slot_prompt.ReferenceSlotPrompt;
 import artoffood.client.screens.slot_prompt.StubSlotPrompt;
 import artoffood.client.screens.slot_prompt.TextSlotPrompt;
 import artoffood.client.screens.slot_prompt.rendering.*;
+import artoffood.client.utils.KeyBindings;
+import artoffood.client.utils.KeyInputHandler;
 import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.capabilities.food_tool.FoodToolEntityCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
@@ -39,6 +41,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -113,6 +116,9 @@ public class ArtOfFood
         SlotPromptRenderingManager.register(StubSlotPrompt.class, new StubPromptRenderer());
         SlotPromptRenderingManager.register(HighlightSlotPrompt.class, new HighlightPromptRenderer());
         SlotPromptRenderingManager.register(ReferenceSlotPrompt.class, new ReferencePromptRenderer());
+
+        MinecraftForge.EVENT_BUS.register(new KeyInputHandler());
+        ClientRegistry.registerKeyBinding(KeyBindings.MEDITATION);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

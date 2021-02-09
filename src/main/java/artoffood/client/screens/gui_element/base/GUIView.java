@@ -58,6 +58,7 @@ public class GUIView extends AbstractGui {
     public Rectangle getFrame() {
         return frame;
     }
+    public Rectangle getBounds() { return new Rectangle(0, 0, contentFrame.width, contentFrame.height);}
 
     public void setFrame(Rectangle frame) {
         this.frame = frame;

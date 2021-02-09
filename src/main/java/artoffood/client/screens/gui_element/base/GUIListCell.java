@@ -32,10 +32,10 @@ public abstract class GUIListCell<T> extends GUIView {
         updateBorderColor();
     }
 
-    public void setModel(T model) {
+    public void setModel(@Nullable T model) {
         this.model = model;
     }
-    public T getModel() { return model; }
+    public @Nullable T getModel() { return model; }
 
     public void setFrame(int x, int y, int width) {
         final int height = calcHeight(width - leftBorderWidth - rightBorderWidth);
