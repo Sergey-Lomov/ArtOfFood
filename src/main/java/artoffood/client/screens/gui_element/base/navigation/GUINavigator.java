@@ -1,8 +1,9 @@
 package artoffood.client.screens.gui_element.base.navigation;
 
 import artoffood.client.screens.gui_element.base.GUIView;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import org.jetbrains.annotations.NotNull;
+import artoffood.client.screens.gui_element.base.animation.GUIAnimation;
+import artoffood.client.screens.gui_element.base.animation.GUINavigationAnimation;
+import artoffood.client.screens.gui_element.base.animation.GUINavigationAnimationFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -11,12 +12,12 @@ import java.util.function.Consumer;
 
 public class GUINavigator extends GUIView {
 
+    protected static final String ANIMATION_ID = "navigation_animation";
     public static final float DEFAULT_ANIMATION_DURATION = 300;
 
     protected final Stack<GUIView> views = new Stack<>();
     protected final GUINavigationAnimationFactory animationFactory;
     public float animationDuration = DEFAULT_ANIMATION_DURATION;
-    protected @Nullable GUINavigationAnimation currentAnimation = null;
 
     public GUINavigator(GUIView initialView, int x, int y, int width, int height, GUINavigationAnimationFactory animationFactory) {
         super(x, y, width, height);
@@ -30,59 +31,49 @@ public class GUINavigator extends GUIView {
         this.animationFactory = animationFactory;
         views.push(initialView);
         addChild(initialView);
+        Rectangle initialFrame = new Rectangle(new Point(0,0), contentFrame.getSize());
+        initialView.setFrame(initialFrame);
     }
 
     public void pushView(GUIView view) {
         if (views.contains(view))
             throw new IllegalStateException("Try to push view, which already in navigator stack");
-
-        if (currentAnimation != null)
-            currentAnimation.abort();
+        abortAnimation(ANIMATION_ID);
 
         @Nullable GUIView oldView = views.lastElement();
         views.push(view);
         addChild(view);
 
-
         Consumer<Boolean> completion = success -> {
             if (oldView != null)
                 oldView.isHidden = true;
-            currentAnimation = null;
         };
 
-        currentAnimation = animationFactory.animation(this, oldView, view,
+        GUIAnimation animation = animationFactory.animation(this, oldView, view,
                 GUINavigationAnimation.Direction.FORWARD,
                 animationDuration, completion);
+        animation.id = ANIMATION_ID;
+        animations.add(animation);
     }
 
     public void popView() {
         if (views.isEmpty())
             throw new IllegalStateException("Try to poop from empty navigation");
-
-        if (currentAnimation != null)
-            currentAnimation.abort();
+        abortAnimation(ANIMATION_ID);
 
         GUIView oldView = views.pop();
-        @Nullable GUIView newView = views.lastElement();
+        @Nullable GUIView newView = null;
+        if (!views.isEmpty()) newView = views.lastElement();
         if (newView != null) newView.isHidden = false;
 
 
-        Consumer<Boolean> completion = success -> {
-            removeChild(oldView);
-            currentAnimation = null;
-        };
+        Consumer<Boolean> completion = success -> removeChild(oldView);
 
-        currentAnimation = animationFactory.animation(this, oldView, newView,
+        GUIAnimation animation = animationFactory.animation(this, oldView, newView,
                 GUINavigationAnimation.Direction.BACKWARD,
                 animationDuration, completion);
-    }
-
-    @Override
-    protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        if (currentAnimation != null)
-            currentAnimation.update(matrixStack, mouseX, mouseY, partialTicks);
-
-        super.preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
+        animation.id = ANIMATION_ID;
+        animations.add(animation);
     }
 
     @Override

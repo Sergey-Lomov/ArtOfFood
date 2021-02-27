@@ -1,4 +1,4 @@
-package artoffood.client.screens.gui_element.base.navigation;
+package artoffood.client.screens.gui_element.base.animation;
 
 import com.mojang.datafixers.util.Function3;
 
@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class AnimationUtils {
 
-    private static Function3<Integer, Integer, Float, Integer> transit =
+    private static final Function3<Integer, Integer, Float, Integer> transit =
             (from, to, progress) -> Math.round(from + (to - from) * progress);
 
     static Rectangle transitional(Rectangle from, Rectangle to, float progress) {

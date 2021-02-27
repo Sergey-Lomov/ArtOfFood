@@ -1,7 +1,10 @@
 package artoffood.client.screens.gui_element.base;
 
+import artoffood.client.screens.gui_element.base.animation.GUIAnimation;
 import artoffood.client.utils.Texture;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -15,7 +18,6 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_BIT;
-import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 
 public class GUIView extends AbstractGui {
 
@@ -29,10 +31,12 @@ public class GUIView extends AbstractGui {
     private Rectangle frame;
     protected Rectangle absoluteFrame;
     protected Rectangle contentFrame;
-    protected int leftBorderWidth = 1;
-    protected int rightBorderWidth = 1;
-    protected int topBorderWidth = 1;
-    protected int bottomBorderWidth = 1;
+    protected int leftBorderWidth = 0;
+    protected int rightBorderWidth = 0;
+    protected int topBorderWidth = 0;
+    protected int bottomBorderWidth = 0;
+
+    protected NonNullList<GUIAnimation> animations = NonNullList.create();
 
     public @Nullable Integer backColor = null;
     public int topLeftBorderColor = Color.decode("#373737").getRGB();
@@ -43,9 +47,12 @@ public class GUIView extends AbstractGui {
 
     public boolean isHidden = false;
 
+    public GUIView() {
+        this(0,0,0,0);
+    }
+
     public GUIView(int x, int y, int width, int height) {
-        this.frame = new Rectangle(x, y, width, height);
-        handleFrameUpdate();
+        this(new Rectangle(x, y, width, height));
     }
 
     public GUIView(Rectangle frame) {
@@ -65,6 +72,10 @@ public class GUIView extends AbstractGui {
         handleFrameUpdate();
     }
 
+    public void setFrame(int x, int y, int width, int height) {
+        setFrame(new Rectangle(x, y, width, height));
+    }
+
     public void setBorderWidth(int width) {
         leftBorderWidth = width;
         rightBorderWidth = width;
@@ -81,7 +92,7 @@ public class GUIView extends AbstractGui {
         handleFrameUpdate();
     }
 
-    private void handleFrameUpdate() {
+    protected void handleFrameUpdate() {
         if (parent == null) {
             absoluteFrame = frame;
         } else {
@@ -97,6 +108,10 @@ public class GUIView extends AbstractGui {
                 absoluteFrame.width - leftBorderWidth - rightBorderWidth,
                 absoluteFrame.height - topBorderWidth - bottomBorderWidth);
 
+        if (!childs.isEmpty()) updateChildsFrames();
+    }
+
+    protected void updateChildsFrames() {
         for (GUIView child: childs) {
             child.parentFrameUpdateHandler.accept(child);
             child.handleFrameUpdate();
@@ -176,11 +191,20 @@ public class GUIView extends AbstractGui {
         childs.forEach(c -> c.mouseMoved(mouseX, mouseY));
     }
 
+    // Animations
+    public void abortAnimation(String id) {
+        animations.forEach(a -> {
+            if (a.id.equals(id)) a.abort();
+        });
+    }
+
     // Rendering
 
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
         if (isHidden) return;
 
+        animations.removeIf(a -> a.isCompleted() || a.isAborted());
+        animations.forEach(a -> a.update(matrixStack, mouseX, mouseY, partialTicks));
         preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
         childsRender(matrixStack, mouseX, mouseY, partialTicks, transformedParent);
         postChildsRender(matrixStack, mouseX, mouseY, partialTicks);
@@ -201,9 +225,9 @@ public class GUIView extends AbstractGui {
         if (intersection.isEmpty()) return;
 
         GL11.glPushAttrib(GL_SCISSOR_BIT);
-        GL11.glEnable(GL_SCISSOR_TEST);
-        configInnerScissor(matrixStack, intersection);
+        enableScissor(matrixStack, intersection);
         childs.forEach(c -> renderChild(c, matrixStack, mouseX, mouseY, partialTicks, intersection));
+        RenderSystem.disableScissor();
         GL11.glPopAttrib();
     }
 
@@ -229,18 +253,20 @@ public class GUIView extends AbstractGui {
         fill(matrixStack, x, maxY - bottomBorderWidth, x + leftBorderWidth, maxY, cornerBorderColor);
     }
 
-    protected void configInnerScissor(MatrixStack matrixStack, Rectangle visible) {
+    protected void enableScissor(MatrixStack matrixStack, Rectangle visible) {
         final MainWindow window = Minecraft.getInstance().getMainWindow();
         final int f = (int)window.getGuiScaleFactor();
         final int y = (window.getScaledHeight() - visible.y - visible.height);
-        GL11.glScissor(visible.x * f, y * f, visible.width * f, visible.height * f);
+        RenderSystem.enableScissor(visible.x * f, y * f, visible.width * f, visible.height * f);
     }
 
     protected void renderTexture(Texture texture, MatrixStack matrixStack, Rectangle inFrame) {
         Minecraft.getInstance().textureManager.bindTexture(texture.atlas.resource);
         final int width = Math.min(texture.uWidth, inFrame.width);
         final int height = Math.min(texture.vHeight, inFrame.height);
+        GlStateManager.enableBlend();
         blit(matrixStack, inFrame.x, inFrame.y, inFrame.width, inFrame.height, texture.uOffset, texture.vOffset, width, height, texture.atlas.width, texture.atlas.height);
+        GlStateManager.disableBlend();
     }
 
     private Rectangle safeIntersection(@Nullable Rectangle r1, @Nullable Rectangle r2) {

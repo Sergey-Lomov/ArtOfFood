@@ -61,7 +61,6 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         }
 
         screenView = new GUIView(getGuiLeft(), getGuiTop(), xSize, ySize);
-        screenView.setBorderWidth(0);
 
         GUIVerticalList<ConceptCellViewModel, ConceptListCell> conceptsList = new GUIVerticalList<>(ConceptListCell.class, models, CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);
         conceptsList.delegate = this;
@@ -69,7 +68,6 @@ public class CountertopScreen extends ModContainerScreen<CountertopContainer> im
         conceptView = new ConceptSlotsView(CONCEPT_SLOTS_VIEW_LEFT, CONCEPT_SLOTS_VIEW_TOP, CONCEPT_SLOTS_VIEW_SIZE, CONCEPT_SLOTS_VIEW_SIZE);
 
         GUITextureView backgroundView = new GUITextureView(0,0,xSize,ySize);
-        backgroundView.setBorderWidth(0);
         backgroundView.texture = Textures.Screens.COUNTERTOP_BACK;
 
         previewInfoView = new IngredientInfoView(CONCEPT_LIST_LEFT, CONCEPT_LIST_TOP, CONCEPT_LIST_WIDTH, CONCEPT_LIST_HEIGHT);

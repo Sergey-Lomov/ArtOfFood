@@ -42,4 +42,11 @@ public class LocalisationManager {
         public static String ingredient_slot_prompt() { return I18n.format("inventories.ingredient_slot_prompt"); }
         public static String tool_slot_prompt() { return I18n.format("inventories.tool_slot_prompt"); }
     }
+
+    public static class Meditation {
+
+        public static String levelSuperficial() { return I18n.format("meditation.level_superficial"); }
+        public static String levelMiddle() { return I18n.format("meditation.level_middle"); }
+        public static String levelDeep() { return I18n.format("meditation.level_deep"); }
+    }
 }

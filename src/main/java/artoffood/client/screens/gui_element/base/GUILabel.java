@@ -29,9 +29,12 @@ public class GUILabel extends GUIView {
     public int interlineSpace = 2;
     public boolean centrate = false;
 
+    public GUILabel() {
+        super();
+    }
+
     public GUILabel(int x, int y, int width, int height) {
         super(x, y, width, height);
-        setBorderWidth(0);
     }
 
     public void setStrings(List<String> strings) {

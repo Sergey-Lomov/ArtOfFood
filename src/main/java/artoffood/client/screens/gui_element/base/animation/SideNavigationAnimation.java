@@ -1,6 +1,7 @@
-package artoffood.client.screens.gui_element.base.navigation;
+package artoffood.client.screens.gui_element.base.animation;
 
 import artoffood.client.screens.gui_element.base.GUIView;
+import artoffood.client.screens.gui_element.base.navigation.GUINavigator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

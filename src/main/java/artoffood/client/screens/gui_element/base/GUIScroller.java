@@ -26,8 +26,6 @@ public class GUIScroller extends GUIView {
         this.texture = texture;
         this.initPoint = new Point(x, y);
         this.maxDisplacement = maxDisplacement;
-
-        setBorderWidth(0);
     }
 
     public int getCurrentDisplacement() {

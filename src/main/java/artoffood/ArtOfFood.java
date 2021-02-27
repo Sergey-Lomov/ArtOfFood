@@ -11,7 +11,6 @@ import artoffood.client.screens.slot_prompt.TextSlotPrompt;
 import artoffood.client.screens.slot_prompt.rendering.*;
 import artoffood.client.utils.KeyBindings;
 import artoffood.client.utils.KeyInputHandler;
-import artoffood.common.capabilities.food_item.FoodItemEntityCapability;
 import artoffood.common.capabilities.food_tool.FoodToolEntityCapability;
 import artoffood.common.capabilities.ingredient.IngredientEntityCapability;
 import artoffood.common.items.FoodIngredientItem;

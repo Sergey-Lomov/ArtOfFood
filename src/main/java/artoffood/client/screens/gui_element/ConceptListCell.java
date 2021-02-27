@@ -31,7 +31,6 @@ public class ConceptListCell extends GUIListCell<ConceptCellViewModel> {
         contentView.bottomRightBorderColor = new Color(0,0,0, 0.25f).getRGB();
         contentView.setBorderWidth(1, 1, 1, 2);
 
-        icon.setBorderWidth(0);
         icon.parentFrameUpdateHandler = i -> {
             final int y = (contentView.getFrame().height - icon.getFrame().height) / 2;
             final Point point = new Point(ICON_INSET, y);

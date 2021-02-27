@@ -11,6 +11,12 @@ public class Texture {
         public final int width;
         public final int height;
 
+        public Atlas(String path) {
+            resource = new ResourceLocation(path);
+            width = DEFAULT_SIZE;
+            height = DEFAULT_SIZE;
+        }
+
         public Atlas(String namespace, String path) {
             resource = new ResourceLocation(namespace, path);
             width = DEFAULT_SIZE;

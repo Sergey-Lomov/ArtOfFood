@@ -16,7 +16,6 @@ public class ConceptSlotsView extends GUIView {
 
     public ConceptSlotsView(int x, int y, int width, int height) {
         super(x, y, width, height);
-        setBorderWidth(0);
     }
 
     public static Point slotPoint(MBVisualSlot slot, Dimension conceptViewSize) {

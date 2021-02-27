@@ -46,7 +46,6 @@ public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implem
 
         final int cellsWidth = contentFrame.width - scrollSeparatorWidth - scrollTexture.uWidth;
         scrollableView = new GUIScrollableView(0, 0, cellsWidth, contentFrame.height);
-        scrollableView.setBorderWidth(0);
         addChild(scrollableView);
 
         cells = new ArrayList<>(models.size());
@@ -65,6 +64,7 @@ public class GUIVerticalList<T, C extends GUIListCell<T>> extends GUIView implem
             }
         }
 
+        setBorderWidth(1);
         setupScroll();
     }
 
