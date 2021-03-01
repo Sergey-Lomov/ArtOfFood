@@ -192,6 +192,10 @@ public class GUIView extends AbstractGui {
     }
 
     // Animations
+    public void addAnimation(GUIAnimation animation) {
+        animations.add(animation);
+    }
+
     public void abortAnimation(String id) {
         animations.forEach(a -> {
             if (a.id.equals(id)) a.abort();
@@ -203,11 +207,13 @@ public class GUIView extends AbstractGui {
     public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, @Nullable  Rectangle transformedParent) {
         if (isHidden) return;
 
+        matrixStack.push();
         animations.removeIf(a -> a.isCompleted() || a.isAborted());
         animations.forEach(a -> a.update(matrixStack, mouseX, mouseY, partialTicks));
         preChildsRender(matrixStack, mouseX, mouseY, partialTicks);
         childsRender(matrixStack, mouseX, mouseY, partialTicks, transformedParent);
         postChildsRender(matrixStack, mouseX, mouseY, partialTicks);
+        matrixStack.pop();
     }
 
     protected void preChildsRender(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
